@@ -26,7 +26,8 @@ The dashboards are as follows:
 - gevent==1.3.5
 
 ## Usage
-Grab li_dbs folder from G:\PythonModules and put in the \Lib\site-packages folder of your Python installation.
-Get config.py file from one of us containing usernames and password logins.
+Copy li_dbs folder from G:\PythonModules and paste in the \Lib\site-packages folder of your Python installation.
+
+Get config.py file from one of us containing usernames and password logins and put it in your LI_dashboards folder.
 
 Run index.py to launch the application and copy and paste the address of the server shown in the python command prompt into your web browser (http://192.168.104.203:8000/)
