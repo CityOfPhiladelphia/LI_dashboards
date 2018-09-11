@@ -21,9 +21,10 @@ with con() as con:
     df_table = pd.read_sql(sql_tl, con)
     df_counts = pd.read_sql(sql_counts, con)
 
-range_options = [{'label': 'All', 'value': 'All'}]
-for range in df_counts['ProcessType'].unique():
-    range_options.append({'label':str(range),'value':range})
+processtype_options_unsorted = [{'label': 'All', 'value': 'All'}]
+for processtype in df_counts['ProcessType'].unique():
+    processtype_options_unsorted.append({'label': str(processtype),'value': processtype})
+processtype_options_sorted = sorted(processtype_options_unsorted, key=lambda k: k['label'])
 
 def get_data_object(user_selection):
     if user_selection != "All":
@@ -71,12 +72,12 @@ layout = html.Div([
         ),
         style={'height': 500, 'diplay':'inline-block'}
     ),
+    html.Div(children='Filter by Process Type'),
     html.Div([
-        dcc.Dropdown(
-            id='field-dropdown',
-            options=range_options,
-            value='All'
-        )
+        dcc.Dropdown(id='processtype-dropdown',
+                     options=processtype_options_sorted,
+                     value='All'
+        ),
     ], style={'width': '30%', 'display': 'inline-block'}),
     html.Div([
         html.A(
@@ -99,14 +100,14 @@ layout = html.Div([
 
 @app.callback(
     Output('Man002ActiveProcessesTL-table', 'rows'), 
-    [Input('field-dropdown', 'value')])
+    [Input('processtype-dropdown', 'value')])
 def update_table(user_selection):
     df = get_data_object(user_selection)
     return df.to_dict('records')
 
 @app.callback(
     Output('Man002ActiveProcessesTL-download-link', 'href'),
-    [Input('field-dropdown', 'value')])
+    [Input('processtype-dropdown', 'value')])
 def update_download_link(user_selection):
     df = get_data_object(user_selection)
     csv_string = df.to_csv(index=False, encoding='utf-8')

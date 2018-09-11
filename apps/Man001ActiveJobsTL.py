@@ -31,10 +31,11 @@ duration_options = [{'label': 'All', 'value': 'All'}]
 for duration in df_counts['Duration'].unique():
     duration_options.append({'label': str(duration), 'value': duration})
 
-licensetype_options = [{'label': 'All', 'value': 'All'}]
+licensetype_options_unsorted = [{'label': 'All', 'value': 'All'}]
 for licensetype in df_table['LicenseType'].unique():
     if str(licensetype) != "nan":
-        licensetype_options.append({'label': str(licensetype), 'value': licensetype})
+        licensetype_options_unsorted.append({'label': str(licensetype), 'value': licensetype})
+licensetype_options_sorted = sorted(licensetype_options_unsorted, key=lambda k: k['label'])
 
 def get_data_object(duration, license_type):
     df_selected = df_table
@@ -84,10 +85,10 @@ layout = html.Div([
                     searchable=True
                     ),
     ], style={'width': '30%', 'display': 'inline-block'}),
-    html.Div(children='Filter by LicenseType'),
+    html.Div(children='Filter by License Type'),
     html.Div([
         dcc.Dropdown(id='licensetype-dropdown',
-                     options=licensetype_options,
+                     options=licensetype_options_sorted,
                      value='All',
                      searchable=True
                      ),
