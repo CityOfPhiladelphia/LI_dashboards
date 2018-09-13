@@ -29,7 +29,6 @@ for username in df_staff['CreatedByUserName'].unique():
 username_options_sorted = sorted(username_options_unsorted, key=lambda k: k['label'])
 
 def get_data_object(selected_start, selected_end, username):
-    df_table['JobCreatedDateField'] = pd.to_datetime(df_table['JobCreatedDateField'])
     df_selected = df_table[(df_table['JobCreatedDateField']>=selected_start)&(df_table['JobCreatedDateField']<=selected_end)]
     if username is not None:
         if isinstance(username, str):
@@ -37,7 +36,7 @@ def get_data_object(selected_start, selected_end, username):
         elif isinstance(username, list):
             if len(username) > 0:
                 df_selected = df_selected[df_selected['CreatedByUserName'].isin(username)]
-    return df_selected
+    return df_selected.drop('JobCreatedDateField', axis=1)
 
 def count_jobs(selected_start, selected_end):
     df_countselected = df_table[(df_table['JobCreatedDateField']>=selected_start)&(df_table['JobCreatedDateField']<=selected_end)]
