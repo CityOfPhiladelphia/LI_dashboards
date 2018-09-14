@@ -25,12 +25,20 @@ for jobtype in df['Job Type'].unique():
         jobtype_options_unsorted.append({'label': str(jobtype), 'value': jobtype})
 jobtype_options_sorted = sorted(jobtype_options_unsorted, key=lambda k: k['label'])
 
-def get_data_object(selected_start, selected_end, license_type, job_type):
+inspector_options_unsorted = [{'label': 'All', 'value': 'All'}]
+for inspector in df['Inspector Name'].unique():
+    if str(inspector) != "nan":
+        inspector_options_unsorted.append({'label': str(inspector), 'value': inspector})
+inspector_options_sorted = sorted(inspector_options_unsorted, key=lambda k: k['label'])
+
+def get_data_object(selected_start, selected_end, license_type, job_type, inspector):
     df_selected = df[(df['ScheduledInspectionDateField']>=selected_start)&(df['ScheduledInspectionDateField']<=selected_end)]
     if license_type != "All":
         df_selected = df_selected[df_selected['License Type'] == license_type]
     if job_type != "All":
         df_selected = df_selected[df_selected['Job Type'] == job_type]
+    if inspector != "All":
+        df_selected = df_selected[df_selected['Inspector Name'] == inspector]
     return df_selected.drop('ScheduledInspectionDateField', axis=1)
 
 def count_jobs(selected_start, selected_end):
@@ -76,6 +84,15 @@ layout = html.Div(children=[
                         searchable=True
                     ),
                 ], style={'width': '40%', 'display': 'inline-block'}),
+                html.Div(children='Filter by Inspector Name'),
+                html.Div([
+                    dcc.Dropdown(
+                        id='inspector-dropdown',
+                        options=inspector_options_sorted,
+                        value='All',
+                        searchable=True
+                    ),
+                ], style={'width': '30%', 'display': 'inline-block'}),
                 html.Div([
                     html.A(
                         'Download Data',
@@ -101,9 +118,10 @@ layout = html.Div(children=[
             [Input('my-date-picker-range', 'start_date'),
              Input('my-date-picker-range', 'end_date'),
              Input('licensetype-dropdown', 'value'),
-             Input('jobtype-dropdown', 'value')])
-def update_table(start_date, end_date, license_type_val, job_type_val):
-    df_inv = get_data_object(start_date, end_date, license_type_val, job_type_val)
+             Input('jobtype-dropdown', 'value'),
+             Input('inspector-dropdown', 'value')])
+def update_table(start_date, end_date, license_type_val, job_type_val, inspector_val):
+    df_inv = get_data_object(start_date, end_date, license_type_val, job_type_val, inspector_val)
     return df_inv.to_dict('records')
 
 @app.callback(Output('Man006BL-count-table', 'rows'),
@@ -118,9 +136,10 @@ def updatecount_table(start_date, end_date):
             [Input('my-date-picker-range', 'start_date'),
              Input('my-date-picker-range', 'end_date'),
              Input('licensetype-dropdown', 'value'),
-             Input('jobtype-dropdown', 'value')])
-def update_table_download_link(start_date, end_date, license_type_val, job_type_val):
-    df_for_csv = get_data_object(start_date, end_date, license_type_val, job_type_val)
+             Input('jobtype-dropdown', 'value'),
+             Input('inspector-dropdown', 'value')])
+def update_table_download_link(start_date, end_date, license_type_val, job_type_val, inspector_val):
+    df_for_csv = get_data_object(start_date, end_date, license_type_val, job_type_val, inspector_val)
     csv_string = df_for_csv.to_csv(index=False, encoding='utf-8')
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
     return csv_string
