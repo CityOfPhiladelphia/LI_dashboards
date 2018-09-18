@@ -53,72 +53,78 @@ def update_counts_graph_data(license_type):
         df_counts_selected = df_counts_selected[df_counts_selected['LicenseType'] == license_type]
     return df_counts_selected
 
-layout = html.Div(children=[
-    html.H1('Business License Active Jobs With Completed Completeness Checks'),
-    html.Div('Filter by License Type', style={'margin-bottom': '25px'}),
-    html.Div([
-        dcc.Dropdown(id='Man001ActiveJobsBL-licensetype-dropdown',
-                     options=licensetype_options_sorted,
-                     value='All',
-                     searchable=True
-                     ),
-    ], style={'width': '40%', 'display': 'inline-block'}),
-    dcc.Graph(id='Man001ActiveJobsBL-my-graph',
-    figure=go.Figure(
-        data=[
-            go.Bar(
-                x=df_counts[df_counts['JobType'] == 'Business License Application']['Duration'],
-                y=df_counts[df_counts['JobType'] == 'Business License Application']['JobCounts'],
-                name='BL Application Jobs Active',
-                marker=go.bar.Marker(
-                    color='rgb(55, 83, 109)'
-                )
+layout = html.Div(
+    children=[
+        html.A('Test', href='#page-2'),
+        html.H1('Business License Active Jobs With Completed Completeness Checks'),
+        html.Div('Filter by License Type', style={'margin-bottom': '25px'}),
+        html.Div([
+            dcc.Dropdown(
+                id='Man001ActiveJobsBL-licensetype-dropdown',
+                options=licensetype_options_sorted,
+                value='All',
+                searchable=True,
             ),
-            go.Bar(
-                x=df_counts[df_counts['JobType'] == 'Amendment/Renewal']['Duration'],
-                y=df_counts[df_counts['JobType'] == 'Amendment/Renewal']['JobCounts'],
-                name='BL Renewal/Amendment Jobs Active',
-                marker=go.bar.Marker(
-                    color='rgb(26, 118, 255)'
-                )
-            )
-        ],
-        layout=go.Layout(
-            showlegend=True,
-            legend=go.layout.Legend(
-                x=.75,
-                y=1
-            ),
-            margin=go.layout.Margin(l=40, r=0, t=40, b=30)
-        )
-    ), style={'height': 500, 'display': 'block', 'margin-top': '25px'}),
-    html.Div(children='Filter by Duration'),
-    html.Div([
-        dcc.Dropdown(id='Man001ActiveJobsBL-duration-dropdown',
-                    options=duration_options,
-                    value='All',
-                    searchable=True
+        ], style={'width': '40%', 'display': 'inline-block'}),
+        dcc.Graph(
+            id='Man001ActiveJobsBL-my-graph',
+            figure=go.Figure(
+                data=[
+                    go.Bar(
+                        x=df_counts[df_counts['JobType'] == 'Business License Application']['Duration'],
+                        y=df_counts[df_counts['JobType'] == 'Business License Application']['JobCounts'],
+                        name='BL Application Jobs Active',
+                        marker=go.bar.Marker(
+                            color='rgb(55, 83, 109)'
+                        )
                     ),
-    ], style={'width': '30%', 'display': 'inline-block'}),
-    html.Div([
-        html.A(
-            'Download Data',
-            id='Man001ActiveJobsBL-download-link',
-            download='Man001ActiveJobsBL.csv',
-            href='',
-            target='_blank',
+                    go.Bar(
+                        x=df_counts[df_counts['JobType'] == 'Amendment/Renewal']['Duration'],
+                        y=df_counts[df_counts['JobType'] == 'Amendment/Renewal']['JobCounts'],
+                        name='BL Renewal/Amendment Jobs Active',
+                        marker=go.bar.Marker(
+                            color='rgb(26, 118, 255)'
+                        )
+                    )
+                ],
+                layout=go.Layout(
+                    showlegend=True,
+                    legend=go.layout.Legend(
+                        x=.75,
+                        y=1
+                    ),
+                    margin=go.layout.Margin(l=40, r=0, t=40, b=30)
+                )
+            ), style={'height': 500, 'display': 'block', 'margin-top': '25px'}),
+        html.Div(children='Filter by Duration'),
+        html.Div([
+            dcc.Dropdown(
+                id='Man001ActiveJobsBL-duration-dropdown',
+                options=duration_options,
+                value='All',
+                searchable=True
+            ),
+        ], style={'width': '30%', 'display': 'inline-block'}),
+        html.Div([
+            html.A(
+                'Download Data',
+                id='Man001ActiveJobsBL-download-link',
+                download='Man001ActiveJobsBL.csv',
+                href='',
+                target='_blank',
+            )
+        ], style={'text-align': 'right'}),
+        dt.DataTable(
+            # Initialise the rows
+            rows=[{}],
+            row_selectable=True,
+            filterable=True,
+            sortable=True,
+            selected_row_indices=[],
+            id='Man001ActiveJobsBL-table'
         )
-    ], style={'text-align': 'right'}),
-    dt.DataTable(
-        # Initialise the rows
-        rows=[{}],
-        row_selectable=True,
-        filterable=True,
-        sortable=True,
-        selected_row_indices=[],
-        id='Man001ActiveJobsBL-table'
-    )
-])
+    ]
+)
 
 @app.callback(
     Output('Man001ActiveJobsBL-my-graph', 'figure'),

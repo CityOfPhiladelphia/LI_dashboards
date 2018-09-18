@@ -46,45 +46,47 @@ def count_jobs(selected_start, selected_end):
 
 #TODO why is this not including high date?
 
-layout = html.Div(children=[
-                html.H1(children='Business Application and Renewal Volumes by Submission Method'),
-                html.Div(children='Please Select Date Range (Job Created Date)'),
-                dcc.DatePickerRange(
-                id='my-date-picker-range',
-                start_date=datetime(2018, 1, 1),
-                end_date=datetime.now()
-                ),
-              dt.DataTable(
-                    rows=[{}],
-                    row_selectable=True,
-                    sortable=True,
-                    selected_row_indices=[],
-                    id='Man004BL-counttable'),
-            html.Div([
-                html.A(
-                    'Download Data',
-                    id='Man004BL-download-link',
-                    download='Man004BL.csv',
-                    href='',
-                    target='_blank',
-                )
-            ], style={'text-align': 'right'}),
-            html.P(id='page-break'),
-            html.Div(children='Filter by Username (Staff only)'),
-            html.Div([
-                dcc.Dropdown(id='username-dropdown',
-                             options=username_options_sorted,
-                             multi=True
-                             ),
-            ], style={'width': '30%', 'display': 'inline-block'}),
-            dt.DataTable(
-                rows=[{}],
-                row_selectable=True,
-                filterable=True,
-                sortable=True,
-                selected_row_indices=[],
-                id='Man004BL-table')
-            ])
+layout = html.Div(
+    children=[
+        html.H1(children='Business Application and Renewal Volumes by Submission Method'),
+        html.Div(children='Please Select Date Range (Job Created Date)'),
+        dcc.DatePickerRange(
+            id='my-date-picker-range',
+            start_date=datetime(2018, 1, 1),
+            end_date=datetime.now()
+        ),
+        dt.DataTable(
+            rows=[{}],
+            row_selectable=True,
+            sortable=True,
+            selected_row_indices=[],
+            id='Man004BL-counttable'),
+        html.Div([
+            html.A(
+                'Download Data',
+                id='Man004BL-download-link',
+                download='Man004BL.csv',
+                href='',
+                target='_blank',
+            )
+        ], style={'text-align': 'right'}),
+        html.P(id='page-break'),
+        html.Div(children='Filter by Username (Staff only)'),
+        html.Div([
+            dcc.Dropdown(id='username-dropdown',
+                         options=username_options_sorted,
+                         multi=True
+                         ),
+        ], style={'width': '30%', 'display': 'inline-block'}),
+        dt.DataTable(
+            rows=[{}],
+            row_selectable=True,
+            filterable=True,
+            sortable=True,
+            selected_row_indices=[],
+            id='Man004BL-table')
+    ]
+)
 
 @app.callback(Output('Man004BL-table', 'rows'),
             [Input('my-date-picker-range', 'start_date'),
