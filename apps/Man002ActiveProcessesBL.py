@@ -116,6 +116,7 @@ layout = html.Div([
         filterable=True,
         sortable=True,
         selected_row_indices=[],
+        editable=False,
         id='Man002ActiveProcessesBL-table'
     )
 ])

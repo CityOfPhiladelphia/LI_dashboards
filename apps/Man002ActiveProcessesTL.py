@@ -107,6 +107,7 @@ layout = html.Div([
         row_selectable=True,
         filterable=True,
         sortable=True,
+        editable=False,
         id='Man002ActiveProcessesTL-table'
     )
     ]

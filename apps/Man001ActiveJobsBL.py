@@ -108,6 +108,7 @@ layout = html.Div(children=[
         filterable=True,
         sortable=True,
         selected_row_indices=[],
+        editable=False,
         id='Man001ActiveJobsBL-table'
     )
 ])
