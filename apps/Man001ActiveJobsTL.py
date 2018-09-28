@@ -57,9 +57,9 @@ layout = html.Div([
     html.H1('Active Jobs With Completed Completeness Checks'),
     html.H1(
         '(Trade Licenses)',
-        style={'margin-bottom': '10px'}
+        style={'margin-bottom': '50px'}
     ),
-    html.Div('Filter by License Type', style={'margin-top': '25px'}),
+    html.Div('License Type', style={'margin-left': '2%', 'margin-top': '25px', 'margin-bottom': '5px'}),
     html.Div([
         dcc.Dropdown(
             id='licensetype-graph-dropdown',
@@ -67,7 +67,7 @@ layout = html.Div([
             value='All',
             searchable=True,
         ),
-    ], style={'width': '40%', 'display': 'inline-block'}),
+    ], style={'width': '33%', 'margin-left': '2%'}),
     dcc.Graph(id='my-graph',
     figure=go.Figure(
         data=[
@@ -107,7 +107,7 @@ layout = html.Div([
         children=[
             'Time Since Scheduled Start Date of Process'
         ],
-        style={'margin-left': '1%'}
+        style={'margin-left': '2%', 'margin-bottom': '5px'}
     ),
     html.Div([
         dcc.Dropdown(
@@ -116,12 +116,12 @@ layout = html.Div([
             value='All',
             searchable=True
         ),
-    ], style={'width': '30%', 'display': 'inline-block', 'margin-left': '2%'}),
+    ], style={'width': '40%', 'display': 'inline-block', 'margin-left': '2%'}),
     html.Div(
         children=[
             'License Type'
         ],
-        style={'margin-left': '1%'}
+        style={'margin-left': '2%', 'margin-top': '10px', 'margin-bottom': '5px'}
     ),
     html.Div([
         dcc.Dropdown(id='licensetype-table-dropdown',
@@ -129,7 +129,7 @@ layout = html.Div([
                      value='All',
                      searchable=True
                      ),
-    ], style={'width': '40%', 'display': 'inline-block'}),
+    ], style={'width': '40%', 'display': 'inline-block', 'margin-left': '2%'}),
     html.Div([
         html.A(
             'Download Data',
@@ -159,29 +159,34 @@ def update_graph(license_type):
     return {
         'data': [
              go.Bar(
-                 x=df_counts_updated[df_counts_updated['JobType'] == 'Trade License Application']['Duration'],
+                 x=df_counts_updated[df_counts_updated['JobType'] == 'Trade License Application']['TimeSinceScheduledStartDate'],
                  y=df_counts_updated[df_counts_updated['JobType'] == 'Trade License Application']['JobCounts'],
-                 name='TL Application Jobs Active',
+                 name='Applications',
                  marker=go.bar.Marker(
                      color='rgb(55, 83, 109)'
                  )
              ),
              go.Bar(
-                 x=df_counts_updated[df_counts_updated['JobType'] == 'Trade License Amend/Renew']['Duration'],
+                 x=df_counts_updated[df_counts_updated['JobType'] == 'Trade License Amend/Renew']['TimeSinceScheduledStartDate'],
                  y=df_counts_updated[df_counts_updated['JobType'] == 'Trade License Amend/Renew']['JobCounts'],
-                 name='TL Renewal/Amendment Jobs Active',
+                 name='Renewals/Amendments',
                  marker=go.bar.Marker(
                      color='rgb(26, 118, 255)'
                  )
              )
         ],
         'layout': go.Layout(
+            xaxis=dict(
+                title='Time Since Scheduled Start Date of Process'
+            ),
+            yaxis=dict(
+                title='Active Trade License Jobs'
+            ),
             showlegend=True,
             legend=go.layout.Legend(
                 x=.75,
                 y=1
-            ),
-            margin=go.layout.Margin(l=40, r=0, t=40, b=30)
+            )
         )
     }
 
