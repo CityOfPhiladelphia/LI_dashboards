@@ -53,8 +53,12 @@ def update_counts_graph_data(license_type):
 
 layout = html.Div(
     children=[
-        html.H1('Business License Active Jobs With Completed Completeness Checks'),
-        html.Div('Filter by License Type', style={'margin-bottom': '25px'}),
+        html.H1('Active Jobs With Completed Completeness Checks'),
+        html.H1(
+            '(Business Licenses)',
+            style={'margin-bottom': '50px'}
+        ),
+        html.Div('License Type', style={'margin-left': '15%', 'margin-top': '25px'}),
         html.Div([
             dcc.Dropdown(
                 id='Man001ActiveJobsBL-licensetype-dropdown',
@@ -62,7 +66,7 @@ layout = html.Div(
                 value='All',
                 searchable=True,
             ),
-        ], style={'width': '40%', 'display': 'inline-block'}),
+        ], style={'width': '50%', 'margin-left': '15%'}),
         dcc.Graph(
             id='Man001ActiveJobsBL-my-graph',
             figure=go.Figure(
@@ -85,15 +89,25 @@ layout = html.Div(
                     )
                 ],
                 layout=go.Layout(
+                    xaxis=dict(
+                        title='Time Since Scheduled Start Date of Process'
+                    ),
+                    yaxis=dict(
+                        title='Active Trade License Jobs'
+                    ),
                     showlegend=True,
                     legend=go.layout.Legend(
                         x=.75,
                         y=1
-                    ),
-                    margin=go.layout.Margin(l=40, r=0, t=40, b=30)
+                    )
                 )
-            ), style={'height': 500, 'display': 'block', 'margin-top': '25px'}),
-        html.Div(children='Filter by Duration'),
+            ), style={'height': '500px', 'display': 'block', 'margin-bottom': '75px', 'width': '70%', 'margin-left': 'auto', 'margin-right': 'auto'}),
+        html.Div(
+            children=[
+                'Duration'
+            ],
+            style={'margin-left': '5%', 'margin-top': '10px', 'margin-bottom': '5px'}
+        ),
         html.Div([
             dcc.Dropdown(
                 id='Man001ActiveJobsBL-duration-dropdown',
@@ -101,7 +115,7 @@ layout = html.Div(
                 value='All',
                 searchable=True
             ),
-        ], style={'width': '30%', 'display': 'inline-block'}),
+        ], style={'width': '33%', 'display': 'inline-block', 'margin-left': '5%'}),
         html.Div([
             html.A(
                 'Download Data',
@@ -110,16 +124,19 @@ layout = html.Div(
                 href='',
                 target='_blank',
             )
-        ], style={'text-align': 'right'}),
-        dt.DataTable(
-            # Initialise the rows
-            rows=[{}],
-            row_selectable=True,
-            filterable=True,
-            sortable=True,
-            selected_row_indices=[],
-            id='Man001ActiveJobsBL-table'
-        )
+        ], style={'text-align': 'right', 'margin-right': '5%'}),
+        html.Div([
+            dt.DataTable(
+                # Initialise the rows
+                rows=[{}],
+                row_selectable=True,
+                filterable=True,
+                sortable=True,
+                selected_row_indices=[],
+                editable=False,
+                id='Man001ActiveJobsBL-table'
+            )
+        ], style={'width': '90%', 'margin-left': 'auto', 'margin-right': 'auto'}),
     ]
 )
 
@@ -133,7 +150,7 @@ def update_graph(license_type):
              go.Bar(
                  x=df_counts_updated[df_counts_updated['JobType'] == 'Business License Application']['Duration'],
                  y=df_counts_updated[df_counts_updated['JobType'] == 'Business License Application']['JobCounts'],
-                 name='BL Application Jobs Active',
+                 name='Applications',
                  marker=go.bar.Marker(
                      color='rgb(55, 83, 109)'
                  )
@@ -141,19 +158,24 @@ def update_graph(license_type):
              go.Bar(
                  x=df_counts_updated[df_counts_updated['JobType'] == 'Amendment/Renewal']['Duration'],
                  y=df_counts_updated[df_counts_updated['JobType'] == 'Amendment/Renewal']['JobCounts'],
-                 name='BL Renewal/Amendment Jobs Active',
+                 name='Renewals/Amendments',
                  marker=go.bar.Marker(
                      color='rgb(26, 118, 255)'
                  )
              )
         ],
         'layout': go.Layout(
+            xaxis=dict(
+                title='Time Since Scheduled Start Date of Process'
+            ),
+            yaxis=dict(
+                title='Active Business License Jobs'
+            ),
             showlegend=True,
             legend=go.layout.Legend(
                 x=.75,
                 y=1
-            ),
-            margin=go.layout.Margin(l=40, r=0, t=40, b=30)
+            )
         )
     }
 

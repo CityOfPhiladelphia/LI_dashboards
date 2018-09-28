@@ -59,7 +59,7 @@ layout = html.Div([
         '(Trade Licenses)',
         style={'margin-bottom': '50px'}
     ),
-    html.Div('License Type', style={'margin-left': '2%', 'margin-top': '25px', 'margin-bottom': '5px'}),
+    html.Div('License Type', style={'margin-left': '15%', 'margin-top': '25px'}),
     html.Div([
         dcc.Dropdown(
             id='licensetype-graph-dropdown',
@@ -67,7 +67,7 @@ layout = html.Div([
             value='All',
             searchable=True,
         ),
-    ], style={'width': '33%', 'margin-left': '2%'}),
+    ], style={'width': '33%', 'margin-left': '15%'}),
     dcc.Graph(id='my-graph',
     figure=go.Figure(
         data=[
@@ -102,12 +102,12 @@ layout = html.Div([
             )
         )
     ),
-    style={'display': 'block', 'margin-bottom': '75px'}),
+    style={'height': '500px', 'display': 'block', 'margin-bottom': '75px', 'width': '70%', 'margin-left': 'auto', 'margin-right': 'auto'}),
     html.Div(
         children=[
             'Time Since Scheduled Start Date of Process'
         ],
-        style={'margin-left': '2%', 'margin-bottom': '5px'}
+        style={'margin-left': '5%', 'margin-bottom': '5px'}
     ),
     html.Div([
         dcc.Dropdown(
@@ -116,12 +116,12 @@ layout = html.Div([
             value='All',
             searchable=True
         ),
-    ], style={'width': '40%', 'display': 'inline-block', 'margin-left': '2%'}),
+    ], style={'width': '33%', 'display': 'inline-block', 'margin-left': '5%'}),
     html.Div(
         children=[
             'License Type'
         ],
-        style={'margin-left': '2%', 'margin-top': '10px', 'margin-bottom': '5px'}
+        style={'margin-left': '5%', 'margin-top': '10px', 'margin-bottom': '5px'}
     ),
     html.Div([
         dcc.Dropdown(id='licensetype-table-dropdown',
@@ -129,7 +129,7 @@ layout = html.Div([
                      value='All',
                      searchable=True
                      ),
-    ], style={'width': '40%', 'display': 'inline-block', 'margin-left': '2%'}),
+    ], style={'width': '40%', 'display': 'inline-block', 'margin-left': '5%'}),
     html.Div([
         html.A(
             'Download Data',
@@ -138,17 +138,19 @@ layout = html.Div([
             href='',
             target='_blank',
         )
-    ], style={'text-align': 'right'}),
-    dt.DataTable(
-        # Initialise the rows
-        rows=[{}],
-        row_selectable=True,
-        filterable=True,
-        sortable=True,
-        selected_row_indices=[],
-        editable=False,
-        id='Man001ActiveJobsTL-table'
-    )
+    ], style={'text-align': 'right', 'margin-right': '5%'}),
+    html.Div([
+        dt.DataTable(
+            # Initialise the rows
+            rows=[{}],
+            row_selectable=True,
+            filterable=True,
+            sortable=True,
+            selected_row_indices=[],
+            editable=False,
+            id='Man001ActiveJobsTL-table'
+        )
+    ], style={'width': '90%', 'margin-left': 'auto', 'margin-right': 'auto'}),
 ])
 
 @app.callback(
