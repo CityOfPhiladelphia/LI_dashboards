@@ -22,13 +22,13 @@ if testing_mode:
     df_counts = pd.read_csv("test_data/Man001ActiveJobsBLCounts_test_data.csv")
 else:
     with con() as con:
-        sql_bl = """SELECT DISTINCT j.externalfilenum "JobNumber", jt.description "JobType", Nvl(ap.licensetypesdisplayformat, ar.licensetypesdisplayformat) "LicenseType", stat.description "JobStatus", proc.processid "ProcessID", pt.description "ProcessType", Extract(month FROM proc.datecompleted) || '/' ||Extract(day FROM proc.datecompleted) || '/' || Extract(year FROM proc.datecompleted) "JobAcceptedDate", proc.processstatus, proc.assignedstaff,( CASE WHEN Round(SYSDATE - proc.scheduledstartdate) <= 1 THEN '0-1 Day' WHEN Round(SYSDATE - proc.scheduledstartdate) BETWEEN 2 AND 5 THEN '2-5 Days' WHEN Round(SYSDATE - proc.scheduledstartdate) BETWEEN 6 AND 10 THEN '6-10 Days' WHEN Round(SYSDATE - proc.scheduledstartdate) BETWEEN 11 AND 365 THEN '11 Days-1 Year' ELSE 'Over 1 Year' END) "Duration", ( CASE WHEN jt.description LIKE 'Business License Application' THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1239699&objectHandle=' ||j.jobid ||'&processHandle=&paneId=1239699_151' WHEN jt.description LIKE 'Amendment/Renewal' THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1243107&objectHandle=' ||j.jobid ||'&processHandle=&paneId=1243107_175' END ) "JobLink" FROM api.jobs j, api.jobtypes jt, api.statuses stat, api.processes proc, api.processtypes pt, query.j_bl_amendrenew ar, query.j_bl_application ap WHERE j.jobid = proc.jobid AND proc.processtypeid = pt.processtypeid AND j.jobid = ar.jobid (+) AND j.jobid = ap.jobid (+) AND pt.processtypeid LIKE '1239327' AND proc.datecompleted IS NOT NULL AND j.jobtypeid = jt.jobtypeid AND j.statusid = stat.statusid AND j.completeddate IS NULL AND j.jobtypeid IN ( '1240320', '1244773' ) AND j.statusid NOT IN ( '1014809', '978845', '964970', '967394' ) ORDER BY j.externalfilenum"""
-        sql_counts = """SELECT DISTINCT duration "Duration", jobtype "JobType", licensetype "LicenseType", Count(DISTINCT jobnumber) "JobCounts", Avg(TIME) AvgTime FROM(SELECT DISTINCT j.externalfilenum JobNumber, jt.description JobType, Nvl(ap.licensetypesdisplayformat, ar.licensetypesdisplayformat) LicenseType, j.statusid, j.jobstatus, stat.description "JobStatus", pt.processtypeid, pt.description, Extract(month FROM proc.datecompleted) || '/' ||Extract(day FROM proc.datecompleted) || '/' || Extract(year FROM proc.datecompleted) "JobAcceptedDate", proc.processstatus, proc.assignedstaff, ( CASE WHEN Round(SYSDATE - proc.scheduledstartdate) <= 1 THEN '0-1 Day' WHEN Round(SYSDATE - proc.scheduledstartdate) BETWEEN 2 AND 5 THEN '2-5 Days' WHEN Round(SYSDATE - proc.scheduledstartdate) BETWEEN 6 AND 10 THEN '6-10 Days' WHEN Round(SYSDATE - proc.scheduledstartdate) BETWEEN 11 AND 365 THEN '11 Days-1 Year' ELSE 'Over 1 Year' END) Duration, j.jobid, ( SYSDATE - proc.scheduledstartdate ) TIME FROM api.jobs j, api.jobtypes jt, api.statuses stat, api.processes proc, api.processtypes pt, query.j_bl_amendrenew ar, query.j_bl_application ap WHERE j.jobid = proc.jobid AND proc.processtypeid = pt.processtypeid AND j.jobid = ar.jobid (+) AND j.jobid = ap.jobid (+) AND pt.processtypeid LIKE '1239327' AND proc.datecompleted IS NOT NULL AND j.jobtypeid = jt.jobtypeid AND j.statusid = stat.statusid AND j.completeddate IS NULL AND j.jobtypeid IN ( '1240320', '1244773' ) AND j.statusid NOT IN ( '1014809', '978845', '964970', '967394' ) ) GROUP BY duration, jobtype, licensetype ORDER BY avgtime DESC"""
+        sql_bl = """SELECT DISTINCT j.externalfilenum "JobNumber", jt.description "JobType", Nvl(ap.licensetypesdisplayformat, ar.licensetypesdisplayformat) "LicenseType", stat.description "JobStatus", proc.processid "ProcessID", pt.description "ProcessType", Extract(month FROM proc.datecompleted) || '/' ||Extract(day FROM proc.datecompleted) || '/' || Extract(year FROM proc.datecompleted) "JobAcceptedDate", proc.processstatus, proc.assignedstaff,( CASE WHEN Round(SYSDATE - proc.scheduledstartdate) <= 1 THEN '0-1 Day' WHEN Round(SYSDATE - proc.scheduledstartdate) BETWEEN 2 AND 5 THEN '2-5 Days' WHEN Round(SYSDATE - proc.scheduledstartdate) BETWEEN 6 AND 10 THEN '6-10 Days' WHEN Round(SYSDATE - proc.scheduledstartdate) BETWEEN 11 AND 365 THEN '11 Days-1 Year' ELSE 'Over 1 Year' END) "TimeSinceScheduledStartDate", ( CASE WHEN jt.description LIKE 'Business License Application' THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1239699&objectHandle=' ||j.jobid ||'&processHandle=&paneId=1239699_151' WHEN jt.description LIKE 'Amendment/Renewal' THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1243107&objectHandle=' ||j.jobid ||'&processHandle=&paneId=1243107_175' END ) "JobLink" FROM api.jobs j, api.jobtypes jt, api.statuses stat, api.processes proc, api.processtypes pt, query.j_bl_amendrenew ar, query.j_bl_application ap WHERE j.jobid = proc.jobid AND proc.processtypeid = pt.processtypeid AND j.jobid = ar.jobid (+) AND j.jobid = ap.jobid (+) AND pt.processtypeid LIKE '1239327' AND proc.datecompleted IS NOT NULL AND j.jobtypeid = jt.jobtypeid AND j.statusid = stat.statusid AND j.completeddate IS NULL AND j.jobtypeid IN ( '1240320', '1244773' ) AND j.statusid NOT IN ( '1014809', '978845', '964970', '967394' ) ORDER BY j.externalfilenum """
+        sql_counts = """SELECT DISTINCT timesincescheduledstartdate "TimeSinceScheduledStartDate", jobtype "JobType", licensetype "LicenseType", Count(DISTINCT jobnumber) "JobCounts", Avg(TIME) AvgTime FROM(SELECT DISTINCT j.externalfilenum JobNumber, jt.description JobType, Nvl(ap.licensetypesdisplayformat, ar.licensetypesdisplayformat) LicenseType, j.statusid, j.jobstatus, stat.description "JobStatus", pt.processtypeid, pt.description, Extract(month FROM proc.datecompleted) || '/' ||Extract(day FROM proc.datecompleted) || '/' || Extract(year FROM proc.datecompleted) "JobAcceptedDate", proc.processstatus, proc.assignedstaff, ( CASE WHEN Round(SYSDATE - proc.scheduledstartdate) <= 1 THEN '0-1 Day' WHEN Round(SYSDATE - proc.scheduledstartdate) BETWEEN 2 AND 5 THEN '2-5 Days' WHEN Round(SYSDATE - proc.scheduledstartdate) BETWEEN 6 AND 10 THEN '6-10 Days' WHEN Round(SYSDATE - proc.scheduledstartdate) BETWEEN 11 AND 365 THEN '11 Days-1 Year' ELSE 'Over 1 Year' END) TimeSinceScheduledStartDate, j.jobid, ( SYSDATE - proc.scheduledstartdate ) TIME FROM api.jobs j, api.jobtypes jt, api.statuses stat, api.processes proc, api.processtypes pt, query.j_bl_amendrenew ar, query.j_bl_application ap WHERE j.jobid = proc.jobid AND proc.processtypeid = pt.processtypeid AND j.jobid = ar.jobid (+) AND j.jobid = ap.jobid (+) AND pt.processtypeid LIKE '1239327' AND proc.datecompleted IS NOT NULL AND j.jobtypeid = jt.jobtypeid AND j.statusid = stat.statusid AND j.completeddate IS NULL AND j.jobtypeid IN ( '1240320', '1244773' ) AND j.statusid NOT IN ( '1014809', '978845', '964970', '967394' )) GROUP BY timesincescheduledstartdate, jobtype, licensetype ORDER BY avgtime DESC"""
         df_table = pd.read_sql(sql_bl, con)
         df_counts = pd.read_sql(sql_counts, con)
 
 duration_options = [{'label': 'All', 'value': 'All'}]
-for duration in df_counts['Duration'].unique():
+for duration in df_counts['TimeSinceScheduledStartDate'].unique():
     duration_options.append({'label': str(duration), 'value': duration})
 
 licensetype_options_unsorted = [{'label': 'All', 'value': 'All'}]
@@ -40,7 +40,7 @@ licensetype_options_sorted = sorted(licensetype_options_unsorted, key=lambda k: 
 def get_data_object(duration, license_type):
     df_selected = df_table
     if duration != "All":
-        df_selected = df_selected[df_selected['Duration'] == duration]
+        df_selected = df_selected[df_selected['TimeSinceScheduledStartDate'] == duration]
     if license_type != "All":
         df_selected = df_selected[df_selected['LicenseType'] == license_type]
     return df_selected
@@ -72,7 +72,7 @@ layout = html.Div(
             figure=go.Figure(
                 data=[
                     go.Bar(
-                        x=df_counts[df_counts['JobType'] == 'Business License Application']['Duration'],
+                        x=df_counts[df_counts['JobType'] == 'Business License Application']['TimeSinceScheduledStartDate'],
                         y=df_counts[df_counts['JobType'] == 'Business License Application']['JobCounts'],
                         name='BL Application Jobs Active',
                         marker=go.bar.Marker(
@@ -80,7 +80,7 @@ layout = html.Div(
                         )
                     ),
                     go.Bar(
-                        x=df_counts[df_counts['JobType'] == 'Amendment/Renewal']['Duration'],
+                        x=df_counts[df_counts['JobType'] == 'Amendment/Renewal']['TimeSinceScheduledStartDate'],
                         y=df_counts[df_counts['JobType'] == 'Amendment/Renewal']['JobCounts'],
                         name='BL Renewal/Amendment Jobs Active',
                         marker=go.bar.Marker(
@@ -104,7 +104,7 @@ layout = html.Div(
             ), style={'height': '500px', 'display': 'block', 'margin-bottom': '75px', 'width': '70%', 'margin-left': 'auto', 'margin-right': 'auto'}),
         html.Div(
             children=[
-                'Duration'
+                'Time Since Scheduled Start Date'
             ],
             style={'margin-left': '5%', 'margin-top': '10px', 'margin-bottom': '5px'}
         ),
@@ -148,7 +148,7 @@ def update_graph(license_type):
     return {
         'data': [
              go.Bar(
-                 x=df_counts_updated[df_counts_updated['JobType'] == 'Business License Application']['Duration'],
+                 x=df_counts_updated[df_counts_updated['JobType'] == 'Business License Application']['TimeSinceScheduledStartDate'],
                  y=df_counts_updated[df_counts_updated['JobType'] == 'Business License Application']['JobCounts'],
                  name='Applications',
                  marker=go.bar.Marker(
@@ -156,7 +156,7 @@ def update_graph(license_type):
                  )
              ),
              go.Bar(
-                 x=df_counts_updated[df_counts_updated['JobType'] == 'Amendment/Renewal']['Duration'],
+                 x=df_counts_updated[df_counts_updated['JobType'] == 'Amendment/Renewal']['TimeSinceScheduledStartDate'],
                  y=df_counts_updated[df_counts_updated['JobType'] == 'Amendment/Renewal']['JobCounts'],
                  name='Renewals/Amendments',
                  marker=go.bar.Marker(
