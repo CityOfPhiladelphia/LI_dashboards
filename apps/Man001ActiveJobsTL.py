@@ -54,7 +54,10 @@ def update_counts_graph_data(license_type):
     return df_counts_selected
 
 layout = html.Div([
-    html.H1('Active Jobs With Completed Completeness Checks'),
+    html.H1(
+        'Active Jobs With Completed Completeness Checks',
+        style={'margin-top': '10px'}
+    ),
     html.H1(
         '(Trade Licenses)',
         style={'margin-bottom': '50px'}
@@ -116,7 +119,7 @@ layout = html.Div([
             value='All',
             searchable=True
         ),
-    ], style={'width': '33%', 'display': 'inline-block', 'margin-left': '5%'}),
+    ], style={'width': '25%', 'display': 'inline-block', 'margin-left': '5%'}),
     html.Div(
         children=[
             'License Type'
@@ -129,7 +132,7 @@ layout = html.Div([
                      value='All',
                      searchable=True
                      ),
-    ], style={'width': '40%', 'display': 'inline-block', 'margin-left': '5%'}),
+    ], style={'width': '25%', 'display': 'inline-block', 'margin-left': '5%'}),
     html.Div([
         html.A(
             'Download Data',
