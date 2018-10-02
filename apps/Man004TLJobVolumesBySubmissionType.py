@@ -77,7 +77,9 @@ layout = html.Div(
                 selected_row_indices=[],
                 id='Man004TL-counttable'
             ),
-        ], style={'width': '50%', 'margin-left': '5%', 'margin-bottom': '75px'}),
+        ], style={'width': '50%', 'margin-left': '5%', 'margin-bottom': '75px'},
+           id = 'Man004TL-counttable-div'
+        ),
         html.Div(
             children=[
                 'Filter by Username (Staff only)'
