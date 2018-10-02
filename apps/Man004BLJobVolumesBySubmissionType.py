@@ -92,15 +92,6 @@ layout = html.Div(
             ),
         ], style={'width': '33%', 'display': 'inline-block', 'margin-left': '5%'}),
         html.Div([
-            html.A(
-                'Download Data',
-                id='Man004BL-download-link',
-                download='Man004BL.csv',
-                href='',
-                target='_blank',
-            )
-        ], style={'text-align': 'right', 'margin-right': '5%'}),
-        html.Div([
             dt.DataTable(
                 rows=[{}],
                 row_selectable=True,
@@ -110,6 +101,15 @@ layout = html.Div(
                 id='Man004BL-table'
             )
         ], style={'width': '90%', 'margin-left': 'auto', 'margin-right': 'auto'}),
+        html.Div([
+            html.A(
+                'Download Data',
+                id='Man004BL-download-link',
+                download='Man004BL.csv',
+                href='',
+                target='_blank',
+            )
+        ], style={'text-align': 'right', 'margin-right': '5%'}),
     ]
 )
 
