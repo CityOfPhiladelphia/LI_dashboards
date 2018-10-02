@@ -15,3 +15,7 @@ td, th {
 tr:nth-child(even) {
     background-color: #dddddd;
 }
+
+div.react-grid-Cell:nth-child(3) {
+    text-align: right;
+}

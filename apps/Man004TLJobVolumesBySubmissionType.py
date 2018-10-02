@@ -44,59 +44,80 @@ def count_jobs(selected_start, selected_end):
 
 #TODO why is this not including high date?
 
-layout = html.Div(children=[
-                html.H1(children='Trade Application and Renewal Volumes by Submission Method'),
-                html.Div(children='Please Select Date Range (Job Created Date)'),
-                dcc.DatePickerRange(
+layout = html.Div(
+    children=[
+        html.H1(
+            'Job Volumes by Submission Type',
+            style={'margin-top': '10px'}
+        ),
+        html.H1(
+            '(Trade Licenses)',
+            style={'margin-bottom': '50px'}
+        ),
+        html.Div(
+            children=[
+                'Please Select Date Range (Job Created Date)'
+            ],
+            style={'margin-left': '5%', 'margin-top': '10px', 'margin-bottom': '5px'}
+        ),
+        html.Div([
+            dcc.DatePickerRange(
                 id='my-date-picker-range',
                 start_date=datetime(2018, 1, 1),
                 end_date=datetime.now()
-                ),
-              dt.DataTable(
-                    rows=[{}],
-                    row_selectable=True,
-                    sortable=True,
-                    selected_row_indices=[],
-                    id='Man004TL-counttable'),
-            html.Div([
-                html.A(
-                    'Download Data',
-                    id='Man004TL-download-link',
-                    download='Man004TL.csv',
-                    href='',
-                    target='_blank',
-                )
-            ], style={'text-align': 'right'}),
-            html.P(id='page-break'),
-            html.Div(children='Filter by Username (Staff only)'),
-            html.Div([
-                dcc.Dropdown(id='username-dropdown',
-                             options=username_options_sorted,
-                             multi=True
-                             ),
-            ], style={'width': '30%', 'display': 'inline-block'}),
+            ),
+        ], style={'margin-left': '5%'}),
+        html.Div([
+            dt.DataTable(
+                rows=[{}],
+                row_selectable=True,
+                sortable=True,
+                selected_row_indices=[],
+                id='Man004TL-counttable'
+            ),
+        ], style={'width': '90%', 'margin-left': 'auto', 'margin-right': 'auto', 'margin-bottom': '75px'}),
+        html.Div(
+            children=[
+                'Filter by Username (Staff only)'
+            ],
+            style={'margin-left': '5%', 'margin-top': '10px', 'margin-bottom': '5px'}
+        ),
+        html.Div([
+            dcc.Dropdown(
+                id='username-dropdown',
+                options=username_options_sorted,
+                multi=True
+            ),
+        ], style={'width': '33%', 'display': 'inline-block', 'margin-left': '5%'}),
+        html.Div([
+            dt.DataTable(
+                rows=[{}],
+                row_selectable=True,
+                sortable=True,
+                selected_row_indices=[],
+                id='Man004TL-counttable'
+            ),
+        ], style={'width': '90%', 'margin-left': 'auto', 'margin-right': 'auto', 'margin-bottom': '75px'}),
+        html.Div([
             dt.DataTable(
                 rows=[{}],
                 row_selectable=True,
                 filterable=True,
                 sortable=True,
                 selected_row_indices=[],
-                id='Man004TL-table')
-        ])
-@app.callback(Output('Man004TL-table', 'rows'),
-            [Input('my-date-picker-range', 'start_date'),
-             Input('my-date-picker-range', 'end_date'),
-             Input('username-dropdown', 'value')])
-def update_table(start_date, end_date, username_val):
-    df_inv = get_data_object(start_date, end_date, username_val)
-    return df_inv.to_dict('records')
+                id='Man004TL-table'
+            )
+        ], style={'width': '90%', 'margin-left': 'auto', 'margin-right': 'auto'}),
+    ])
 
-@app.callback(Output('Man004TL-counttable', 'rows'),
-            [Input('my-date-picker-range', 'start_date'),
-            Input('my-date-picker-range', 'end_date')])
+@app.callback(
+    Output('Man004TL-counttable', 'rows'),
+    [Input('my-date-picker-range', 'start_date'),
+     Input('my-date-picker-range', 'end_date')])
 def updatecount_table(start_date, end_date):
     df_counts = count_jobs(start_date, end_date)
     return df_counts.to_dict('records')
+
 
 @app.callback(
     Output('Man004TL-download-link', 'href'),
@@ -108,3 +129,12 @@ def update_download_link(start_date, end_date, username_val):
     csv_string = df.to_csv(index=False, encoding='utf-8')
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
     return csv_string
+
+@app.callback(
+    Output('Man004TL-table', 'rows'),
+    [Input('my-date-picker-range', 'start_date'),
+     Input('my-date-picker-range', 'end_date'),
+     Input('username-dropdown', 'value')])
+def update_table(start_date, end_date, username_val):
+    df_inv = get_data_object(start_date, end_date, username_val)
+    return df_inv.to_dict('records')

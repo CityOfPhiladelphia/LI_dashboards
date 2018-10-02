@@ -61,7 +61,7 @@ index_page = html.Div([
             ]),
             html.Tr([
                 html.Td(
-                    html.P('Application and Renewal Volumes by Submission Method')
+                    html.P('Job Volumes by Submission Type')
                 ),
                 html.Td(
                     dcc.Link('BL Link', href='/JobVolumesBySubmissionTypeBL'),
