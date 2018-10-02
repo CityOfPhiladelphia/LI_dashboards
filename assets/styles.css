@@ -23,3 +23,7 @@ div#Man004BL-counttable-div div.react-grid-Cell:nth-child(3) {
 div#Man004TL-counttable-div div.react-grid-Cell:nth-child(3) {
     text-align: right;
 }
+
+div#Man005BL-count-table-div div.react-grid-Cell:nth-child(3) {
+    text-align: right;
+}
