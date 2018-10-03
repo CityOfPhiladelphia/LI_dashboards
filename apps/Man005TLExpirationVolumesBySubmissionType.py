@@ -76,7 +76,7 @@ layout = html.Div(
                 href='',
                 target='_blank',
             )
-        ], style={'text-align': 'right', 'margin-right': '25%'}),
+        ], style={'text-align': 'right', 'margin-right': '35%'}),
         html.Div([
             dt.DataTable(
                 rows=[{}],

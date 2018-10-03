@@ -135,7 +135,10 @@ div#Man005TL-count-table-div div.react-grid-Cell:nth-child(3) {
     text-align: right;
 }
 
-/* Turn off hover tools - these often interfere with the navbar */
-.modebar {
-    display: none !important;
+div#Man006BL-count-table-div div.react-grid-Cell:nth-child(3) {
+    text-align: right;
+}
+
+div#Man006BL-table-div div.react-grid-Cell:nth-child(10) {
+    text-align: right;
 }
