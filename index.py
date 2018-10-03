@@ -61,7 +61,7 @@ index_page = html.Div([
             ]),
             html.Tr([
                 html.Td(
-                    html.P('Application and Renewal Volumes by Submission Method')
+                    html.P('Job Volumes by Submission Type')
                 ),
                 html.Td(
                     dcc.Link('BL Link', href='/JobVolumesBySubmissionTypeBL'),
@@ -72,7 +72,7 @@ index_page = html.Div([
             ]),
             html.Tr([
                 html.Td(
-                    html.P('Expiration Volumes by Submission Type')
+                    html.P('License Expiration Volumes by Submission Type')
                 ),
                 html.Td(
                     dcc.Link('BL Link', href='/ExpirationVolumesBySubmissionTypeBL')

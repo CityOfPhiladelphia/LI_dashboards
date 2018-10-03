@@ -27,14 +27,16 @@ else:
         df_table = pd.read_sql(sql_tl, con)
         df_counts = pd.read_sql(sql_counts, con)
 
-processtype_options = [{'label': 'All', 'value': 'All'}]
+processtype_options_unsorted = [{'label': 'All', 'value': 'All'}]
 for processtype in df_counts['ProcessType'].unique():
-    processtype_options.append({'label': str(processtype),'value': processtype})
+    processtype_options_unsorted.append({'label': str(processtype),'value': processtype})
+processtype_options_sorted = sorted(processtype_options_unsorted, key=lambda k: k['label'])
 
-licensetype_options = [{'label': 'All', 'value': 'All'}]
+licensetype_options_unsorted = [{'label': 'All', 'value': 'All'}]
 for licensetype in df_table['LicenseType'].unique():
     if str(licensetype) != "nan":
-        licensetype_options.append({'label': str(licensetype), 'value': licensetype})
+        licensetype_options_unsorted.append({'label': str(licensetype), 'value': licensetype})
+licensetype_options_sorted = sorted(licensetype_options_unsorted, key=lambda k: k['label'])
 
 def get_data_object(process_type, license_type):
     df_selected = df_table
@@ -87,14 +89,14 @@ layout = html.Div([
     html.Div(children='Filter by Process Type'),
     html.Div([
         dcc.Dropdown(id='processtype-dropdown',
-                     options=processtype_options,
+                     options=processtype_options_sorted,
                      value='All'
         ),
     ], style={'width': '30%', 'display': 'inline-block'}),
-    html.Div(children='Filter by LicenseType'),
+    html.Div(children='Filter by License Type'),
     html.Div([
         dcc.Dropdown(id='licensetype-dropdown',
-                     options=licensetype_options,
+                     options=licensetype_options_sorted,
                      value='All',
                      ),
     ], style={'width': '40%', 'display': 'inline-block'}),
@@ -114,6 +116,7 @@ layout = html.Div([
         filterable=True,
         sortable=True,
         selected_row_indices=[],
+        editable=False,
         id='Man002ActiveProcessesBL-table'
     )
 ])

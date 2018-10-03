@@ -9,77 +9,139 @@ import urllib.parse
 
 from app import app, con
 
-#TODO add in job type
+testing_mode = False
+print("Man004BLJobVolumesBySubmissionType.py")
+print("Testing mode? " + str(testing_mode))
 
-with con() as con:
-    sql="""select lt.Name "LicenseType", (case when ap.CreatedBy like '%2%' then 'Online' when ap.CreatedBy like '%3%' then 'Online' when ap.CreatedBy like '%4%' then 'Online' when ap.CreatedBy like '%5%' then 'Online' when ap.CreatedBy like '%6%' then 'Online' when ap.CreatedBy like '%7%' then 'Online' when ap.CreatedBy like '%8%' then 'Online' when ap.CreatedBy like '%9%' then 'Online' when ap.CreatedBy = 'PPG User' then 'Online' when ap.CreatedBy = 'POSSE system power user' then 'Revenue' else 'Staff' end) as "CreatedByType", ap.CreatedByUserName "CreatedByUserName", ap.ObjectID "JobObjectID", ap.ExternalFileNum "JobNumber", (CASE WHEN jt.Name like 'j_BL_Application' then 'Application' when jt.Name like 'j_BL_AmendRenew' then 'Renewal or Amendment' END) "JobTypeName", extract(month from ap.CreatedDate) || '/'||extract(day from ap.CreatedDate)|| '/'|| extract(year from ap.CreatedDate) "JobCreatedDate", ap.CreatedDate "JobCreatedDateField",extract(month from ap.CompletedDate) || '/'||extract(day from ap.CompletedDate)|| '/'|| extract(year from ap.CompletedDate) "JobCompletedDate", ap.StatusDescription "StatusDescription" from lmscorral.bl_licensetype lt, lmscorral.bl_license lic, query.r_bl_application_license apl, query.j_bl_application ap, query.o_jobtypes jt where lt.ObjectId = lic.LicenseTypeObjectId (+) and lic.ObjectId = apl.LicenseObjectId (+) and apl.ApplicationObjectId = ap.ObjectId(+) and ap.JobTypeId = jt.JobTypeId (+) and ap.StatusId like '1036493' and ap.ExternalFileNum like 'BA%' union select lt.Name "LicenseType", (case when ar.CreatedBy like '%2%' then 'Online' when ar.CreatedBy like '%3%' then 'Online' when ar.CreatedBy like '%4%' then 'Online' when ar.CreatedBy like '%5%' then 'Online' when ar.CreatedBy like '%6%' then 'Online' when ar.CreatedBy like '%7%' then 'Online' when ar.CreatedBy like '%8%' then 'Online' when ar.CreatedBy like '%9%' then 'Online' when ar.CreatedBy = 'PPG User' then 'Online' when ar.CreatedBy = 'POSSE system power user' then 'Revenue' else 'Staff' end) as "CreatedByType", ar.CreatedByUserName "CreatedByUserName", ar.ObjectID "JobObjectID",  ar.ExternalFileNum "JobNumber", (CASE WHEN jt.Name like 'j_BL_Application' then 'Application' when jt.Name like 'j_BL_AmendRenew' then 'Renewal or Amendment' END) "JobTypeName", extract(month from ar.CreatedDate) || '/'||extract(day from ar.CreatedDate)|| '/'|| extract(year from ar.CreatedDate) "JobCreatedDate", ar.CreatedDate "JobCreatedDateField", extract(month from ar.CompletedDate) || '/'||extract(day from ar.CompletedDate)|| '/'|| extract(year from ar.CompletedDate) "JobCompletedDate", ar.StatusDescription "StatusDescription" from lmscorral.bl_licensetype lt, lmscorral.bl_license lic, query.r_bl_amendrenew_license arl, query.j_bl_amendrenew ar, query.o_jobtypes jt where lt.ObjectId = lic.LicenseTypeObjectId (+) and lic.ObjectId = arl.LicenseId (+) and arl.AmendRenewId = ar.ObjectId (+) and ar.JobTypeId = jt.JobTypeId (+) and ar.StatusId like '1036493' and ar.ExternalFileNum like 'BR%'"""
-    df = pd.read_sql(sql,con)
+if testing_mode:
+    df_table = pd.read_csv("man004BL_test_data2.csv")
+    df_table['JobCreatedDateField'] = pd.to_datetime(df_table['JobCreatedDateField'])
+else:
+    with con() as con:
+        sql="""SELECT lt.name "LicenseType",( CASE WHEN ap.createdbyusername LIKE '%2%' THEN 'Online' WHEN ap.createdbyusername LIKE '%3%' THEN 'Online' WHEN ap.createdbyusername LIKE '%4%' THEN 'Online' WHEN ap.createdbyusername LIKE '%5%' THEN 'Online' WHEN ap.createdbyusername LIKE '%6%' THEN 'Online' WHEN ap.createdbyusername LIKE '%7%' THEN 'Online' WHEN ap.createdbyusername LIKE '%8%' THEN 'Online' WHEN ap.createdbyusername LIKE '%9%' THEN 'Online' WHEN ap.createdbyusername = 'PPG User' THEN 'Online' WHEN ap.createdbyusername = 'POSSE system power user' THEN 'Revenue' ELSE 'Staff' END) AS "CreatedByType", ap.createdbyusername "CreatedByUserName", ap.objectid "JobObjectID", ap.externalfilenum "JobNumber", ( CASE WHEN jt.name LIKE 'j_BL_Application' THEN 'Application' WHEN jt.name LIKE 'j_BL_AmendRenew' THEN 'Renewal or Amendment' END ) "JobType", Extract(month FROM ap.createddate) || '/' ||Extract(day FROM ap.createddate) || '/' || Extract(year FROM ap.createddate) "JobCreatedDate", ap.createddate "JobCreatedDateField", Extract(month FROM ap.completeddate) || '/' ||Extract(day FROM ap.completeddate) || '/' || Extract(year FROM ap.completeddate) "JobCompletedDate", ap.statusdescription "StatusDescription", ( CASE WHEN jt.name LIKE 'j_BL_Application' THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1239699&objectHandle=' ||ap.objectid ||'&processHandle=' WHEN jt.name LIKE 'j_BL_AmendRenew' THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1243107&objectHandle=' ||ap.objectid ||'&processHandle=' END ) "JobLink" FROM lmscorral.bl_licensetype lt, lmscorral.bl_license lic, query.r_bl_application_license apl, query.j_bl_application ap, query.o_jobtypes jt WHERE lt.objectid = lic.licensetypeobjectid (+) AND lic.objectid = apl.licenseobjectid (+) AND apl.applicationobjectid = ap.objectid(+) AND ap.jobtypeid = jt.jobtypeid (+) AND ap.statusid LIKE '1036493' AND ap.externalfilenum LIKE 'BA%' UNION SELECT lt.name "LicenseType", ( CASE WHEN ar.createdbyusername LIKE '%2%' THEN 'Online' WHEN ar.createdbyusername LIKE '%3%' THEN 'Online' WHEN ar.createdbyusername LIKE '%4%' THEN 'Online' WHEN ar.createdbyusername LIKE '%5%' THEN 'Online' WHEN ar.createdbyusername LIKE '%6%' THEN 'Online' WHEN ar.createdbyusername LIKE '%7%' THEN 'Online' WHEN ar.createdbyusername LIKE '%8%' THEN 'Online' WHEN ar.createdbyusername LIKE '%9%' THEN 'Online' WHEN ar.createdbyusername = 'PPG User' THEN 'Online' WHEN ar.createdbyusername = 'POSSE system power user' THEN 'Revenue' ELSE 'Staff' END ) AS "CreatedByType", ar.createdbyusername "CreatedByUserName", ar.objectid "JobObjectID", ar.externalfilenum "JobNumber", ( CASE WHEN jt.name LIKE 'j_BL_Application' THEN 'Application' WHEN jt.name LIKE 'j_BL_AmendRenew' THEN 'Renewal or Amendment' END ) "JobType", Extract(month FROM ar.createddate) || '/' ||Extract(day FROM ar.createddate) || '/' || Extract(year FROM ar.createddate) "JobCreatedDate", ar.createddate "JobCreatedDateField", Extract(month FROM ar.completeddate) || '/' ||Extract(day FROM ar.completeddate) || '/' || Extract(year FROM ar.completeddate) "JobCompletedDate", ar.statusdescription "StatusDescription", ( CASE WHEN jt.name LIKE 'j_BL_Application' THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1239699&objectHandle=' ||ar.objectid ||'&processHandle=' WHEN jt.name LIKE 'j_BL_AmendRenew' THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1243107&objectHandle=' ||ar.objectid ||'&processHandle=' END ) "JobLink" FROM lmscorral.bl_licensetype lt, lmscorral.bl_license lic, query.r_bl_amendrenew_license arl, query.j_bl_amendrenew ar, query.o_jobtypes jt WHERE lt.objectid = lic.licensetypeobjectid (+) AND lic.objectid = arl.licenseid (+) AND arl.amendrenewid = ar.objectid (+) AND ar.jobtypeid = jt.jobtypeid (+) AND ar.statusid LIKE '1036493' AND ar.externalfilenum LIKE 'BR%'"""
+        df_table = pd.read_sql(sql,con)
 
-def get_data_object(selected_start, selected_end):
-    df_selected = df[(df['JobCreatedDateField']>=selected_start)&(df['JobCreatedDateField']<=selected_end)]
-    return df_selected
+username_options_unsorted = []
+df_staff = df_table[df_table['CreatedByType'] == 'Staff']
+for username in df_staff['CreatedByUserName'].unique():
+    username_options_unsorted.append({'label': str(username), 'value': username})
+username_options_sorted = sorted(username_options_unsorted, key=lambda k: k['label'])
+
+def get_data_object(selected_start, selected_end, username):
+    df_selected = df_table[(df_table['JobCreatedDateField']>=selected_start)&(df_table['JobCreatedDateField']<=selected_end)]
+    if username is not None:
+        if isinstance(username, str):
+            df_selected = df_selected[df_selected['CreatedByUserName'] == username]
+        elif isinstance(username, list):
+            if len(username) > 0:
+                df_selected = df_selected[df_selected['CreatedByUserName'].isin(username)]
+    return df_selected.drop('JobCreatedDateField', axis=1)
 
 def count_jobs(selected_start, selected_end):
-    df_countselected =df[(df['JobCreatedDateField']>=selected_start)&(df['JobCreatedDateField']<=selected_end)]
-    df_counter = df_countselected.groupby(by=['CreatedByType','JobTypeName'], as_index=False).agg({'JobObjectID': pd.Series.nunique})
-    df_counter = df_counter.rename(columns={'CreatedByType': "Job Submission Type", 'JobTypeName':'Job Type','JobObjectID': 'Count of Jobs Submitted'})
+    df_countselected = df_table[(df_table['JobCreatedDateField']>=selected_start)&(df_table['JobCreatedDateField']<=selected_end)]
+    df_counter = df_countselected.groupby(by=['CreatedByType','JobType'], as_index=False).agg({'JobObjectID': pd.Series.nunique})
+    df_counter = df_counter.rename(columns={'CreatedByType': "Job Submission Type", 'JobType': 'Job Type', 'JobObjectID': 'Count of Jobs Submitted'})
+    df_counter['Count of Jobs Submitted'] = df_counter.apply(lambda x: "{:,}".format(x['Count of Jobs Submitted']), axis=1)
     return df_counter
 
 #TODO why is this not including high date?
 
-layout = html.Div(children=[
-                html.H1(children='Business Application and Renewal Volumes by Submission Method'),
-                html.Div(children='Please Select Date Range (Job Created Date)'),
-                dcc.DatePickerRange(
+layout = html.Div(
+    children=[
+        html.H1(
+            'Job Volumes by Submission Type',
+            style={'margin-top': '10px'}
+        ),
+        html.H1(
+            '(Business Licenses)',
+            style={'margin-bottom': '50px'}
+        ),
+        html.Div(
+            children=[
+                'Please Select Date Range (Job Created Date)'
+            ],
+            style={'margin-left': '5%', 'margin-top': '10px', 'margin-bottom': '5px'}
+        ),
+        html.Div([
+            dcc.DatePickerRange(
                 id='my-date-picker-range',
                 start_date=datetime(2018, 1, 1),
                 end_date=datetime.now()
-                ),
-              dt.DataTable(
-                    rows=[{}],
-                    row_selectable=True,
-                    sortable=True,
-                    selected_row_indices=[],
-                    id='Man004BL-counttable'),
-            html.Div([
-                html.A(
-                    'Download Data',
-                    id='Man004BL-download-link',
-                    download='Man004BL.csv',
-                    href='',
-                    target='_blank',
-                )
-            ], style={'text-align': 'right'}),
-            html.Div(children='Table of Approved Jobs'),
-                dt.DataTable(
-                    rows=[{}],
-                    row_selectable=True,
-                    filterable=True,
-                    sortable=True,
-                    selected_row_indices=[],
-                    id='Man004BL-table')
-                ])
+            ),
+        ], style={'margin-left': '5%', 'margin-bottom': '25px'}),
+        html.Div([
+            dt.DataTable(
+                rows=[{}],
+                row_selectable=True,
+                sortable=True,
+                selected_row_indices=[],
+                id='Man004BL-counttable'
+            ),
+        ],  style={'width': '50%', 'margin-left': '5%', 'margin-bottom': '75px'},
+            id='Man004BL-counttable-div'
+        ),
+        html.Div(
+            children=[
+                'Filter by Username (Staff only)'
+            ],
+            style={'margin-left': '5%', 'margin-top': '10px', 'margin-bottom': '5px'}
+        ),
+        html.Div([
+            dcc.Dropdown(
+                id='username-dropdown',
+                options=username_options_sorted,
+                multi=True
+            ),
+        ], style={'width': '33%', 'display': 'inline-block', 'margin-left': '5%'}),
+        html.Div([
+            dt.DataTable(
+                rows=[{}],
+                row_selectable=True,
+                filterable=True,
+                sortable=True,
+                selected_row_indices=[],
+                id='Man004BL-table'
+            )
+        ], style={'width': '90%', 'margin-left': 'auto', 'margin-right': 'auto'}),
+        html.Div([
+            html.A(
+                'Download Data',
+                id='Man004BL-download-link',
+                download='Man004BL.csv',
+                href='',
+                target='_blank',
+            )
+        ], style={'text-align': 'right', 'margin-right': '5%'}),
+    ]
+)
 
-@app.callback(Output('Man004BL-table', 'rows'),
-            [Input('my-date-picker-range', 'start_date'),
-            Input('my-date-picker-range', 'end_date')])
-def update_table(start_date, end_date):
-    df_inv = get_data_object(start_date, end_date)
-    return df_inv.to_dict('records')
 
-@app.callback(Output('Man004BL-counttable', 'rows'),
-            [Input('my-date-picker-range', 'start_date'),
-            Input('my-date-picker-range', 'end_date')])
+@app.callback(
+    Output('Man004BL-counttable', 'rows'),
+    [Input('my-date-picker-range', 'start_date'),
+     Input('my-date-picker-range', 'end_date')])
 def updatecount_table(start_date, end_date):
     df_counts = count_jobs(start_date, end_date)
     return df_counts.to_dict('records')
 
+
 @app.callback(
     Output('Man004BL-download-link', 'href'),
     [Input('my-date-picker-range', 'start_date'),
-    Input('my-date-picker-range', 'end_date')])
-def update_download_link(start_date, end_date):
-    df = get_data_object(start_date, end_date)
+     Input('my-date-picker-range', 'end_date'),
+     Input('username-dropdown', 'value')])
+def update_download_link(start_date, end_date, username_val):
+    df = get_data_object(start_date, end_date, username_val)
     csv_string = df.to_csv(index=False, encoding='utf-8')
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
     return csv_string
+
+@app.callback(
+    Output('Man004BL-table', 'rows'),
+    [Input('my-date-picker-range', 'start_date'),
+     Input('my-date-picker-range', 'end_date'),
+     Input('username-dropdown', 'value')])
+def update_table(start_date, end_date, username_val):
+    df_inv = get_data_object(start_date, end_date, username_val)
+    return df_inv.to_dict('records')
+

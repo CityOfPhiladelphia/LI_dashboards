@@ -10,17 +10,41 @@ import urllib.parse
 from app import app, con
 
 with con() as con:
-    sql="""select biz.Address "Business Address", biz.Location "Location", lic.ExternalFileNum "License Number", lic.LicenseType "LicenseType", (Case when jt.Name like 'j_BL_Inspection' then ins.ExternalFileNum END) "JobNumber", (Case when jt.Name like 'j_BL_Inspection' then 'Inspection on License' when jt.Name like 'j_BL_Application' then 'Inspection on Application' when jt.Name like 'j_BL_AmendRenew' then 'Inspection on Renewal or Amend' END) "InspectionOn", ins.ObjectId "InspObjectId",  extract(month from ins.CreatedDate) || '/'||extract(day from ins.CreatedDate)|| '/'|| extract(year from ins.CreatedDate) CreatedDate, ins.ScheduledInspectionDate "ScheduledInspectionDate" from QUERY.J_BL_INSPECTION ins, QUERY.R_BL_LICENSEINSPECTION li,query.o_bl_license lic,query.o_bl_business biz, query.o_jobtypes jt where ins.ObjectId = li.InspectionId and ins.JobTypeId = jt.JobTypeId and li.LicenseId = lic.ObjectId  and lic.BusinessObjectId = biz.ObjectId and ins.ScheduledInspectionDate <= sysdate and ins.CompletedDate is null union select biz.Address, biz.Location, lic.ExternalFileNum LicenseNumber, lic.LicenseType "LicenseType", (Case when jt.Name like 'j_BL_Inspection' then ins.ExternalFileNum when jt.Name like 'j_BL_Application' then ap.ExternalFileNum END) "JobNumber", (Case when jt.Name like 'j_BL_Inspection' then 'Inspection on License' when jt.Name like 'j_BL_Application' then 'Inspection on Application' when jt.Name like 'j_BL_AmendRenew' then 'Inspection on Renewal or Amend' END) "InspectionOn", ins.ObjectId "InspObjectId", extract(month from ins.CreatedDate) || '/'||extract(day from ins.CreatedDate)|| '/'|| extract(year from ins.CreatedDate) "CreatedDate", ins.ScheduledInspectionDate "ScheduledInspectionDate" from QUERY.J_BL_INSPECTION ins, query.r_bl_applicationinspection api, query.j_bl_application ap, query.o_jobtypes jt, query.r_bl_application_license apl, query.o_bl_license lic, query.o_bl_business biz where ins.ObjectId = api.InspectionId and api.ApplicationId = ap.ObjectId and ap.JobTypeId = jt.JobTypeId and ap.ObjectId = apl.ApplicationObjectId and apl.LicenseObjectId = lic.ObjectId and lic.BusinessObjectId = biz.ObjectId  and ins.ScheduledInspectionDate <= sysdate and ins.CompletedDate is null union select biz.Address "Business Address", biz.Location "Location", lic.ExternalFileNum "License Number", lic.LicenseType "LicenseType", (Case when jt.Name like 'j_BL_Inspection' then ins.ExternalFileNum when jt.Name like 'j_BL_AmendRenew' then ar.ExternalFileNum END) "JobNumber", (Case when jt.Name like 'j_BL_Inspection' then 'Inspection on License' when jt.Name like 'j_BL_Application' then 'Inspection on Application' when jt.Name like 'j_BL_AmendRenew' then 'Inspection on Renewal or Amend' END) "InspectionOn", ins.ObjectId "InspObjectId", extract(month from ins.CreatedDate) || '/'||extract(day from ins.CreatedDate)|| '/'|| extract(year from ins.CreatedDate) "CreatedDate", ins.ScheduledInspectionDate "ScheduledInspectionDate" from QUERY.J_BL_INSPECTION ins, query.r_bl_amendrenewinspection ari, query.j_bl_amendrenew ar, query.o_jobtypes jt, QUERY.R_BL_AMENDRENEW_LICENSE arl, query.o_bl_license lic, query.o_bl_business biz where ins.objectid = ari.InspectionId and ari.AmendRenewId = ar.JobId  and ar.JobTypeId = jt.JobTypeId and ar.ObjectId = arl.AmendRenewId and arl.LicenseId = lic.ObjectId and lic.BusinessObjectId = biz.ObjectId and ins.ScheduledInspectionDate <= sysdate and ins.CompletedDate is null"""
+    sql="""SELECT biz.address "Business Address", lic.externalfilenum "License Number", lic.licensetype "License Type",( CASE WHEN jt.name LIKE 'j_BL_Inspection' THEN ins.externalfilenum END) "Job Number", jt.Description "Job Type", ( CASE WHEN jt.name LIKE 'j_BL_Inspection' THEN 'Inspection on License' WHEN jt.name LIKE 'j_BL_Application' THEN 'Inspection on Application' WHEN jt.name LIKE 'j_BL_AmendRenew' THEN 'Inspection on Renewal or Amend' END ) "Inspection On", ins.inspectiontype "Inspection Type", ins.objectid "Insp Object Id", Extract(month FROM ins.createddate) || '/' ||Extract(day FROM ins.createddate) || '/' || Extract(year FROM ins.createddate) "Inspection Created Date", round(SYSDATE - ins.createddate) "Days Since Insp Created", Extract(month FROM ins.scheduledinspectiondate) || '/' ||Extract(day FROM ins.scheduledinspectiondate) || '/' || Extract(year FROM ins.scheduledinspectiondate) "Scheduled Inspection Date", ins.scheduledinspectiondate "ScheduledInspectionDateField", ins.inspectorname "Inspector Name" FROM query.j_bl_inspection ins, query.r_bl_licenseinspection li, query.o_bl_license lic, query.o_bl_business biz, query.o_jobtypes jt WHERE ins.objectid = li.inspectionid AND ins.jobtypeid = jt.jobtypeid AND li.licenseid = lic.objectid AND lic.businessobjectid = biz.objectid AND ins.scheduledinspectiondate <= SYSDATE AND ins.completeddate IS NULL UNION SELECT biz.address "Business Address", lic.externalfilenum "License Number", lic.licensetype "License Type", ( CASE WHEN jt.name LIKE 'j_BL_Inspection' THEN ins.externalfilenum WHEN jt.name LIKE 'j_BL_Application' THEN ap.externalfilenum END ) "Job Number", jt.Description "Job Type", ( CASE WHEN jt.name LIKE 'j_BL_Inspection' THEN 'Inspection on License' WHEN jt.name LIKE 'j_BL_Application' THEN 'Inspection on Application' WHEN jt.name LIKE 'j_BL_AmendRenew' THEN 'Inspection on Renewal or Amend' END ) "Inspection On", ins.inspectiontype "Inspection Type", ins.objectid "Insp Object Id", Extract(month FROM ins.createddate) || '/' ||Extract(day FROM ins.createddate) || '/' || Extract(year FROM ins.createddate) "Inspection Created Date", round(SYSDATE - ins.createddate) "Days Since Insp Created", Extract(month FROM ins.scheduledinspectiondate) || '/' ||Extract(day FROM ins.scheduledinspectiondate) || '/' || Extract(year FROM ins.scheduledinspectiondate) "Scheduled Inspection Date", ins.scheduledinspectiondate "ScheduledInspectionDateField", ins.inspectorname "Inspector Name" FROM query.j_bl_inspection ins, query.r_bl_applicationinspection api, query.j_bl_application ap, query.o_jobtypes jt, query.r_bl_application_license apl, query.o_bl_license lic, query.o_bl_business biz WHERE ins.objectid = api.inspectionid AND api.applicationid = ap.objectid AND ap.jobtypeid = jt.jobtypeid AND ap.objectid = apl.applicationobjectid AND apl.licenseobjectid = lic.objectid AND lic.businessobjectid = biz.objectid AND ins.scheduledinspectiondate <= SYSDATE AND ins.completeddate IS NULL UNION SELECT biz.address "Business Address", lic.externalfilenum "License Number", lic.licensetype "License Type", ( CASE WHEN jt.name LIKE 'j_BL_Inspection' THEN ins.externalfilenum WHEN jt.name LIKE 'j_BL_AmendRenew' THEN ar.externalfilenum END ) "Job Number", jt.Description "Job Type", ( CASE WHEN jt.name LIKE 'j_BL_Inspection' THEN 'Inspection on License' WHEN jt.name LIKE 'j_BL_Application' THEN 'Inspection on Application' WHEN jt.name LIKE 'j_BL_AmendRenew' THEN 'Inspection on Renewal or Amend' END ) "Inspection On", ins.inspectiontype "Inspection Type", ins.objectid "Insp Object Id", Extract(month FROM ins.createddate) || '/' ||Extract(day FROM ins.createddate) || '/' || Extract(year FROM ins.createddate) "Inspection Created Date", round(SYSDATE - ins.createddate) "Days Since Insp Created", Extract(month FROM ins.scheduledinspectiondate) || '/' ||Extract(day FROM ins.scheduledinspectiondate) || '/' || Extract(year FROM ins.scheduledinspectiondate) "Scheduled Inspection Date", ins.scheduledinspectiondate "ScheduledInspectionDateField", ins.inspectorname "Inspector Name" FROM query.j_bl_inspection ins, query.r_bl_amendrenewinspection ari, query.j_bl_amendrenew ar, query.o_jobtypes jt, query.r_bl_amendrenew_license arl, query.o_bl_license lic, query.o_bl_business biz WHERE ins.objectid = ari.inspectionid AND ari.amendrenewid = ar.jobid AND ar.jobtypeid = jt.jobtypeid AND ar.objectid = arl.amendrenewid AND arl.licenseid = lic.objectid AND lic.businessobjectid = biz.objectid AND ins.scheduledinspectiondate <= SYSDATE AND ins.completeddate IS NULL"""
     df = pd.read_sql(sql,con)
 
-def get_data_object(selected_start, selected_end):
-    df_selected =df[(df['ScheduledInspectionDate']>=selected_start)&(df['ScheduledInspectionDate']<=selected_end)]
-    return df_selected
+licensetype_options_unsorted = [{'label': 'All', 'value': 'All'}]
+for licensetype in df['License Type'].unique():
+    if str(licensetype) != "nan":
+        licensetype_options_unsorted.append({'label': str(licensetype), 'value': licensetype})
+licensetype_options_sorted = sorted(licensetype_options_unsorted, key=lambda k: k['label'])
+
+jobtype_options_unsorted = [{'label': 'All', 'value': 'All'}]
+for jobtype in df['Job Type'].unique():
+    if str(jobtype) != "nan":
+        jobtype_options_unsorted.append({'label': str(jobtype), 'value': jobtype})
+jobtype_options_sorted = sorted(jobtype_options_unsorted, key=lambda k: k['label'])
+
+inspector_options_unsorted = [{'label': 'All', 'value': 'All'}]
+for inspector in df['Inspector Name'].unique():
+    if str(inspector) != "nan":
+        inspector_options_unsorted.append({'label': str(inspector), 'value': inspector})
+inspector_options_sorted = sorted(inspector_options_unsorted, key=lambda k: k['label'])
+
+def get_data_object(selected_start, selected_end, license_type, job_type, inspector):
+    df_selected = df[(df['ScheduledInspectionDateField']>=selected_start)&(df['ScheduledInspectionDateField']<=selected_end)]
+    if license_type != "All":
+        df_selected = df_selected[df_selected['License Type'] == license_type]
+    if job_type != "All":
+        df_selected = df_selected[df_selected['Job Type'] == job_type]
+    if inspector != "All":
+        df_selected = df_selected[df_selected['Inspector Name'] == inspector]
+    return df_selected.drop('ScheduledInspectionDateField', axis=1)
 
 def count_jobs(selected_start, selected_end):
-    df_countselected =df[(df['ScheduledInspectionDate']>=selected_start)&(df['ScheduledInspectionDate']<=selected_end)]
-    df_counter = df_countselected.groupby(by=['LicenseType','InspectionOn'], as_index=False).agg({'InspObjectId': pd.Series.nunique})
-    df_counter = df_counter.rename(columns={'LicenseType': "License Type",'InspectionOn':'Inspection On', 'InspObjectId': 'Count of Overdue Inspections'})
+    df_countselected =df[(df['ScheduledInspectionDateField']>=selected_start)&(df['ScheduledInspectionDateField']<=selected_end)]
+    df_counter = df_countselected.groupby(by=['License Type','Inspection On'], as_index=False).agg({'Insp Object Id': pd.Series.nunique})
+    df_counter = df_counter.rename(columns={'License Type': "License Type",'Inspection On': 'Inspection On', 'Insp Object Id': 'Count of Overdue Inspections'})
     return df_counter
 
 #TODO why is this not including high date?
@@ -29,39 +53,75 @@ layout = html.Div(children=[
                 html.H1(children='Inspections Past their Scheduled Completion Date on Business Licenses and BL Jobs'),
                 html.Div(children='Please Select Date Range (Scheduled Inspection Date)'),
                 dcc.DatePickerRange(
-                id='my-date-picker-range',
-                start_date=datetime(2018, 1, 1),
-                end_date=datetime.now()
+                    id='my-date-picker-range',
+                    start_date=datetime(2018, 1, 1),
+                    end_date=datetime.now()
                 ),
-              dt.DataTable(
-                    rows=[{}],
-                    row_selectable=True,
-                    sortable=True,
-                    selected_row_indices=[],
-                    id='Man006BL-count-table'),
+                html.Div([
+                    dt.DataTable(
+                        rows=[{}],
+                        row_selectable=True,
+                        sortable=True,
+                        selected_row_indices=[],
+                        id='Man006BL-count-table'
+                    ),
+                ], style={'margin-bottom': '50px'}),
+                html.Div(children='Filter by License Type'),
+                html.Div([
+                    dcc.Dropdown(
+                        id='licensetype-dropdown',
+                        options=licensetype_options_sorted,
+                        value='All',
+                        searchable=True
+                    ),
+                ], style={'width': '30%', 'display': 'inline-block'}),
+                html.Div(children='Filter by Job Type'),
+                html.Div([
+                    dcc.Dropdown(
+                        id='jobtype-dropdown',
+                        options=jobtype_options_sorted,
+                        value='All',
+                        searchable=True
+                    ),
+                ], style={'width': '40%', 'display': 'inline-block'}),
+                html.Div(children='Filter by Inspector Name'),
+                html.Div([
+                    dcc.Dropdown(
+                        id='inspector-dropdown',
+                        options=inspector_options_sorted,
+                        value='All',
+                        searchable=True
+                    ),
+                ], style={'width': '30%', 'display': 'inline-block'}),
                 html.Div([
                     html.A(
                         'Download Data',
                         id='Man006BL-download-link',
                         download='Man006BL.csv',
                         href='',
-                        target='_blank',
-                    )
+                        target='_blank'
+                    ),
                 ], style={'text-align': 'right'}),
-                html.Div(children='Table of Overdue Business Licenses'),
-                dt.DataTable(
-                    rows=[{}],
-                    row_selectable=True,
-                    filterable=True,
-                    sortable=True,
-                    selected_row_indices=[],
-                    id='Man006BL-table')
+                html.Div([
+                    dt.DataTable(
+                        rows=[{}],
+                        row_selectable=True,
+                        filterable=True,
+                        sortable=True,
+                        selected_row_indices=[],
+                        id='Man006BL-table'
+                    ),
                 ])
+            ])
+
 @app.callback(Output('Man006BL-table', 'rows'),
             [Input('my-date-picker-range', 'start_date'),
-            Input('my-date-picker-range', 'end_date')])
-def update_table(start_date, end_date):
-    df_inv = get_data_object(start_date, end_date)
+             Input('my-date-picker-range', 'end_date'),
+             Input('licensetype-dropdown', 'value'),
+             Input('jobtype-dropdown', 'value'),
+             Input('inspector-dropdown', 'value')])
+def update_table(start_date, end_date, license_type_val, job_type_val, inspector_val):
+    df_inv = get_data_object(start_date, end_date, license_type_val, job_type_val, inspector_val)
     return df_inv.to_dict('records')
 
 @app.callback(Output('Man006BL-count-table', 'rows'),
@@ -74,9 +134,12 @@ def updatecount_table(start_date, end_date):
 @app.callback(
             Output('Man006BL-download-link', 'href'),
             [Input('my-date-picker-range', 'start_date'),
-            Input('my-date-picker-range', 'end_date')])
-def update_table_download_link(start_date, end_date):
-    df = get_data_object(start_date, end_date)
-    csv_string = df.to_csv(index=False, encoding='utf-8')
+             Input('my-date-picker-range', 'end_date'),
+             Input('licensetype-dropdown', 'value'),
+             Input('jobtype-dropdown', 'value'),
+             Input('inspector-dropdown', 'value')])
+def update_table_download_link(start_date, end_date, license_type_val, job_type_val, inspector_val):
+    df_for_csv = get_data_object(start_date, end_date, license_type_val, job_type_val, inspector_val)
+    csv_string = df_for_csv.to_csv(index=False, encoding='utf-8')
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
     return csv_string
