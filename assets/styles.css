@@ -31,3 +31,11 @@ div#Man005BL-count-table-div div.react-grid-Cell:nth-child(3) {
 div#Man005TL-count-table-div div.react-grid-Cell:nth-child(3) {
     text-align: right;
 }
+
+div#Man006BL-count-table-div div.react-grid-Cell:nth-child(3) {
+    text-align: right;
+}
+
+div#Man006BL-table-div div.react-grid-Cell:nth-child(10) {
+    text-align: right;
+}

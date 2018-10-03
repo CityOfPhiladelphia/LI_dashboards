@@ -91,7 +91,7 @@ layout = html.Div(
             html.A(
                 'Download Data',
                 id='Man005BL-table-download-link',
-                download='Man005BLExpirationVolumesBySubmissionType-alldata.csv',
+                download='Man005BLExpirationVolumesBySubmissionType.csv',
                 href='',
                 target='_blank',
             )

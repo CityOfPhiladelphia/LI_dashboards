@@ -8,7 +8,7 @@ import urllib.parse
 
 from app import app, con
 
-testing_mode = True
+testing_mode = False
 print("Man005TLExpirationVolumesBySubmissionType.py")
 print("Testing mode? " + str(testing_mode))
 
@@ -76,7 +76,7 @@ layout = html.Div(
                 href='',
                 target='_blank',
             )
-        ], style={'text-align': 'right', 'margin-right': '25%'}),
+        ], style={'text-align': 'right', 'margin-right': '35%'}),
         html.Div([
             dt.DataTable(
                 rows=[{}],

@@ -7,7 +7,7 @@ from flask import request
 from datetime import datetime
 
 from app import app, server
-from log_visitors import log_visitor
+#from log_visitors import log_visitor
 
 from apps import Man001ActiveJobsBL, Man001ActiveJobsTL, Man002ActiveProcessesBL, Man002ActiveProcessesTL, Man004BLJobVolumesBySubmissionType, Man004TLJobVolumesBySubmissionType, Man005BLExpirationVolumesBySubmissionType, Man005TLExpirationVolumesBySubmissionType, Man006OverdueBLInspections
 
@@ -100,7 +100,7 @@ index_page = html.Div([
 @app.callback(Output('page-content', 'children'),
               [Input('url', 'pathname')])
 def display_page(pathname):
-    log_visitor()
+    #log_visitor()
     if pathname == '/ActiveJobsTL':
         return Man001ActiveJobsTL.layout
     elif pathname == '/ActiveJobsBL':
