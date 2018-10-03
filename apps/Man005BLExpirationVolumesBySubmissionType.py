@@ -70,7 +70,7 @@ layout = html.Div(
         ),
         html.Div([
             html.A(
-                'Download Counts Data',
+                'Download Data',
                 id='Man005BL-count-table-download-link',
                 download='Man005BLExpirationVolumesBySubmissionType-counts.csv',
                 href='',
@@ -89,7 +89,7 @@ layout = html.Div(
         ], style={'width': '90%', 'margin-left': 'auto', 'margin-right': 'auto', 'margin-top': '75px'}),
         html.Div([
             html.A(
-                'Download Business License Data',
+                'Download Data',
                 id='Man005BL-table-download-link',
                 download='Man005BLExpirationVolumesBySubmissionType-alldata.csv',
                 href='',
