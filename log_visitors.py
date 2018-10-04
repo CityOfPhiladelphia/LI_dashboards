@@ -9,5 +9,5 @@ def log_visitor():
         date = datetime.now()
         data = (user_id, date)
         cursor = conn.cursor()
-        cursor.execute('INSERT INTO dashboard_visitors (ip_address, date) VALUES (?, ?)', data)
+        cursor.execute('INSERT INTO dashboard_visitors (ip_address, datetime) VALUES (?, ?)', data)
         conn.commit()
