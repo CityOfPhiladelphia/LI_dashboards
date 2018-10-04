@@ -18,8 +18,8 @@ print("Testing mode? " + str(testing_mode))
 #No completion date on processes
 
 if testing_mode:
-    df_table = pd.read_csv("test_data/Man002ActiveProcessesBLIndividualRecords_test_data.csv")
-    df_counts = pd.read_csv("test_data/Man002ActiveProcessesBLCounts_test_data.csv")
+    df_table = pd.read_csv("Man002BL_test_data3.csv")
+    df_counts = pd.read_csv("Man002BL_test_data3.csv")
 else:
     with con() as con:
         sql_tl = """select distinct j.ExternalFileNum "JobNumber", jt.Description "JobType", nvl(lt.Name, lt2.Name) "LicenseType", stat.Description "JobStatus", proc.ProcessId "ProcessID", pt.Description "ProcessType", extract(month from proc.CreatedDate) || '/'||extract(day from proc.CreatedDate)|| '/'|| extract(year from proc.CreatedDate) "CreatedDate", extract(month from proc.ScheduledStartDate) || '/'|| extract(day from proc.ScheduledStartDate)|| '/'||extract(year from proc.ScheduledStartDate) "ScheduledStartDate", proc.ProcessStatus "ProcessStatus",(CASE WHEN round(sysdate - proc.ScheduledStartDate) <= 1 then '0-1 Day' WHEN round(sysdate - proc.ScheduledStartDate) between 2 and 5 then '2-5 Days' WHEN round(sysdate - proc.ScheduledStartDate) between 6 and 10 then '6-10 Days' ELSE '11+ Days' END) "Duration",(CASE when jt.Description like 'Business License Application' then 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1239699&objectHandle='||j.JobId||'&processHandle=&paneId=1239699_151'when jt.Description like 'Amendment/Renewal' then 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1243107&objectHandle='||j.JobId||'&processHandle=&paneId=1243107_175' End) "ProcessLink" from api.PROCESSES proc, api.jobs j, api.processtypes pt, api.jobtypes jt, api.statuses stat, query.r_bl_amendrenew_license arl, query.r_bl_license_licensetype lrl, query.o_bl_licensetype lt, query.r_bl_application_license apl, query.r_bl_license_licensetype lrl2, query.o_bl_licensetype lt2 where proc.JobId = j.JobId and proc.ProcessTypeId = pt.ProcessTypeId and proc.DateCompleted is null and j.JobTypeId = jt.JobTypeId and j.StatusId = stat.StatusId and pt.ProcessTypeId not in ('984507','2852606','2853029') and jt.JobTypeId in ('1240320', '1244773') and j.StatusId not in ('1030266','964970','1014809','1036493','1010379') and j.JobId = arl.AmendRenewId (+) and arl.LicenseId = lrl.LicenseId (+) and lrl.LicenseTypeId = lt.ObjectId (+) and j.JobId = apl.ApplicationObjectId (+) and apl.LicenseObjectId = lrl2.LicenseId (+) and lrl2.LicenseTypeId = lt2.ObjectId (+)"""
@@ -47,59 +47,95 @@ def get_data_object(process_type, license_type):
     return df_selected
 
 layout = html.Div([
-    html.H1('Business License Active Processes'),
-    dcc.Graph(id='my-graph',
-    figure=go.Figure(
-        data=[
-            go.Bar(
-                x=df_counts[df_counts['JobType']=='Business License Application']['ProcessType'],
-                y=df_counts[df_counts['JobType']=='Business License Application']['ProcessCounts'],
-                name='BL Application Jobs Active',
-                marker=go.bar.Marker(
-                    color='rgb(55, 83, 109)'
+    html.H1(
+        'Active Processes',
+        style={'margin-top': '10px'}
+    ),
+    html.H1(
+        '(Business Licenses)',
+        style={'margin-bottom': '50px'}
+    ),
+    dcc.Graph(
+        id='002BL-graph',
+        figure=go.Figure(
+            data=[
+                go.Bar(
+                    x=df_counts[df_counts['JobType']=='Business License Application']['ProcessType'],
+                    y=df_counts[df_counts['JobType']=='Business License Application']['ProcessCounts'],
+                    name='Applications',
+                    marker=go.bar.Marker(
+                        color='rgb(55, 83, 109)'
+                    )
+                ),
+                go.Bar(
+                    x=df_counts[df_counts['JobType']=='Amendment/Renewal']['ProcessType'],
+                    y=df_counts[df_counts['JobType']=='Amendment/Renewal']['ProcessCounts'],
+                    name='Renewals/Amendments',
+                    marker=go.bar.Marker(
+                        color='rgb(26, 118, 255)'
+                    )
                 )
-            ),
-            go.Bar(
-                x=df_counts[df_counts['JobType']=='Amendment/Renewal']['ProcessType'],
-                y=df_counts[df_counts['JobType']=='Amendment/Renewal']['ProcessCounts'],
-                name='BL Renewal/Amendment Jobs Active',
-                marker=go.bar.Marker(
-                    color='rgb(26, 118, 255)'
-                )
-            )
-        ],
-        layout=go.Layout(
-            showlegend=True,
-            legend=go.layout.Legend(
-                x=.75,
-                y=1,
-            ),
-            xaxis=dict(
+            ],
+            layout=go.Layout(
+                showlegend=True,
+                legend=go.layout.Legend(
+                    x=.75,
+                    y=1,
+                ),
+                xaxis=dict(
                     autorange=True,
                     tickangle=30,
                     tickfont=dict(
                         size=11
-                )
-            ),
-            margin=go.layout.Margin(l=40, r=0, t=40, b=100)
-        )
+                    )
+                ),
+                yaxis=dict(
+                    title='Active Processes'
+                ),
+                margin=go.layout.Margin(l=40, r=0, t=40, b=100)
+            )
+        ), style={'height': '500px', 'display': 'block', 'margin-bottom': '75px', 'width': '70%', 'margin-left': 'auto', 'margin-right': 'auto'}
     ),
-    style={'height': 600, 'diplay':'inline-block'}),
-    html.P(id='page-break'),
-    html.Div(children='Filter by Process Type'),
+    html.Div(
+        children=[
+            'Process Type'
+        ],
+        style={'margin-left': '5%', 'margin-top': '10px', 'margin-bottom': '5px'}
+    ),
     html.Div([
-        dcc.Dropdown(id='processtype-dropdown',
-                     options=processtype_options_sorted,
-                     value='All'
+        dcc.Dropdown(
+            id='processtype-dropdown',
+            options=processtype_options_sorted,
+            value='All',
+            searchable=True
         ),
-    ], style={'width': '30%', 'display': 'inline-block'}),
-    html.Div(children='Filter by License Type'),
+    ], style={'width': '33%', 'display': 'inline-block', 'margin-left': '5%'}),
+    html.Div(
+        children=[
+            'License Type'
+        ],
+        style={'margin-left': '5%', 'margin-top': '10px', 'margin-bottom': '5px'}
+    ),
     html.Div([
-        dcc.Dropdown(id='licensetype-dropdown',
-                     options=licensetype_options_sorted,
-                     value='All',
-                     ),
-    ], style={'width': '40%', 'display': 'inline-block'}),
+        dcc.Dropdown(
+            id='licensetype-dropdown',
+            options=licensetype_options_sorted,
+            value='All',
+            searchable=True
+        ),
+    ], style={'width': '33%', 'display': 'inline-block', 'margin-left': '5%'}),
+    html.Div([
+        dt.DataTable(
+            # Initialise the rows
+            rows=[{}],
+            row_selectable=True,
+            filterable=True,
+            sortable=True,
+            selected_row_indices=[],
+            editable=False,
+            id='Man002ActiveProcessesBL-table'
+        )
+    ], style={'width': '90%', 'margin-left': 'auto', 'margin-right': 'auto'}),
     html.Div([
         html.A(
             'Download Data',
@@ -108,17 +144,7 @@ layout = html.Div([
             href='',
             target='_blank',
         )
-    ], style={'text-align': 'right'}),
-    dt.DataTable(
-        # Initialise the rows
-        rows=[{}],
-        row_selectable=True,
-        filterable=True,
-        sortable=True,
-        selected_row_indices=[],
-        editable=False,
-        id='Man002ActiveProcessesBL-table'
-    )
+    ], style={'text-align': 'right', 'margin-right': '5%'}),
 ])
 
 @app.callback(

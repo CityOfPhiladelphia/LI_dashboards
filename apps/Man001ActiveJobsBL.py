@@ -29,7 +29,7 @@ else:
 
 df_table['JobType'] = df_table['JobType'].map(lambda x: x.replace("Business License", "BL"))  # Replace "Business License " with BL just to make it easier for user to read
 
-duration_options = [{'label': 'All', 'value': 'All'}]
+duration_options = []
 for duration in df_counts['TimeSinceScheduledStartDate'].unique():
     duration_options.append({'label': str(duration), 'value': duration})
 
@@ -41,14 +41,28 @@ licensetype_options_sorted = sorted(licensetype_options_unsorted, key=lambda k: 
 
 def get_data_object(duration, license_type):
     df_selected = df_table
-    if duration != "All":
-        df_selected = df_selected[df_selected['TimeSinceScheduledStartDate'] == duration]
+    if duration is not None:
+        if isinstance(duration, str):
+            df_selected = df_selected[df_selected['TimeSinceScheduledStartDate'] == duration]
+        elif isinstance(duration, list):
+            if len(duration) > 1:
+                df_selected = df_selected[df_selected['TimeSinceScheduledStartDate'].isin(duration)]
+            elif len(duration) == 1:
+                df_selected = df_selected[df_selected['TimeSinceScheduledStartDate'] == duration[0]]
     if license_type != "All":
         df_selected = df_selected[df_selected['LicenseType'] == license_type]
     return df_selected
 
-def update_counts_graph_data(license_type):
+def update_counts_graph_data(duration, license_type):
     df_counts_selected = df_counts
+    if duration is not None:
+        if isinstance(duration, str):
+            df_counts_selected = df_counts_selected[df_counts_selected['TimeSinceScheduledStartDate'] == duration]
+        elif isinstance(duration, list):
+            if len(duration) > 1:
+                df_counts_selected = df_counts_selected[df_counts_selected['TimeSinceScheduledStartDate'].isin(duration)]
+            elif len(duration) == 1:
+                df_counts_selected = df_counts_selected[df_counts_selected['TimeSinceScheduledStartDate'] == duration[0]]
     if license_type != "All":
         df_counts_selected = df_counts_selected[df_counts_selected['LicenseType'] == license_type]
     return df_counts_selected
@@ -63,13 +77,26 @@ layout = html.Div(
             '(Business Licenses)',
             style={'margin-bottom': '50px'}
         ),
+        html.Div(
+            children=[
+                'Time Since Scheduled Start Date of Process'
+            ],
+            style={'margin-left': '15%', 'margin-top': '10px', 'margin-bottom': '5px'}
+        ),
+        html.Div([
+            dcc.Dropdown(
+                id='Man001ActiveJobsBL-duration-dropdown',
+                options=duration_options,
+                multi=True
+            ),
+        ], style={'width': '33%', 'display': 'inline-block', 'margin-left': '15%'}),
         html.Div('License Type', style={'margin-left': '15%', 'margin-top': '25px'}),
         html.Div([
             dcc.Dropdown(
                 id='Man001ActiveJobsBL-licensetype-dropdown',
                 options=licensetype_options_sorted,
                 value='All',
-                searchable=True,
+                searchable=True
             ),
         ], style={'width': '60%', 'margin-left': '15%'}),
         dcc.Graph(
@@ -107,32 +134,8 @@ layout = html.Div(
                     )
                 )
             ), style={'height': '500px', 'display': 'block', 'margin-bottom': '75px', 'width': '70%', 'margin-left': 'auto', 'margin-right': 'auto'}),
-        html.Div(
-            children=[
-                'Time Since Scheduled Start Date of Process'
-            ],
-            style={'margin-left': '5%', 'margin-top': '10px', 'margin-bottom': '5px'}
-        ),
-        html.Div([
-            dcc.Dropdown(
-                id='Man001ActiveJobsBL-duration-dropdown',
-                options=duration_options,
-                value='All',
-                searchable=True
-            ),
-        ], style={'width': '33%', 'display': 'inline-block', 'margin-left': '5%'}),
-        html.Div([
-            html.A(
-                'Download Data',
-                id='Man001ActiveJobsBL-download-link',
-                download='Man001ActiveJobsBL.csv',
-                href='',
-                target='_blank',
-            )
-        ], style={'text-align': 'right', 'margin-right': '5%'}),
         html.Div([
             dt.DataTable(
-                # Initialise the rows
                 rows=[{}],
                 row_selectable=True,
                 filterable=True,
@@ -142,14 +145,24 @@ layout = html.Div(
                 id='Man001ActiveJobsBL-table'
             )
         ], style={'width': '90%', 'margin-left': 'auto', 'margin-right': 'auto'}),
+        html.Div([
+            html.A(
+                'Download Data',
+                id='Man001ActiveJobsBL-download-link',
+                download='Man001ActiveJobsBL.csv',
+                href='',
+                target='_blank',
+            )
+        ], style={'text-align': 'right', 'margin-right': '5%'}),
     ]
 )
 
 @app.callback(
     Output('Man001ActiveJobsBL-my-graph', 'figure'),
-    [Input('Man001ActiveJobsBL-licensetype-dropdown', 'value')])
-def update_graph(license_type):
-    df_counts_updated = update_counts_graph_data(license_type)
+    [Input('Man001ActiveJobsBL-duration-dropdown', 'value'),
+     Input('Man001ActiveJobsBL-licensetype-dropdown', 'value')])
+def update_graph(duration, license_type):
+    df_counts_updated = update_counts_graph_data(duration, license_type)
     return {
         'data': [
              go.Bar(
