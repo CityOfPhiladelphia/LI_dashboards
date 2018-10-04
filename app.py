@@ -8,15 +8,7 @@ from config import USERNAME_PASSWORD_PAIRS
 
 con = ECLIPSE_PROD.ECLIPSE_PROD
 
-external_stylesheets = ['https://unpkg.com/phila-standards@0.11.2/dist/css/phila-app.min.css']
-
-meta_tags=[
-    {
-        'og:image': 'https://beta.phila.gov/media/20160715133810/phila-gov.jpg',
-        'content': 'LI Stat'
-    }]
-
 server = Flask(__name__)
-app = dash.Dash(server=server, external_stylesheets=external_stylesheets, meta_tags=meta_tags)
+app = dash.Dash(server=server)
 auth = dash_auth.BasicAuth(app, USERNAME_PASSWORD_PAIRS)
 app.config.suppress_callback_exceptions = True
