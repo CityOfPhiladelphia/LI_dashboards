@@ -1,4 +1,5 @@
 *.csv
+*.xlsx
 just_in_case.py
 .idea/
 *.db
