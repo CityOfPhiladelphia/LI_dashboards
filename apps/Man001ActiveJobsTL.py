@@ -3,6 +3,7 @@ import dash_html_components as html
 import dash_table_experiments as dt
 import plotly.graph_objs as go
 import pandas as pd
+import numpy as np
 from dash.dependencies import Input, Output
 import urllib.parse
 
@@ -27,7 +28,9 @@ else:
         df_table = pd.read_sql(sql_tl, con)
         df_counts = pd.read_sql(sql_counts, con)
 
-df_table['JobType'] = df_table['JobType'].map(lambda x: x.replace("Trade License", "TL"))  # Replace "Trade License " with TL just to make it easier for user to read
+# Remove the words "Trade License" just to make it easier for user to read
+df_table['JobType'] = df_table['JobType'].map(lambda x: x.replace("Trade License ", ""))
+df_counts['JobType'] = df_counts['JobType'].map(lambda x: x.replace("Trade License ", ""))
 
 duration_options = []
 for duration in df_counts['TimeSinceScheduledStartDate'].unique():
@@ -103,16 +106,16 @@ layout = html.Div([
         figure=go.Figure(
             data=[
                 go.Bar(
-                    x=df_counts[df_counts['JobType'] == 'Trade License Application']['TimeSinceScheduledStartDate'],
-                    y=df_counts[df_counts['JobType'] == 'Trade License Application']['JobCounts'],
+                    x=df_counts[df_counts['JobType'] == 'Application'].groupby(['TimeSinceScheduledStartDate'])['JobCounts'].agg(np.sum).index,
+                    y=df_counts[df_counts['JobType'] == 'Application'].groupby(['TimeSinceScheduledStartDate'])['JobCounts'].agg(np.sum),
                     name='Applications',
                     marker=go.bar.Marker(
                         color='rgb(55, 83, 109)'
                     )
                 ),
                 go.Bar(
-                    x=df_counts[df_counts['JobType'] == 'Trade License Amend/Renew']['TimeSinceScheduledStartDate'],
-                    y=df_counts[df_counts['JobType'] == 'Trade License Amend/Renew']['JobCounts'],
+                    x=df_counts[df_counts['JobType'] == 'Amend/Renew'].groupby(['TimeSinceScheduledStartDate'])['JobCounts'].agg(np.sum).index,
+                    y=df_counts[df_counts['JobType'] == 'Amend/Renew'].groupby(['TimeSinceScheduledStartDate'])['JobCounts'].agg(np.sum),
                     name='Renewals/Amendments',
                     marker=go.bar.Marker(
                         color='rgb(26, 118, 255)'
@@ -165,16 +168,16 @@ def update_graph(duration, license_type):
     return {
         'data': [
              go.Bar(
-                 x=df_counts_updated[df_counts_updated['JobType'] == 'Trade License Application']['TimeSinceScheduledStartDate'],
-                 y=df_counts_updated[df_counts_updated['JobType'] == 'Trade License Application']['JobCounts'],
+                 x=df_counts_updated[df_counts_updated['JobType'] == 'Application'].groupby(['TimeSinceScheduledStartDate'])['JobCounts'].agg(np.sum).index,
+                 y=df_counts_updated[df_counts_updated['JobType'] == 'Application'].groupby(['TimeSinceScheduledStartDate'])['JobCounts'].agg(np.sum),
                  name='Applications',
                  marker=go.bar.Marker(
                      color='rgb(55, 83, 109)'
                  )
              ),
              go.Bar(
-                 x=df_counts_updated[df_counts_updated['JobType'] == 'Trade License Amend/Renew']['TimeSinceScheduledStartDate'],
-                 y=df_counts_updated[df_counts_updated['JobType'] == 'Trade License Amend/Renew']['JobCounts'],
+                 x=df_counts_updated[df_counts_updated['JobType'] == 'Amend/Renew'].groupby(['TimeSinceScheduledStartDate'])['JobCounts'].agg(np.sum).index,
+                 y=df_counts_updated[df_counts_updated['JobType'] == 'Amend/Renew'].groupby(['TimeSinceScheduledStartDate'])['JobCounts'].agg(np.sum),
                  name='Renewals/Amendments',
                  marker=go.bar.Marker(
                      color='rgb(26, 118, 255)'
