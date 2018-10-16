@@ -18,7 +18,7 @@ if testing_mode:
     df_table['JobCreatedDateField'] = pd.to_datetime(df_table['JobCreatedDateField'])
 else:
     with con() as con:
-        sql = """SELECT lt.licensecodedescription "LicenseType",( CASE WHEN ap.createdbyusername LIKE '%2%' THEN 'Online' WHEN ap.createdbyusername LIKE '%3%' THEN 'Online' WHEN ap.createdbyusername LIKE '%4%' THEN 'Online' WHEN ap.createdbyusername LIKE '%5%' THEN 'Online' WHEN ap.createdbyusername LIKE '%6%' THEN 'Online' WHEN ap.createdbyusername LIKE '%7%' THEN 'Online' WHEN ap.createdbyusername LIKE '%8%' THEN 'Online' WHEN ap.createdbyusername LIKE '%9%' THEN 'Online' WHEN ap.createdby = 'PPG User' THEN 'Online' WHEN ap.createdby = 'POSSE system power user' THEN 'Revenue' ELSE 'Staff' END) AS "CreatedByType", ap.createdbyusername "CreatedByUserName", ap.objectid "JobObjectID", ap.externalfilenum "JobNumber", ( CASE WHEN jt.name LIKE 'j_TL_Application' THEN 'Application' WHEN jt.name LIKE 'j_TL_AmendRenew' THEN 'Renewal or Amendment' END ) "JobTypeName", Extract(month FROM ap.createddate) || '/' ||Extract(day FROM ap.createddate) || '/' || Extract(year FROM ap.createddate) "JobCreatedDate", ap.createddate "JobCreatedDateField", Extract(month FROM ap.completeddate) || '/' ||Extract(day FROM ap.completeddate) || '/' || Extract(year FROM ap.completeddate) "JobCompletedDate", ap.statusdescription "StatusDescription", ( CASE WHEN jt.description LIKE 'Trade License Application' THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=2854033&objectHandle=' ||ap.objectid ||'&processHandle=' WHEN jt.description LIKE 'Trade License Amend/Renew' THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=2857688&objectHandle=' ||ap.objectid ||'&processHandle=' END ) "JobLink" FROM lmscorral.tl_tradelicensetypes lt, lmscorral.tl_tradelicenses lic, query.j_tl_application ap, query.o_jobtypes jt WHERE lt.licensecode = lic.licensecode (+) AND lic.objectid = ap.tradelicenseobjectid (+) AND ap.jobtypeid = jt.jobtypeid (+) AND ap.statusid LIKE '1036493' AND ap.externalfilenum LIKE 'TL%' UNION SELECT lt.licensecodedescription "LicenseType", ( CASE WHEN ar.createdbyusername LIKE '%2%' THEN 'Online' WHEN ar.createdbyusername LIKE '%3%' THEN 'Online' WHEN ar.createdbyusername LIKE '%4%' THEN 'Online' WHEN ar.createdbyusername LIKE '%5%' THEN 'Online' WHEN ar.createdbyusername LIKE '%6%' THEN 'Online' WHEN ar.createdbyusername LIKE '%7%' THEN 'Online' WHEN ar.createdbyusername LIKE '%8%' THEN 'Online' WHEN ar.createdbyusername LIKE '%9%' THEN 'Online' WHEN ar.createdby = 'PPG User' THEN 'Online' WHEN ar.createdby = 'POSSE system power user' THEN 'Revenue' ELSE 'Staff' END ) AS "CreatedByType", ar.createdbyusername "CreatedByUserName", ar.objectid "JobObjectID", ar.externalfilenum "JobNumber", ( CASE WHEN jt.name LIKE 'j_TL_Application' THEN 'Application' WHEN jt.name LIKE 'j_TL_AmendRenew' THEN 'Renewal or Amendment' END ) "JobTypeName", Extract(month FROM ar.createddate) || '/' ||Extract(day FROM ar.createddate) || '/' || Extract(year FROM ar.createddate) "JobCreatedDate", ar.createddate "JobCreatedDateField", Extract(month FROM ar.completeddate) || '/' ||Extract(day FROM ar.completeddate) || '/' || Extract(year FROM ar.completeddate) "JobCompletedDate", ar.statusdescription "StatusDescription", ( CASE WHEN jt.description LIKE 'Trade License Application' THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=2854033&objectHandle=' ||ar.objectid ||'&processHandle=' WHEN jt.description LIKE 'Trade License Amend/Renew' THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=2857688&objectHandle=' ||ar.objectid ||'&processHandle=' END ) "JobLink" FROM lmscorral.tl_tradelicensetypes lt, lmscorral.tl_tradelicenses lic, query.r_tl_amendrenew_license arl, query.j_tl_amendrenew ar, query.o_jobtypes jt WHERE lt.licensecode = lic.licensecode (+) AND lic.objectid = arl.licenseid (+) AND arl.amendrenewid = ar.objectid (+) AND ar.jobtypeid = jt.jobtypeid (+) AND ar.statusid LIKE '1036493' AND ar.externalfilenum LIKE 'TR%'"""
+        sql="""SELECT lt.licensecodedescription "LicenseType",( CASE WHEN ap.createdbyusername LIKE '%2%' THEN 'Online' WHEN ap.createdbyusername LIKE '%3%' THEN 'Online' WHEN ap.createdbyusername LIKE '%4%' THEN 'Online' WHEN ap.createdbyusername LIKE '%5%' THEN 'Online' WHEN ap.createdbyusername LIKE '%6%' THEN 'Online' WHEN ap.createdbyusername LIKE '%7%' THEN 'Online' WHEN ap.createdbyusername LIKE '%8%' THEN 'Online' WHEN ap.createdbyusername LIKE '%9%' THEN 'Online' WHEN ap.createdby = 'PPG User' THEN 'Online' WHEN ap.createdby = 'POSSE system power user' THEN 'Revenue' ELSE 'Staff' END) AS "CreatedByType", ap.createdbyusername "CreatedByUserName", ap.objectid "JobObjectID", ap.externalfilenum "JobNumber", ( CASE WHEN jt.name LIKE 'j_TL_Application' THEN 'Application' WHEN jt.name LIKE 'j_TL_AmendRenew' THEN 'Renewal or Amendment' END ) "JobType", Extract(month FROM ap.createddate) || '/' ||Extract(day FROM ap.createddate) || '/' || Extract(year FROM ap.createddate) "JobCreatedDate", ap.createddate "JobCreatedDateField", Extract(month FROM ap.completeddate) || '/' ||Extract(day FROM ap.completeddate) || '/' || Extract(year FROM ap.completeddate) "JobCompletedDate", ap.statusdescription "StatusDescription", ( CASE WHEN jt.description LIKE 'Trade License Application' THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=2854033&objectHandle=' ||ap.objectid ||'&processHandle=' WHEN jt.description LIKE 'Trade License Amend/Renew' THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=2857688&objectHandle=' ||ap.objectid ||'&processHandle=' END ) "JobLink" FROM lmscorral.tl_tradelicensetypes lt, lmscorral.tl_tradelicenses lic, query.j_tl_application ap, query.o_jobtypes jt WHERE lt.licensecode = lic.licensecode (+) AND lic.objectid = ap.tradelicenseobjectid (+) AND ap.jobtypeid = jt.jobtypeid (+) AND ap.statusid LIKE '1036493' AND ap.externalfilenum LIKE 'TL%' UNION SELECT lt.licensecodedescription "LicenseType", ( CASE WHEN ar.createdbyusername LIKE '%2%' THEN 'Online' WHEN ar.createdbyusername LIKE '%3%' THEN 'Online' WHEN ar.createdbyusername LIKE '%4%' THEN 'Online' WHEN ar.createdbyusername LIKE '%5%' THEN 'Online' WHEN ar.createdbyusername LIKE '%6%' THEN 'Online' WHEN ar.createdbyusername LIKE '%7%' THEN 'Online' WHEN ar.createdbyusername LIKE '%8%' THEN 'Online' WHEN ar.createdbyusername LIKE '%9%' THEN 'Online' WHEN ar.createdby = 'PPG User' THEN 'Online' WHEN ar.createdby = 'POSSE system power user' THEN 'Revenue' ELSE 'Staff' END ) AS "CreatedByType", ar.createdbyusername "CreatedByUserName", ar.objectid "JobObjectID", ar.externalfilenum "JobNumber", ( CASE WHEN jt.name LIKE 'j_TL_Application' THEN 'Application' WHEN jt.name LIKE 'j_TL_AmendRenew' THEN 'Renewal or Amendment' END ) "JobType", Extract(month FROM ar.createddate) || '/' ||Extract(day FROM ar.createddate) || '/' || Extract(year FROM ar.createddate) "JobCreatedDate", ar.createddate "JobCreatedDateField", Extract(month FROM ar.completeddate) || '/' ||Extract(day FROM ar.completeddate) || '/' || Extract(year FROM ar.completeddate) "JobCompletedDate", ar.statusdescription "StatusDescription", ( CASE WHEN jt.description LIKE 'Trade License Application' THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=2854033&objectHandle=' ||ar.objectid ||'&processHandle=' WHEN jt.description LIKE 'Trade License Amend/Renew' THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=2857688&objectHandle=' ||ar.objectid ||'&processHandle=' END ) "JobLink" FROM lmscorral.tl_tradelicensetypes lt, lmscorral.tl_tradelicenses lic, query.r_tl_amendrenew_license arl, query.j_tl_amendrenew ar, query.o_jobtypes jt WHERE lt.licensecode = lic.licensecode (+) AND lic.objectid = arl.licenseid (+) AND arl.amendrenewid = ar.objectid (+) AND ar.jobtypeid = jt.jobtypeid (+) AND ar.statusid LIKE '1036493' AND ar.externalfilenum LIKE 'TR%'"""
         df_table = pd.read_sql(sql,con)
 
 username_options_unsorted = []
@@ -27,21 +27,34 @@ for username in df_staff['CreatedByUserName'].unique():
     username_options_unsorted.append({'label': str(username), 'value': username})
 username_options_sorted = sorted(username_options_unsorted, key=lambda k: k['label'])
 
+
 def get_data_object(selected_start, selected_end, username):
-    df_selected = df_table[(df_table['JobCreatedDateField']>=selected_start)&(df_table['JobCreatedDateField']<=selected_end)]
+    df_selected = df_table[(df_table['JobCreatedDateField'] >= selected_start)&(df_table['JobCreatedDateField'] <= selected_end)]
     if username is not None:
         if isinstance(username, str):
             df_selected = df_selected[df_selected['CreatedByUserName'] == username]
         elif isinstance(username, list):
-            if len(username) > 0:
+            if len(username) > 1:
                 df_selected = df_selected[df_selected['CreatedByUserName'].isin(username)]
+            elif len(username) == 1:
+                df_selected = df_selected[df_selected['CreatedByUserName'] == username[0]]
     return df_selected.drop('JobCreatedDateField', axis=1)
 
-def count_jobs(selected_start, selected_end):
-    df_countselected =df_table[(df_table['JobCreatedDateField']>=selected_start)&(df_table['JobCreatedDateField']<=selected_end)]
-    df_counter = df_countselected.groupby(by=['CreatedByType','JobTypeName'], as_index=False).agg({'JobObjectID': pd.Series.nunique})
-    df_counter = df_counter.rename(columns={'CreatedByType': "Job Submission Type",'JobTypeName':'Job Type', 'JobObjectID': 'Count of Jobs Submitted'})
-    df_counter['Count of Jobs Submitted'] = df_counter.apply(lambda x: "{:,}".format(x['Count of Jobs Submitted']), axis=1)
+
+def count_jobs(selected_start, selected_end, username):
+    df_count_selected = df_table[(df_table['JobCreatedDateField'] >= selected_start) & (df_table['JobCreatedDateField'] <= selected_end)]
+    if username is not None:
+        if isinstance(username, str):
+            df_count_selected = df_count_selected[df_count_selected['CreatedByUserName'] == username]
+        elif isinstance(username, list):
+            if len(username) > 1:
+                df_count_selected = df_count_selected[df_count_selected['CreatedByUserName'].isin(username)]
+            elif len(username) == 1:
+                df_count_selected = df_count_selected[df_count_selected['CreatedByUserName'] == username[0]]
+    df_counter = df_count_selected.groupby(by=['CreatedByType', 'JobType'], as_index=False).agg({'JobObjectID': pd.Series.nunique})
+    df_counter = df_counter.rename(columns={'CreatedByType': "Job Submission Type", 'JobType': 'Job Type', 'JobObjectID': 'Count of Jobs Submitted'})
+    if len(df_counter['Count of Jobs Submitted']) > 0:
+        df_counter['Count of Jobs Submitted'] = df_counter.apply(lambda x: "{:,}".format(x['Count of Jobs Submitted']), axis=1)
     return df_counter
 
 #TODO why is this not including high date?
@@ -69,17 +82,6 @@ layout = html.Div(
                 end_date=datetime.now()
             ),
         ], style={'margin-left': '5%', 'margin-bottom': '25px'}),
-        html.Div([
-            dt.DataTable(
-                rows=[{}],
-                row_selectable=True,
-                sortable=True,
-                selected_row_indices=[],
-                id='Man004TL-counttable'
-            ),
-        ], style={'width': '50%', 'margin-left': '5%', 'margin-bottom': '75px'},
-           id = 'Man004TL-counttable-div'
-        ),
         html.Div(
             children=[
                 'Filter by Username (Staff only)'
@@ -93,6 +95,17 @@ layout = html.Div(
                 multi=True
             ),
         ], style={'width': '33%', 'display': 'inline-block', 'margin-left': '5%'}),
+        html.Div([
+            dt.DataTable(
+                rows=[{}],
+                row_selectable=True,
+                sortable=True,
+                selected_row_indices=[],
+                id='Man004TL-counttable'
+            ),
+        ], style={'width': '60%', 'margin-left': '5%', 'margin-bottom': '75px'},
+           id = 'Man004TL-counttable-div'
+        ),
         html.Div([
             dt.DataTable(
                 rows=[{}],
@@ -117,9 +130,10 @@ layout = html.Div(
 @app.callback(
     Output('Man004TL-counttable', 'rows'),
     [Input('my-date-picker-range', 'start_date'),
-     Input('my-date-picker-range', 'end_date')])
-def updatecount_table(start_date, end_date):
-    df_counts = count_jobs(start_date, end_date)
+     Input('my-date-picker-range', 'end_date'),
+     Input('username-dropdown', 'value')])
+def updatecount_table(start_date, end_date, username_val):
+    df_counts = count_jobs(start_date, end_date, username_val)
     return df_counts.to_dict('records')
 
 
