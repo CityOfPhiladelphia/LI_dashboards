@@ -94,7 +94,7 @@ layout = html.Div(
                 options=username_options_sorted,
                 multi=True
             ),
-        ], style={'width': '33%', 'display': 'inline-block', 'margin-left': '5%'}),
+        ], style={'width': '33%', 'display': 'inline-block', 'margin-left': '5%', 'margin-bottom': '25px'}),
         html.Div([
             dt.DataTable(
                 rows=[{}],
