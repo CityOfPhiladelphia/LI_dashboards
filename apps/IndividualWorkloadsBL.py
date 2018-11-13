@@ -121,7 +121,9 @@ layout = html.Div(children=[
                                 value='All'
                         ),
                     ], className='five columns'),
-                ], className='dashrow filters'),
+                ], className='dashrow filters',
+                   style={'width': '80%', 'margin-left': 'auto', 'margin-right': 'auto'}
+                ),
                 html.Div([
                     html.Div([
                         html.P('Filter by Process Type'),
@@ -147,7 +149,9 @@ layout = html.Div(children=[
                             value='All'
                         ),
                     ], className='four columns'),
-                ], className='dashrow filters'),
+                ], className='dashrow filters',
+                   style={'width': '80%', 'margin-left': 'auto', 'margin-right': 'auto'}
+                ),
                 html.Div([
                     html.Div([
                         dcc.Graph(id='ind-workloads-graph',
@@ -174,8 +178,10 @@ layout = html.Div(children=[
                                 )
                             )
                         )
-                    ], className='twelve columns'),
-                ], className='dashrow'),
+                    ], className='ten columns'),
+                ], className='dashrow',
+                    style={'margin-left': 'auto', 'margin-right': 'auto'}
+                ),
                 html.Div([
                     html.Div([
                         html.H3('Processes Completed by Person', style={'text-align': 'center'}),
@@ -199,7 +205,7 @@ layout = html.Div(children=[
                                 target='_blank',
                             )
                         ], style={'text-align': 'right'})
-                    ], style={'width': '50%', 'margin-left': 'auto', 'margin-right': 'auto','margin-top': '50px', 'margin-bottom': '50px'})
+                    ], style={'width': '55%', 'margin-left': 'auto', 'margin-right': 'auto','margin-top': '50px', 'margin-bottom': '50px'})
                 ], className='dashrow'),
                 html.Div([
                     html.Div([
