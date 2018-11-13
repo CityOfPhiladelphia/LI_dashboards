@@ -9,7 +9,9 @@ from datetime import datetime
 from app import app, server
 #from log_visitors import log_visitor
 
-from apps import Man001ActiveJobsBL, Man001ActiveJobsTL, Man002ActiveProcessesBL, Man002ActiveProcessesTL, Man004BLJobVolumesBySubmissionType, Man004TLJobVolumesBySubmissionType, Man005BLExpirationVolumesBySubmissionType, Man005TLExpirationVolumesBySubmissionType, Man006OverdueBLInspections
+from apps import Man001ActiveJobsBL, Man001ActiveJobsTL, Man002ActiveProcessesBL, Man002ActiveProcessesTL, \
+    Man004BLJobVolumesBySubmissionType, Man004TLJobVolumesBySubmissionType, Man005BLExpirationVolumesBySubmissionType, \
+    Man005TLExpirationVolumesBySubmissionType, Man006OverdueBLInspections, IndividualWorkloadsBL
 
 time = datetime.strftime(datetime.now(), '%I:%M %p %m/%d/%y')
 
@@ -32,7 +34,8 @@ app.layout = html.Div([
                             html.A('Active Processes', href='/ActiveProcessesBL'),
                             html.A('Job Volumes by Submission Type', href='/JobVolumesBySubmissionTypeBL'),
                             html.A('License Expiration Volumes by Submission Type', href='/ExpirationVolumesBySubmissionTypeBL'),
-                            html.A('Inspections Past their Scheduled Completion Date', href='/OverdueInspectionsBL')
+                            html.A('Inspections Past their Scheduled Completion Date', href='/OverdueInspectionsBL'),
+                            html.A('Individual Workloads', href='/IndividualWorkloadsBL')
                         ], className='dropdown-content')
                     ], className='dropdown'),
                 ], className='navbar'),
@@ -68,8 +71,10 @@ def display_page(pathname):
         return Man005TLExpirationVolumesBySubmissionType.layout
     elif pathname == '/OverdueInspectionsBL':
         return Man006OverdueBLInspections.layout
+    elif pathname == '/IndividualWorkloadsBL':
+        return IndividualWorkloadsBL.layout
     else:
-        return Man001ActiveJobsTL.layout
+        return IndividualWorkloadsBL.layout
 
 if __name__ == '__main__':
     # app.run_server(host='127.0.0.1', port=5001)
