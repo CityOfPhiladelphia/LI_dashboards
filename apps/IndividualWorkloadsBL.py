@@ -24,10 +24,8 @@ else:
 
 # Rename the columns to be more readable
 # Make a DateText Column to display on the graph
-df = (df.rename(columns={'SCHEDULEDSTARTDATE': 'Scheduled Start Date', 'DATECOMPLETED': 'Date Completed',
-                         'PROCESSTYPE': 'Process Type', 'NAME': 'Person', 'JOBTYPE': 'Job Type',
-                         'LICENSETYPE': 'License Type'})
-        .assign(DateText=lambda x: x['Date Completed'].dt.strftime('%b %Y')))
+df = (df.rename(columns={'PROCESSTYPE': 'Process Type', 'JOBTYPE': 'Job Type', 'LICENSETYPE': 'License Type', 'NAME': 'Person',
+                         'SCHEDULEDSTARTDATE': 'Scheduled Start Date', 'DATECOMPLETED': 'Date Completed', 'DURATION': 'Duration'}))
 
 unique_persons = df['Person'].unique()
 unique_persons = np.append(['All'], unique_persons)
@@ -41,9 +39,16 @@ unique_job_types = np.append(['All'], unique_job_types)
 unique_license_types = df['License Type'].unique()
 unique_license_types = np.append(['All'], unique_license_types)
 
+df_counts = (df.groupby(['Person', 'Process Type', 'Job Type', 'License Type', 'Date Completed'])
+             .agg({'PROCESSID': 'count', 'Duration': 'sum'})
+             .reset_index()
+             .rename(columns={'PROCESSID': 'Processes Completed', 'Duration': 'Total Duration'})
+             .sort_values(by='Date Completed', ascending=False))
+
+df_counts['Month'] = df_counts['Date Completed'].map(lambda dt: dt.replace(day=1))
 
 def update_graph_data(selected_start, selected_end, selected_person, selected_process_type, selected_job_type, selected_license_type):
-    df_selected = df.copy(deep=True)
+    df_selected = df_counts.copy(deep=True)
 
     if selected_person != "All":
         df_selected = df_selected[(df_selected['Person'] == selected_person)]
@@ -54,15 +59,14 @@ def update_graph_data(selected_start, selected_end, selected_person, selected_pr
     if selected_license_type != "All":
         df_selected = df_selected[(df_selected['License Type'] == selected_license_type)]
 
-    df_selected = (df_selected.loc[(df['Date Completed'] >= selected_start) & (df_selected['Date Completed'] <= selected_end)]
-                   .groupby(by=['Date Completed', 'DateText'])['Processes Completed']
-                   .sum()
+    df_selected = (df_selected.loc[(df_selected['Date Completed'] >= selected_start) & (df_selected['Date Completed'] <= selected_end)]
+                   .groupby('Month').agg({'Processes Completed': 'sum'})
                    .reset_index()
-                   .sort_values(by=['Date Completed']))
+                   .sort_values(by='Month', ascending=False))
     return df_selected
 
 def update_counts_table_data(selected_start, selected_end, selected_person, selected_process_type, selected_job_type, selected_license_type):
-    df_selected = df.copy(deep=True)
+    df_selected = df_counts.copy(deep=True)
 
     if selected_person != "All":
         df_selected = df_selected[(df_selected['Person'] == selected_person)]
@@ -73,10 +77,9 @@ def update_counts_table_data(selected_start, selected_end, selected_person, sele
     if selected_license_type != "All":
         df_selected = df_selected[(df_selected['License Type'] == selected_license_type)]
 
-    df_selected = (df_selected.loc[(df['Date Completed'] >= selected_start) & (df_selected['Date Completed'] <= selected_end)]
-                   .groupby('Person').agg({'PROCESSID': 'count', 'Duration': 'mean'})
+    df_selected = (df_selected.loc[(df_selected['Date Completed'] >= selected_start) & (df_selected['Date Completed'] <= selected_end)]
+                   .groupby('Person').agg({'Processes Completed': 'count', 'Total Duration': 'sum'})
                    .reset_index()
-                   .rename(columns={'PROCESSID': 'Processes Completed', 'Duration': 'Avg. Duration'})
                    .sort_values(by='Processes Completed', ascending=False))
     return df_selected
 
@@ -122,7 +125,7 @@ layout = html.Div(children=[
                     html.Div([
                         html.P('Filter by License Type'),
                         dcc.Dropdown(
-                            id='ind-workloads-license_type-dropdown',
+                            id='ind-workloads-license-type-dropdown',
                             options=[{'label': k, 'value': k} for k in unique_license_types],
                             value='All'
                         ),
@@ -134,10 +137,10 @@ layout = html.Div(children=[
                             figure=go.Figure(
                                 data=[
                                     go.Scatter(
-                                        x=df['Date Completed'],
-                                        y=[],
+                                        x=df_counts['Month'],
+                                        y=df_counts['Processes Completed'],
                                         mode='lines',
-                                        text=df['DateText'],
+                                        text=df_counts['Month'],
                                         hoverinfo='text+y',
                                         line=dict(
                                             shape='spline',
@@ -162,7 +165,6 @@ layout = html.Div(children=[
                         html.Div([
                             table.DataTable(
                                 rows=[{}],
-                                columns=['Person', 'Processes Completed', 'Avg. Duration'],
                                 editable=False,
                                 sortable=True,
                                 id='ind-workloads-count-table'
@@ -192,14 +194,14 @@ layout = html.Div(children=[
      Input('ind-workloads-job-type-dropdown', 'value'),
      Input('ind-workloads-license-type-dropdown', 'value')])
 def update_graph(start_date, end_date, person, process_type, job_type, license_type):
-    df = update_graph_data(start_date, end_date, person, process_type, job_type, license_type)
+    df_results = update_graph_data(start_date, end_date, person, process_type, job_type, license_type)
     return {
         'data': [
             go.Scatter(
-                x=df['Date Completed'],
-                y=df['Processes Completed'],
+                x=df_results['Month'],
+                y=df_results['Processes Completed'],
                 mode='lines',
-                text=df['DateText'],
+                text=df_results['Month'],
                 hoverinfo='text+y',
                 line=dict(
                     shape='spline',
@@ -218,7 +220,7 @@ def update_graph(start_date, end_date, person, process_type, job_type, license_t
 
 
 @app.callback(
-    Output('ind-workloads-counts-table', 'rows'),
+    Output('ind-workloads-count-table', 'rows'),
     [Input('ind-workloads-date-picker-range', 'start_date'),
      Input('ind-workloads-date-picker-range', 'end_date'),
      Input('ind-workloads-person-dropdown', 'value'),
@@ -226,19 +228,20 @@ def update_graph(start_date, end_date, person, process_type, job_type, license_t
      Input('ind-workloads-job-type-dropdown', 'value'),
      Input('ind-workloads-license-type-dropdown', 'value')])
 def update_count_table(start_date, end_date, person, process_type, job_type, license_type):
-    df = update_counts_table_data(start_date, end_date, person, process_type, job_type, license_type)
-    return df.to_dict('records')
+    df_results = update_counts_table_data(start_date, end_date, person, process_type, job_type, license_type)
+    return df_results.to_dict('records')
 
 
 @app.callback(
     Output('ind-workloads-count-table-download-link', 'href'),
     [Input('ind-workloads-date-picker-range', 'start_date'),
      Input('ind-workloads-date-picker-range', 'end_date'),
+     Input('ind-workloads-person-dropdown', 'value'),
      Input('ind-workloads-process-type-dropdown', 'value'),
      Input('ind-workloads-job-type-dropdown', 'value'),
      Input('ind-workloads-license-type-dropdown', 'value')])
 def update_count_table_download_link(start_date, end_date, person, process_type, job_type, license_type):
-    df = update_counts_table_data(start_date, end_date, person, process_type, job_type, license_type)
-    csv_string = df.to_csv(index=False, encoding='utf-8')
+    df_results = update_counts_table_data(start_date, end_date, person, process_type, job_type, license_type)
+    csv_string = df_results.to_csv(index=False, encoding='utf-8')
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
     return csv_string
