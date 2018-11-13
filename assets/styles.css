@@ -142,3 +142,32 @@ div#Man006BL-count-table-div div.react-grid-Cell:nth-child(3) {
 div#Man006BL-table-div div.react-grid-Cell:nth-child(10) {
     text-align: right;
 }
+
+div#ind-workloads-count-table-div div.react-grid-Cell:nth-child(1) {
+    text-align: left;
+}
+div#ind-workloads-count-table-div div.react-grid-Cell:nth-child(2) {
+    text-align: left;
+}
+div#ind-workloads-count-table-div div.react-grid-Cell:nth-child(3) {
+    text-align: right;
+}
+div#ind-workloads-count-table-div div.react-grid-Cell:nth-child(4) {
+    text-align: right;
+}
+
+div#ind-workloads-ind-records-table-div div.react-grid-Cell:nth-child(2) {
+    text-align: left;
+}
+div#ind-workloads-ind-records-table-div div.react-grid-Cell:nth-child(3) {
+    text-align: left;
+}
+div#ind-workloads-ind-records-table-div div.react-grid-Cell:nth-child(4) {
+    text-align: left;
+}
+div#ind-workloads-ind-records-table-div div.react-grid-Cell:nth-child(5) {
+    text-align: left;
+}
+div#ind-workloads-ind-records-table-div div.react-grid-Cell:nth-child(8) {
+    text-align: right;
+}
