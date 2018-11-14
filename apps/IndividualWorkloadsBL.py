@@ -10,22 +10,24 @@ import urllib.parse
 
 from app import app, con
 
-testing_mode = True
+testing_mode = False
 print('IndividualWorkloadsBL.py')
 print('Testing mode: ' + str(testing_mode))
 
 if testing_mode:
-    df = pd.read_csv('test_data/individual_workloads_bl.csv', parse_dates=['SCHEDULEDSTARTDATE', 'DATECOMPLETED'])
+    df = pd.read_csv('test_data/individual_workloads_bl.csv', parse_dates=['DATECOMPLETEDFIELD'])
 
 else:
     with con() as con:
-        with open(r'queries/permits/individual_workloads_bl.sql') as sql:
-            df = pd.read_sql_query(sql=sql.read(), con=con, parse_dates=['SCHEDULEDSTARTDATE', 'DATECOMPLETED'])
+        with open(r'queries/individual_workloads_bl.sql') as sql:
+            df = pd.read_sql_query(sql=sql.read(), con=con, parse_dates=['DATECOMPLETEDFIELD'])
 
 # Rename the columns to be more readable
-# Make a DateText Column to display on the graph
 df = (df.rename(columns={'PROCESSID': 'Process ID', 'PROCESSTYPE': 'Process Type', 'JOBTYPE': 'Job Type', 'LICENSETYPE': 'License Type', 'NAME': 'Person',
-                         'SCHEDULEDSTARTDATE': 'Scheduled Start Date', 'DATECOMPLETED': 'Date Completed', 'DURATION': 'Duration'}))
+                         'SCHEDULEDSTARTDATE': 'Scheduled Start Date', 'DATECOMPLETED': 'Date Completed', 'DURATION': 'Duration (days)'})
+      .assign(DateText=lambda x: x['DATECOMPLETEDFIELD'].dt.strftime('%b %Y')))
+
+df['Month Year'] = df['DATECOMPLETEDFIELD'].map(lambda dt: dt.date().replace(day=1))
 
 unique_persons = df['Person'].unique()
 unique_persons = np.append(['All'], unique_persons)
@@ -39,16 +41,8 @@ unique_job_types = np.append(['All'], unique_job_types)
 unique_license_types = df['License Type'].unique()
 unique_license_types = np.append(['All'], unique_license_types)
 
-df_counts = (df.groupby(['Person', 'Process Type', 'Job Type', 'License Type', 'Date Completed'])
-             .agg({'Process ID': 'count', 'Duration': 'sum'})
-             .reset_index()
-             .rename(columns={'Process ID': 'Processes Completed', 'Duration': 'Total Duration'})
-             .sort_values(by='Date Completed', ascending=False))
-
-df_counts['Month'] = df_counts['Date Completed'].map(lambda dt: dt.replace(day=1))
-
 def update_graph_data(selected_start, selected_end, selected_person, selected_process_type, selected_job_type, selected_license_type):
-    df_selected = df_counts.copy(deep=True)
+    df_selected = df.copy(deep=True)
 
     if selected_person != "All":
         df_selected = df_selected[(df_selected['Person'] == selected_person)]
@@ -59,14 +53,15 @@ def update_graph_data(selected_start, selected_end, selected_person, selected_pr
     if selected_license_type != "All":
         df_selected = df_selected[(df_selected['License Type'] == selected_license_type)]
 
-    df_selected = (df_selected.loc[(df_selected['Date Completed'] >= selected_start) & (df_selected['Date Completed'] <= selected_end)]
-                   .groupby('Month').agg({'Processes Completed': 'sum'})
+    df_selected = (df_selected.loc[(df_selected['DATECOMPLETEDFIELD'] >= selected_start) & (df_selected['DATECOMPLETEDFIELD'] <= selected_end)]
+                   .groupby(['Month Year', 'DateText']).agg({'Process ID': 'count'})
                    .reset_index()
-                   .sort_values(by='Month', ascending=False))
+                   .rename(columns={'Process ID': 'Processes Completed'})
+                   .sort_values(by='Month Year', ascending=False))
     return df_selected
 
 def update_counts_table_data(selected_start, selected_end, selected_person, selected_process_type, selected_job_type, selected_license_type):
-    df_selected = df_counts.copy(deep=True)
+    df_selected = df.copy(deep=True)
 
     if selected_person != "All":
         df_selected = df_selected[(df_selected['Person'] == selected_person)]
@@ -77,12 +72,13 @@ def update_counts_table_data(selected_start, selected_end, selected_person, sele
     if selected_license_type != "All":
         df_selected = df_selected[(df_selected['License Type'] == selected_license_type)]
 
-    df_selected = (df_selected.loc[(df_selected['Date Completed'] >= selected_start) & (df_selected['Date Completed'] <= selected_end)]
-                   .groupby(['Person', 'Process Type']).agg({'Processes Completed': 'count', 'Total Duration': 'sum'})
+    df_selected = (df_selected.loc[(df_selected['DATECOMPLETEDFIELD'] >= selected_start) & (df_selected['DATECOMPLETEDFIELD'] <= selected_end)]
+                   .groupby(['Person', 'Process Type']).agg({'Process ID': 'count', 'Duration (days)': 'sum'})
                    .reset_index()
+                   .rename(columns={'Process ID': 'Processes Completed'})
                    .sort_values(by=['Person', 'Process Type']))
-    df_selected['Avg. Duration'] = (df_selected['Total Duration'] / df_selected['Processes Completed']).round(0)
-    return df_selected[['Person', 'Process Type', 'Processes Completed', 'Avg. Duration']]
+    df_selected['Avg. Duration (days)'] = (df_selected['Duration (days)'] / df_selected['Processes Completed']).round(0)
+    return df_selected[['Person', 'Process Type', 'Processes Completed', 'Avg. Duration (days)']]
 
 def update_ind_records_table_data(selected_start, selected_end, selected_person, selected_process_type, selected_job_type, selected_license_type):
     df_selected = df.copy(deep=True)
@@ -96,10 +92,10 @@ def update_ind_records_table_data(selected_start, selected_end, selected_person,
     if selected_license_type != "All":
         df_selected = df_selected[(df_selected['License Type'] == selected_license_type)]
 
-    df_selected = (df_selected.loc[(df_selected['Date Completed'] >= selected_start) & (df_selected['Date Completed'] <= selected_end)]
-                   .sort_values(by='Date Completed'))
-    df_selected['Duration'] = df_selected['Duration'].round(2).map('{:,.2f}'.format)
-    return df_selected
+    df_selected = (df_selected.loc[(df_selected['DATECOMPLETEDFIELD'] >= selected_start) & (df_selected['DATECOMPLETEDFIELD'] <= selected_end)]
+                   .sort_values(by='DATECOMPLETEDFIELD'))
+    df_selected['Duration (days)'] = df_selected['Duration (days)'].round(2).map('{:,.2f}'.format)
+    return df_selected.drop(['DATECOMPLETEDFIELD', 'Month Year', 'DateText'], axis=1)
 
 layout = html.Div(children=[
                 html.H1('Individual Workloads', style={'text-align': 'center'}),
@@ -109,7 +105,7 @@ layout = html.Div(children=[
                         dcc.DatePickerRange(
                             display_format='MMM Y',
                             id='ind-workloads-date-picker-range',
-                            start_date=datetime(2016, 1, 1),
+                            start_date=datetime(2018, 1, 1),
                             end_date=datetime.now()
                         ),
                     ], className='six columns'),
@@ -120,7 +116,7 @@ layout = html.Div(children=[
                                 options=[{'label': k, 'value': k} for k in unique_persons],
                                 value='All'
                         ),
-                    ], className='five columns'),
+                    ], className='six columns'),
                 ], className='dashrow filters',
                    style={'width': '80%', 'margin-left': 'auto', 'margin-right': 'auto'}
                 ),
@@ -156,22 +152,9 @@ layout = html.Div(children=[
                     html.Div([
                         dcc.Graph(id='ind-workloads-graph',
                             figure=go.Figure(
-                                data=[
-                                    go.Scatter(
-                                        x=df_counts['Month'],
-                                        y=df_counts['Processes Completed'],
-                                        mode='lines',
-                                        text=df_counts['Month'],
-                                        hoverinfo='text+y',
-                                        line=dict(
-                                            shape='spline',
-                                            color='rgb(26, 118, 255)'
-                                        ),
-                                        name='Processes Completed'
-                                    )
-                                ],
+                                data=[],
                                 layout=go.Layout(
-                                    title='Processes Completed',
+                                    title='Processes Completed by Month',
                                     yaxis=dict(
                                         title='Processes Completed'
                                     )
@@ -184,7 +167,7 @@ layout = html.Div(children=[
                 ),
                 html.Div([
                     html.Div([
-                        html.H3('Processes Completed by Person', style={'text-align': 'center'}),
+                        html.H3('Processes Completed by Person and Process Type', style={'text-align': 'center'}),
                         html.Div([
                             table.DataTable(
                                 rows=[{}],
@@ -248,10 +231,10 @@ def update_graph(start_date, end_date, person, process_type, job_type, license_t
     return {
         'data': [
             go.Scatter(
-                x=df_results['Month'],
+                x=df_results['Month Year'],
                 y=df_results['Processes Completed'],
                 mode='lines',
-                text=df_results['Month'],
+                text=df_results['DateText'],
                 hoverinfo='text+y',
                 line=dict(
                     shape='spline',
@@ -261,7 +244,7 @@ def update_graph(start_date, end_date, person, process_type, job_type, license_t
             )
         ],
         'layout': go.Layout(
-                title='Processes Completed',
+                title='Processes Completed by Month',
                 yaxis=dict(
                     title='Processes Completed'
                 )
