@@ -77,7 +77,7 @@ def display_page(pathname):
     elif pathname == '/SLA_BL':
         return SLA_BL.layout
     else:
-        return SLA_BL.layout
+        return Man001ActiveJobsBL.layout
 
 if __name__ == '__main__':
     # app.run_server(host='127.0.0.1', port=5001)
