@@ -224,9 +224,9 @@ def update_graph(start_date, end_date, job_type, time_agg):
             )
         ],
         'layout': go.Layout(
-                title='Jobs Created',
                 yaxis=dict(
-                    title='Jobs Created'
+                    title='Jobs Created',
+                    range=[0, df_results['Jobs Created'].max() + (df_results['Jobs Created'].max()/50)]
                 ),
                 xaxis=dict(
                     title='Job Creation Date'

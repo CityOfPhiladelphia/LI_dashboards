@@ -13,7 +13,6 @@ from apps import Man001ActiveJobsBL, Man001ActiveJobsTL, Man002ActiveProcessesBL
     Man004BLJobVolumesBySubmissionType, Man004TLJobVolumesBySubmissionType, Man005BLExpirationVolumesBySubmissionType, \
     Man005TLExpirationVolumesBySubmissionType, Man006OverdueBLInspections, IndividualWorkloadsBL, SLA_BL
 
-
 time = datetime.strftime(datetime.now(), '%I:%M %p %m/%d/%y')
 
 app.layout = html.Div([
@@ -37,7 +36,7 @@ app.layout = html.Div([
                             html.A('License Expiration Volumes by Submission Type', href='/ExpirationVolumesBySubmissionTypeBL'),
                             html.A('Inspections Past their Scheduled Completion Date', href='/OverdueInspectionsBL'),
                             html.A('Individual Workloads', href='/IndividualWorkloadsBL'),
-                            html.A('SLA', href='/SLA_BL')
+                            html.A('SLA Compliance', href='/SLA_BL')
                         ], className='dropdown-content')
                     ], className='dropdown'),
                 ], className='navbar'),
