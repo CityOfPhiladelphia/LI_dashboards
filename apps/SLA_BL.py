@@ -7,6 +7,8 @@ from dash.dependencies import Input, Output
 from datetime import datetime
 import numpy as np
 import urllib.parse
+from pandas.tseries.holiday import USFederalHolidayCalendar
+from pandas.tseries.offsets import CustomBusinessDay
 
 from app import app, con
 
@@ -33,6 +35,14 @@ df = (df.rename(columns={'JOBID': 'Job ID', 'PROCESSID': 'Process ID', 'JOBTYPE'
 df['Month Year'] = df['JOBCREATEDDATEFIELD'].map(lambda dt: dt.date().replace(day=1))
 df['Day Month Year'] = df['JOBCREATEDDATEFIELD'].map(lambda dt: dt.date())
 
+us_bd = CustomBusinessDay(calendar=USFederalHolidayCalendar())
+def calc_bus_days(row):
+    row['Bus. Days Duration'] = pd.DatetimeIndex(start=row['JOBCREATEDDATEFIELD'], end=row['PROCESSDATECOMPLETEDFIELD'], freq=us_bd).shape[0] - 1
+    return row['Bus. Days Duration']
+
+df['Bus. Days Duration'] = df[df['PROCESSDATECOMPLETEDFIELD'].notnull()].apply(calc_bus_days, axis=1)
+df['W/in SLA'] = np.where(df['Bus. Days Duration'] <= 2, 1, 0)
+
 unique_job_types = df['Job Type'].unique()
 unique_job_types = np.append(['All'], unique_job_types)
 
@@ -44,20 +54,24 @@ def update_graph_data(selected_start, selected_end, selected_job_type, selected_
         df_selected = df_selected[(df_selected['Job Type'] == selected_job_type)]
     if selected_time_agg == "Month":
         df_selected = (df_selected.loc[(df_selected['JOBCREATEDDATEFIELD'] >= selected_start) & (df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
-                       .groupby(['Month Year', 'MonthDateText']).agg({'Job ID': 'count', 'Process Completed Date': 'count'})
+                       .groupby(['Month Year', 'MonthDateText']).agg({'Job ID': 'count', 'Process Completed Date': 'count',
+                                                                      'W/in SLA': 'sum'})
                        .reset_index()
                        .rename(columns={'Month Year': 'Date Created', 'MonthDateText': 'DateText', 'Job ID': 'Jobs Created',
-                                        'Process Completed Date': 'Completeness Checks Completed'})
+                                        'Process Completed Date': 'Completeness Checks Completed', 'W/in SLA': '# w/in SLA'})
                        .sort_values(by='Date Created', ascending=False))
     if selected_time_agg == "Day":
         df_selected = (df_selected.loc[(df_selected['JOBCREATEDDATEFIELD'] >= selected_start) & (df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
-                       .groupby(['Day Month Year', 'DayDateText']).agg({'Job ID': 'count', 'Process Completed Date': 'count'})
+                       .groupby(['Day Month Year', 'DayDateText']).agg({'Job ID': 'count', 'Process Completed Date': 'count',
+                                                                        'W/in SLA': 'sum'})
                        .reset_index()
                        .rename(columns={'Day Month Year': 'Date Created', 'DayDateText': 'DateText', 'Job ID': 'Jobs Created',
-                                        'Process Completed Date': 'Completeness Checks Completed'})
+                                        'Process Completed Date': 'Completeness Checks Completed', 'W/in SLA': '# w/in SLA'})
                        .sort_values(by='Date Created', ascending=False))
     df_selected['% Completed'] = df_selected['Completeness Checks Completed'] / df_selected['Jobs Created'] * 100
     df_selected['% Completed'] = df_selected['% Completed'].round(0)
+    df_selected['% Completed w/in SLA'] = df_selected['# w/in SLA'] / df_selected['Jobs Created'] * 100
+    df_selected['% Completed w/in SLA'] = df_selected['% Completed w/in SLA'].round(0)
     return df_selected
 
 
@@ -148,6 +162,19 @@ def update_graph(start_date, end_date, job_type, time_agg):
                 ),
                 name='% Completed',
                 yaxis='y2'
+            ),
+            go.Scatter(
+                x=df_results['Date Created'],
+                y=df_results['% Completed w/in SLA'].map('{:,.0f}%'.format),
+                mode='lines',
+                text=df_results['DateText'],
+                hoverinfo='text+y',
+                line=dict(
+                    shape='spline',
+                    color='#8B0000'
+                ),
+                name='% Completed w/in SLA',
+                yaxis='y2'
             )
         ],
         'layout': go.Layout(
@@ -159,7 +186,7 @@ def update_graph(start_date, end_date, job_type, time_agg):
                     title='Job Creation Date'
                 ),
                 yaxis2=dict(
-                    title='% Completed',
+                    title='% of Jobs',
                     titlefont=dict(
                         color='#ff7f0e'
                     ),
@@ -167,7 +194,8 @@ def update_graph(start_date, end_date, job_type, time_agg):
                         color='#ff7f0e'
                     ),
                     overlaying='y',
-                    side='right'
+                    side='right',
+                    range=[0, 100]
                 )
         )
     }
