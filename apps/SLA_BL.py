@@ -31,6 +31,7 @@ df = (df.rename(columns={'JOBID': 'Job ID', 'PROCESSID': 'Process ID', 'JOBTYPE'
       .assign(DayDateText=lambda x: x['JOBCREATEDDATEFIELD'].dt.strftime('%b %d')))
 
 df['Month Year'] = df['JOBCREATEDDATEFIELD'].map(lambda dt: dt.date().replace(day=1))
+df['Day Month Year'] = df['JOBCREATEDDATEFIELD'].map(lambda dt: dt.date())
 
 unique_job_types = df['Job Type'].unique()
 unique_job_types = np.append(['All'], unique_job_types)
@@ -50,13 +51,13 @@ def update_graph_data(selected_start, selected_end, selected_job_type, selected_
                        .sort_values(by='Date Created', ascending=False))
     if selected_time_agg == "Day":
         df_selected = (df_selected.loc[(df_selected['JOBCREATEDDATEFIELD'] >= selected_start) & (df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
-                       .groupby(['Job Created Date', 'DayDateText']).agg({'Job ID': 'count', 'Process Completed Date': 'count'})
+                       .groupby(['Day Month Year', 'DayDateText']).agg({'Job ID': 'count', 'Process Completed Date': 'count'})
                        .reset_index()
-                       .rename(columns={'Job Created Date': 'Date Created', 'DayDateText': 'DateText', 'Job ID': 'Jobs Created',
+                       .rename(columns={'Day Month Year': 'Date Created', 'DayDateText': 'DateText', 'Job ID': 'Jobs Created',
                                         'Process Completed Date': 'Completeness Checks Completed'})
                        .sort_values(by='Date Created', ascending=False))
-    df_selected['% Completed w/in 2 Bus. Days'] = df_selected['Completeness Checks Completed'] / df_selected['Jobs Created'] * 100
-    df_selected['% Completed w/in 2 Bus. Days'] = df_selected['% Completed w/in 2 Bus. Days'].round(0)
+    df_selected['% Completed'] = df_selected['Completeness Checks Completed'] / df_selected['Jobs Created'] * 100
+    df_selected['% Completed'] = df_selected['% Completed'].round(0)
     return df_selected
 
 
@@ -137,7 +138,7 @@ def update_graph(start_date, end_date, job_type, time_agg):
             ),
             go.Scatter(
                 x=df_results['Date Created'],
-                y=df_results['% Completed w/in 2 Bus. Days'].map('{:,.0f}%'.format),
+                y=df_results['% Completed'].map('{:,.0f}%'.format),
                 mode='lines',
                 text=df_results['DateText'],
                 hoverinfo='text+y',
@@ -145,7 +146,7 @@ def update_graph(start_date, end_date, job_type, time_agg):
                     shape='spline',
                     color='#ff7f0e'
                 ),
-                name='% Completed w/in 2 Bus. Days',
+                name='% Completed',
                 yaxis='y2'
             )
         ],
@@ -158,7 +159,7 @@ def update_graph(start_date, end_date, job_type, time_agg):
                     title='Job Creation Date'
                 ),
                 yaxis2=dict(
-                    title='% Completed w/in 2 Bus. Days',
+                    title='% Completed',
                     titlefont=dict(
                         color='#ff7f0e'
                     ),
