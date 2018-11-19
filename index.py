@@ -11,7 +11,8 @@ from app import app, server
 
 from apps import Man001ActiveJobsBL, Man001ActiveJobsTL, Man002ActiveProcessesBL, Man002ActiveProcessesTL, \
     Man004BLJobVolumesBySubmissionType, Man004TLJobVolumesBySubmissionType, Man005BLExpirationVolumesBySubmissionType, \
-    Man005TLExpirationVolumesBySubmissionType, Man006OverdueBLInspections, IndividualWorkloadsBL
+    Man005TLExpirationVolumesBySubmissionType, Man006OverdueBLInspections, IndividualWorkloadsBL, SLA_BL
+
 
 time = datetime.strftime(datetime.now(), '%I:%M %p %m/%d/%y')
 
@@ -35,7 +36,8 @@ app.layout = html.Div([
                             html.A('Job Volumes by Submission Type', href='/JobVolumesBySubmissionTypeBL'),
                             html.A('License Expiration Volumes by Submission Type', href='/ExpirationVolumesBySubmissionTypeBL'),
                             html.A('Inspections Past their Scheduled Completion Date', href='/OverdueInspectionsBL'),
-                            html.A('Individual Workloads', href='/IndividualWorkloadsBL')
+                            html.A('Individual Workloads', href='/IndividualWorkloadsBL'),
+                            html.A('SLA', href='/SLA_BL')
                         ], className='dropdown-content')
                     ], className='dropdown'),
                 ], className='navbar'),
@@ -73,8 +75,10 @@ def display_page(pathname):
         return Man006OverdueBLInspections.layout
     elif pathname == '/IndividualWorkloadsBL':
         return IndividualWorkloadsBL.layout
+    elif pathname == '/SLA_BL':
+        return SLA_BL.layout
     else:
-        return IndividualWorkloadsBL.layout
+        return SLA_BL.layout
 
 if __name__ == '__main__':
     # app.run_server(host='127.0.0.1', port=5001)
