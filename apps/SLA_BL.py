@@ -47,6 +47,39 @@ unique_job_types = df['Job Type'].unique()
 unique_job_types = np.append(['All'], unique_job_types)
 
 
+def update_jobs_created(selected_start, selected_end, selected_job_type):
+    df_selected = df.copy(deep=True)
+
+    if selected_job_type != "All":
+        df_selected = df_selected[(df_selected['Job Type'] == selected_job_type)]
+
+    df_selected = df_selected.loc[(df['JOBCREATEDDATEFIELD'] >= selected_start)&(df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
+    jobs_created = df_selected['JOBCREATEDDATEFIELD'].count()
+    return '{:,.0f}'.format(jobs_created)
+
+
+def update_percent_completed(selected_start, selected_end, selected_job_type):
+    df_selected = df.copy(deep=True)
+
+    if selected_job_type != "All":
+        df_selected = df_selected[(df_selected['Job Type'] == selected_job_type)]
+
+    df_selected = df_selected.loc[(df['JOBCREATEDDATEFIELD'] >= selected_start)&(df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
+    percent_completed = df_selected['PROCESSDATECOMPLETEDFIELD'].count() / df_selected['JOBCREATEDDATEFIELD'].count() * 100
+    return '{:,.0f}%'.format(percent_completed)
+
+
+def update_percent_completed_within_sla(selected_start, selected_end, selected_job_type):
+    df_selected = df.copy(deep=True)
+
+    if selected_job_type != "All":
+        df_selected = df_selected[(df_selected['Job Type'] == selected_job_type)]
+
+    df_selected = df_selected.loc[(df['JOBCREATEDDATEFIELD'] >= selected_start)&(df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
+    percent_completed_within_sla = df_selected['W/in SLA'].sum() / df_selected['JOBCREATEDDATEFIELD'].count() * 100
+    return '{:,.0f}%'.format(percent_completed_within_sla)
+
+
 def update_graph_data(selected_start, selected_end, selected_job_type, selected_time_agg):
     df_selected = df.copy(deep=True)
 
@@ -76,7 +109,7 @@ def update_graph_data(selected_start, selected_end, selected_job_type, selected_
 
 
 layout = html.Div(children=[
-                html.H1('SLA', style={'text-align': 'center'}),
+                html.H1('SLA Compliance (Business Licenses)', style={'text-align': 'center'}),
                 html.Div([
                     html.Div([
                         html.P('Filter by Job Created Date'),
@@ -115,7 +148,6 @@ layout = html.Div(children=[
                             figure=go.Figure(
                                 data=[],
                                 layout=go.Layout(
-                                    title='Jobs Created',
                                     yaxis=dict(
                                         title='Jobs Created'
                                     )
@@ -125,7 +157,21 @@ layout = html.Div(children=[
                     ], className='ten columns'),
                 ], className='dashrow',
                     style={'margin-left': 'auto', 'margin-right': 'auto'}
-                )
+                ),
+                html.Div([
+                    html.Div([
+                        html.H1('', id='sla-jobs-created-indicator', style={'font-size': '35pt'}),
+                        html.H2('Jobs Created', style={'font-size': '30pt'})
+                    ], className='four columns', style={'text-align': 'center', 'margin': 'auto', 'padding': '50px 0'}),
+                    html.Div([
+                        html.H1('', id='sla-percent-completed-indicator', style={'font-size': '35pt'}),
+                        html.H2('Completed', style={'font-size': '30pt'})
+                    ], className='four columns', style={'text-align': 'center', 'margin': 'auto', 'padding': '50px 0'}),
+                    html.Div([
+                        html.H1('', id='sla-percent-completed-within-sla-indicator', style={'font-size': '35pt'}),
+                        html.H2('Completed Within SLA', style={'font-size': '30pt'})
+                    ], className='four columns', style={'text-align': 'center', 'margin': 'auto', 'padding': '50px 0'})
+                ], className='dashrow'),
             ])
 
 @app.callback(
@@ -200,4 +246,31 @@ def update_graph(start_date, end_date, job_type, time_agg):
         )
     }
 
+@app.callback(
+    Output('sla-jobs-created-indicator', 'children'),
+    [Input('sla-date-picker-range', 'start_date'),
+     Input('sla-date-picker-range', 'end_date'),
+     Input('sla-job-type-dropdown', 'value')])
+def update_jobs_created_indicator(start_date, end_date, job_type):
+    jobs_created = update_jobs_created(start_date, end_date, job_type)
+    return str(jobs_created)
 
+
+@app.callback(
+    Output('sla-percent-completed-indicator', 'children'),
+    [Input('sla-date-picker-range', 'start_date'),
+     Input('sla-date-picker-range', 'end_date'),
+     Input('sla-job-type-dropdown', 'value')])
+def update_percent_completed_indicator(start_date, end_date, job_type):
+    percent_completed = update_percent_completed(start_date, end_date, job_type)
+    return str(percent_completed)
+
+
+@app.callback(
+    Output('sla-percent-completed-within-sla-indicator', 'children'),
+    [Input('sla-date-picker-range', 'start_date'),
+     Input('sla-date-picker-range', 'end_date'),
+     Input('sla-job-type-dropdown', 'value')])
+def update_percent_completed_within_sla_indicator(start_date, end_date, job_type):
+    percent_completed_within_sla = update_percent_completed_within_sla(start_date, end_date, job_type)
+    return str(percent_completed_within_sla)
