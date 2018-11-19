@@ -17,7 +17,7 @@ print('SLA_BL.py')
 print('Testing mode: ' + str(testing_mode))
 
 if testing_mode:
-    df = pd.read_csv('test_data/bl_sla_completeness_checks_only.csv', parse_dates=['JOBCREATEDDATEFIELD', 'JOBCOMPLETEDDATEFIELD',
+    df = pd.read_csv('test_data/bl_sla_completeness_checks_only-short.csv', parse_dates=['JOBCREATEDDATEFIELD', 'JOBCOMPLETEDDATEFIELD',
                                                                                    'PROCESSSCHEDULEDSTARTDATEFIELD', 'PROCESSDATECOMPLETEDFIELD'])
 
 else:
@@ -30,10 +30,12 @@ else:
 df = (df.rename(columns={'JOBID': 'Job ID', 'PROCESSID': 'Process ID', 'JOBTYPE': 'Job Type',
                          'JOBCREATEDDATE': 'Job Created Date', 'PROCESSDATECOMPLETED': 'Process Completed Date'})
       .assign(MonthDateText=lambda x: x['JOBCREATEDDATEFIELD'].dt.strftime('%b %Y'))
-      .assign(DayDateText=lambda x: x['JOBCREATEDDATEFIELD'].dt.strftime('%b %d')))
+      .assign(onthDateText=lambda x: x['JOBCREATEDDATEFIELD'].dt.strftime('%b %Y'))
+      .assign(WeekText=lambda x: x['JOBCREATEDDATEFIELD'].dt.strftime('%W')))
 
 df['Month Year'] = df['JOBCREATEDDATEFIELD'].map(lambda dt: dt.date().replace(day=1))
 df['Day Month Year'] = df['JOBCREATEDDATEFIELD'].map(lambda dt: dt.date())
+df['Week'] = df['JOBCREATEDDATEFIELD'].map(lambda dt: dt.week)
 
 us_bd = CustomBusinessDay(calendar=USFederalHolidayCalendar())
 def calc_bus_days(row):
@@ -93,6 +95,14 @@ def update_graph_data(selected_start, selected_end, selected_job_type, selected_
                        .rename(columns={'Month Year': 'Date Created', 'MonthDateText': 'DateText', 'Job ID': 'Jobs Created',
                                         'Process Completed Date': 'Completeness Checks Completed', 'W/in SLA': '# w/in SLA'})
                        .sort_values(by='Date Created', ascending=False))
+    if selected_time_agg == "Week":
+        df_selected = (df_selected.loc[(df_selected['JOBCREATEDDATEFIELD'] >= selected_start) & (df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
+                       .groupby(['Week', 'WeekText']).agg({'Job ID': 'count', 'Process Completed Date': 'count',
+                                                                        'W/in SLA': 'sum'})
+                       .reset_index()
+                       .rename(columns={'Week': 'Date Created', 'WeekText': 'DateText', 'Job ID': 'Jobs Created',
+                                        'Process Completed Date': 'Completeness Checks Completed', 'W/in SLA': '# w/in SLA'})
+                       .sort_values(by='Date Created', ascending=False))
     if selected_time_agg == "Day":
         df_selected = (df_selected.loc[(df_selected['JOBCREATEDDATEFIELD'] >= selected_start) & (df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
                        .groupby(['Day Month Year', 'DayDateText']).agg({'Job ID': 'count', 'Process Completed Date': 'count',
@@ -134,6 +144,7 @@ layout = html.Div(children=[
                             id='sla-time-agg-dropdown',
                             options=[
                                 {'label': 'Month', 'value': 'Month'},
+                                {'label': 'Week', 'value': 'Week'},
                                 {'label': 'Day', 'value': 'Day'}
                             ],
                             value='Month'
