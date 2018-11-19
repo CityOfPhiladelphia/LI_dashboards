@@ -43,16 +43,20 @@ def update_graph_data(selected_start, selected_end, selected_job_type, selected_
         df_selected = df_selected[(df_selected['Job Type'] == selected_job_type)]
     if selected_time_agg == "Month":
         df_selected = (df_selected.loc[(df_selected['JOBCREATEDDATEFIELD'] >= selected_start) & (df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
-                   .groupby(['Month Year', 'MonthDateText']).agg({'Job ID': 'count'})
-                   .reset_index()
-                   .rename(columns={'Month Year': 'Date Created', 'MonthDateText': 'DateText', 'Job ID': 'Jobs Created'})
-                   .sort_values(by='Date Created', ascending=False))
+                       .groupby(['Month Year', 'MonthDateText']).agg({'Job ID': 'count', 'Process Completed Date': 'count'})
+                       .reset_index()
+                       .rename(columns={'Month Year': 'Date Created', 'MonthDateText': 'DateText', 'Job ID': 'Jobs Created',
+                                        'Process Completed Date': 'Completeness Checks Completed'})
+                       .sort_values(by='Date Created', ascending=False))
     if selected_time_agg == "Day":
         df_selected = (df_selected.loc[(df_selected['JOBCREATEDDATEFIELD'] >= selected_start) & (df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
-                       .groupby(['Job Created Date', 'DayDateText']).agg({'Job ID': 'count'})
+                       .groupby(['Job Created Date', 'DayDateText']).agg({'Job ID': 'count', 'Process Completed Date': 'count'})
                        .reset_index()
-                       .rename(columns={'Job Created Date': 'Date Created', 'DayDateText': 'DateText', 'Job ID': 'Jobs Created'})
+                       .rename(columns={'Job Created Date': 'Date Created', 'DayDateText': 'DateText', 'Job ID': 'Jobs Created',
+                                        'Process Completed Date': 'Completeness Checks Completed'})
                        .sort_values(by='Date Created', ascending=False))
+    df_selected['% Completed w/in 2 Bus. Days'] = df_selected['Completeness Checks Completed'] / df_selected['Jobs Created'] * 100
+    df_selected['% Completed w/in 2 Bus. Days'] = df_selected['% Completed w/in 2 Bus. Days'].round(0)
     return df_selected
 
 
@@ -130,6 +134,19 @@ def update_graph(start_date, end_date, job_type, time_agg):
                     color='rgb(26, 118, 255)'
                 ),
                 name='Jobs Created'
+            ),
+            go.Scatter(
+                x=df_results['Date Created'],
+                y=df_results['% Completed w/in 2 Bus. Days'].map('{:,.0f}%'.format),
+                mode='lines',
+                text=df_results['DateText'],
+                hoverinfo='text+y',
+                line=dict(
+                    shape='spline',
+                    color='#ff7f0e'
+                ),
+                name='% Completed w/in 2 Bus. Days',
+                yaxis='y2'
             )
         ],
         'layout': go.Layout(
@@ -139,6 +156,17 @@ def update_graph(start_date, end_date, job_type, time_agg):
                 ),
                 xaxis=dict(
                     title='Job Creation Date'
+                ),
+                yaxis2=dict(
+                    title='% Completed w/in 2 Bus. Days',
+                    titlefont=dict(
+                        color='#ff7f0e'
+                    ),
+                    tickfont=dict(
+                        color='#ff7f0e'
+                    ),
+                    overlaying='y',
+                    side='right'
                 )
         )
     }
