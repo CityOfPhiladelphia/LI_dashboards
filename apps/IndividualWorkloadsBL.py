@@ -246,7 +246,8 @@ def update_graph(start_date, end_date, person, process_type, job_type, license_t
         'layout': go.Layout(
                 title='Processes Completed by Month',
                 yaxis=dict(
-                    title='Processes Completed'
+                    title='Processes Completed',
+                    range=[0, df_results['Processes Completed'].max() + (df_results['Processes Completed'].max() / 50)]
                 )
         )
     }
