@@ -11,7 +11,7 @@ from app import app, server
 
 from apps import Man001ActiveJobsBL, Man001ActiveJobsTL, Man002ActiveProcessesBL, Man002ActiveProcessesTL, \
     Man004BLJobVolumesBySubmissionType, Man004TLJobVolumesBySubmissionType, Man005BLExpirationVolumesBySubmissionType, \
-    Man005TLExpirationVolumesBySubmissionType, Man006OverdueBLInspections, IndividualWorkloadsBL
+    Man005TLExpirationVolumesBySubmissionType, Man006OverdueBLInspections, IndividualWorkloadsBL, ExpiringLicensesTaxIssues
 
 time = datetime.strftime(datetime.now(), '%I:%M %p %m/%d/%y')
 
@@ -19,12 +19,18 @@ app.layout = html.Div([
                 html.Nav([
                     html.P('City of Philadelphia | LI Dashboards'),
                     html.Div([
+                        html.Button('Miscellaneous', className='dropbtn'),
+                        html.Div([
+                            html.A('Expiring Licenses with Tax Issues', href='/ExpiringLicensesTaxIssues')
+                        ], className='dropdown-content')
+                    ], className='dropdown'),
+                    html.Div([
                         html.Button('Trade Licenses', className='dropbtn'),
                         html.Div([
                             html.A('Active Jobs', href='/ActiveJobsTL'),
                             html.A('Active Processes', href='/ActiveProcessesTL'),
                             html.A('Job Volumes by Submission Type', href='/JobVolumesBySubmissionTypeTL'),
-                            html.A('License Expiration Volumes by Submission Type', href='/ExpirationVolumesBySubmissionTypeTL')
+                            html.A('License Expiration Volumes by Submission Type', href='/ExpirationVolumesBySubmissionTypeTL'),
                         ], className='dropdown-content')
                     ], className='dropdown'),
                     html.Div([
@@ -73,6 +79,8 @@ def display_page(pathname):
         return Man006OverdueBLInspections.layout
     elif pathname == '/IndividualWorkloadsBL':
         return IndividualWorkloadsBL.layout
+    elif pathname == '/ExpiringLicensesTaxIssues':
+        return ExpiringLicensesTaxIssues.layout
     else:
         return IndividualWorkloadsBL.layout
 
