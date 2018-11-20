@@ -9,7 +9,7 @@ import urllib.parse
 
 from app import app, con
 
-testing_mode = True
+testing_mode = False
 print("Man001ActiveJobsBL.py")
 print("Testing mode? " + str(testing_mode))
 

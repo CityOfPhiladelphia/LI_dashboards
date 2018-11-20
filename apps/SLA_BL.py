@@ -12,7 +12,7 @@ from pandas.tseries.offsets import CustomBusinessDay
 
 from app import app, con
 
-testing_mode = True
+testing_mode = False
 print('SLA_BL.py')
 print('Testing mode: ' + str(testing_mode))
 
