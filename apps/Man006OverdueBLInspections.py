@@ -113,78 +113,66 @@ layout = html.Div(
             '(Business Licenses and BL Jobs)',
             style={'margin-bottom': '50px'}
         ),
-        html.Div(
-            children=[
-                'Please Select Date Range (Scheduled Inspection Date)'
-            ],
-            style={'margin-left': '5%', 'margin-top': '10px', 'margin-bottom': '5px'}
-        ),
         html.Div([
-            dcc.DatePickerRange(
-                id='Man006BL-my-date-picker-range',
-                start_date=datetime(2018, 1, 1),
-                end_date=datetime.now()
-            ),
-        ], style={'margin-left': '5%', 'margin-bottom': '25px'}),
-html.Div(
-            children=[
-                'License Type'
-            ],
-            style={'margin-left': '5%', 'margin-top': '10px', 'margin-bottom': '5px'}
-        ),
+            html.Div([
+                html.P('Please Select Date Range (Scheduled Inspection Date)'),
+                dcc.DatePickerRange(
+                    id='Man006BL-my-date-picker-range',
+                    start_date=datetime(2018, 1, 1),
+                    end_date=datetime.now()
+                )
+            ], className='five columns'),
+            html.Div([
+                html.P('Inspector'),
+                dcc.Dropdown(
+                    id='inspector-dropdown',
+                    options=inspector_options_sorted,
+                    multi=True
+                )
+            ], className='five columns'),
+        ], className='dashrow filters'),
         html.Div([
-            dcc.Dropdown(
-                id='licensetype-dropdown',
-                options=licensetype_options_sorted,
-                multi=True
-            ),
-        ], style={'width': '33%', 'display': 'inline-block', 'margin-left': '5%'}),
-        html.Div(
-            children=[
-                'Job Type'
-            ],
-            style={'margin-left': '5%', 'margin-top': '10px', 'margin-bottom': '5px'}
-        ),
+            html.Div([
+                html.P('License Type'),
+                dcc.Dropdown(
+                    id='licensetype-dropdown',
+                    options=licensetype_options_sorted,
+                    multi=True
+                ),
+            ], className='five columns'),
+            html.Div([
+                html.P('Job Type'),
+                dcc.Dropdown(
+                    id='jobtype-dropdown',
+                    options=jobtype_options_sorted,
+                    multi=True
+                ),
+            ], className='five columns'),
+        ], className='dashrow filters'),
         html.Div([
-            dcc.Dropdown(
-                id='jobtype-dropdown',
-                options=jobtype_options_sorted,
-                multi=True
-            ),
-        ], style={'width': '33%', 'display': 'inline-block', 'margin-left': '5%'}),
-        html.Div(
-            children=[
-                'Inspector'
-            ],
-            style={'margin-left': '5%', 'margin-top': '10px', 'margin-bottom': '5px'}
-        ),
-        html.Div([
-            dcc.Dropdown(
-                id='inspector-dropdown',
-                options=inspector_options_sorted,
-                multi=True
-            ),
-        ], style={'width': '33%', 'display': 'inline-block', 'margin-left': '5%', 'margin-bottom': '25px'}),
-        html.Div([
-            dt.DataTable(
-                rows=[{}],
-                row_selectable=True,
-                sortable=True,
-                selected_row_indices=[],
-                id='Man006BL-count-table'
-            ),
-        ], style={'width': '70%', 'margin-left': '5%'},
-            id='Man006BL-count-table-div'
-        ),
-        html.Div([
-            html.A(
-                'Download Data',
-                id='Man006BL-count-table-download-link',
-                download='Man006BL-counts.csv',
-                href='',
-                target='_blank'
-            ),
-        ], style={'text-align': 'right', 'margin-right': '25%'}),
+            html.Div([
+                html.Div([
+                    dt.DataTable(
+                        rows=[{}],
+                        row_selectable=True,
+                        sortable=True,
+                        selected_row_indices=[],
+                        id='Man006BL-count-table'
+                    ),
+                ]),
+                html.Div([
+                    html.A(
+                        'Download Data',
+                        id='Man006BL-count-table-download-link',
+                        download='Man006BL-counts.csv',
+                        href='',
+                        target='_blank'
+                    ),
+                ], style={'text-align': 'right'})
+            ], style={'margin-top': '70px', 'margin-bottom': '50px',
+                      'margin-left': 'auto', 'margin-right': 'auto', 'float': 'none'},
+               className='ten columns')
+        ], className='dashrow'),
         html.Div([
             dt.DataTable(
                 rows=[{}],
@@ -194,7 +182,7 @@ html.Div(
                 selected_row_indices=[],
                 id='Man006BL-table'
             ),
-        ], style={'width': '90%', 'margin-left': 'auto', 'margin-right': 'auto'},
+        ], style={'width': '100%', 'margin-left': 'auto', 'margin-right': 'auto'},
             id='Man006BL-table-div'
         ),
         html.Div([

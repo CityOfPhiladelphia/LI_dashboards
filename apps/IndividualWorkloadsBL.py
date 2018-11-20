@@ -118,8 +118,7 @@ layout = html.Div(children=[
                                 value='All'
                         ),
                     ], className='six columns'),
-                ], className='dashrow filters'
-                ),
+                ], className='dashrow filters'),
                 html.Div([
                     html.Div([
                         html.P('Filter by Process Type'),
