@@ -9,7 +9,7 @@ import urllib.parse
 
 from app import app, con
 
-testing_mode = False
+testing_mode = True
 print("Man004TLJobVolumesBySubmissionType.py")
 print("Testing mode? " + str(testing_mode))
 
@@ -69,62 +69,64 @@ layout = html.Div(
             '(Trade Licenses)',
             style={'margin-bottom': '50px'}
         ),
-        html.Div(
-            children=[
-                'Please Select Date Range (Job Created Date)'
-            ],
-            style={'margin-left': '5%', 'margin-top': '10px', 'margin-bottom': '5px'}
-        ),
         html.Div([
-            dcc.DatePickerRange(
-                id='my-date-picker-range',
-                start_date=datetime(2018, 1, 1),
-                end_date=datetime.now()
-            ),
-        ], style={'margin-left': '5%', 'margin-bottom': '25px'}),
-        html.Div(
-            children=[
-                'Filter by Username (Staff only)'
-            ],
-            style={'margin-left': '5%', 'margin-top': '10px', 'margin-bottom': '5px'}
-        ),
+            html.Div([
+                html.P('Please Select Date Range (Job Created Date)'),
+                dcc.DatePickerRange(
+                    id='my-date-picker-range',
+                    start_date=datetime(2018, 1, 1),
+                    end_date=datetime.now()
+                ),
+            ], className='four columns'),
+            html.Div([
+                html.P('Filter by Username (Staff only)'),
+                dcc.Dropdown(
+                    id='username-dropdown',
+                    options=username_options_sorted,
+                    multi=True
+                ),
+            ], className='five columns')
+        ], className='dashrow filters'),
         html.Div([
-            dcc.Dropdown(
-                id='username-dropdown',
-                options=username_options_sorted,
-                multi=True
-            ),
-        ], style={'width': '33%', 'display': 'inline-block', 'margin-left': '5%', 'margin-bottom': '25px'}),
+            html.Div([
+                html.Div([
+                    dt.DataTable(
+                        rows=[{}],
+                        row_selectable=True,
+                        sortable=True,
+                        selected_row_indices=[],
+                        id='Man004TL-counttable'
+                    ),
+                ], style={'text-align': 'center'},
+                    id='Man004TL-counttable-div'
+                )
+            ], style={'margin-top': '70px', 'margin-bottom': '50px',
+                      'margin-left': 'auto', 'margin-right': 'auto', 'float': 'none'},
+                className='nine columns')
+        ], className='dashrow'),
         html.Div([
-            dt.DataTable(
-                rows=[{}],
-                row_selectable=True,
-                sortable=True,
-                selected_row_indices=[],
-                id='Man004TL-counttable'
-            ),
-        ], style={'width': '60%', 'margin-left': '5%', 'margin-bottom': '75px'},
-           id = 'Man004TL-counttable-div'
-        ),
-        html.Div([
-            dt.DataTable(
-                rows=[{}],
-                row_selectable=True,
-                filterable=True,
-                sortable=True,
-                selected_row_indices=[],
-                id='Man004TL-table'
-            )
-        ], style={'width': '90%', 'margin-left': 'auto', 'margin-right': 'auto'}),
-        html.Div([
-            html.A(
-                'Download Data',
-                id='Man004TL-download-link',
-                download='Man004BL.csv',
-                href='',
-                target='_blank',
-            )
-        ], style={'text-align': 'right', 'margin-right': '5%'}),
+            html.Div([
+                html.Div([
+                    dt.DataTable(
+                        rows=[{}],
+                        row_selectable=True,
+                        filterable=True,
+                        sortable=True,
+                        selected_row_indices=[],
+                        id='Man004TL-table'
+                    )
+                ], style={'text-align': 'center'}),
+                html.Div([
+                    html.A(
+                        'Download Data',
+                        id='Man004TL-download-link',
+                        download='Man004BL.csv',
+                        href='',
+                        target='_blank',
+                    )
+                ], style={'text-align': 'right'})
+            ], style={'margin-top': '70px', 'margin-bottom': '50px'})
+        ], className='dashrow')
     ])
 
 @app.callback(
