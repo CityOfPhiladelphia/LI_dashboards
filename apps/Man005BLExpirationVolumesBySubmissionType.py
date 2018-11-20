@@ -67,8 +67,7 @@ layout = html.Div(
                         selected_row_indices=[],
                         id='Man005BL-count-table'
                     )
-                ], style={'text-align': 'center'},
-                    id='Man005BL-count-table-div'),
+                ], id='Man005BL-count-table-div'),
                 html.Div([
                     html.A(
                         'Download Data',
@@ -78,8 +77,7 @@ layout = html.Div(
                         target='_blank',
                     )
                 ], style={'text-align': 'right'})
-            ], style={'margin-bottom': '50px',
-                      'margin-left': 'auto', 'margin-right': 'auto', 'float': 'none'},
+            ], style={'margin-left': 'auto', 'margin-right': 'auto', 'float': 'none'},
                 className='nine columns')
         ], className='dashrow'),
         html.Div([
@@ -93,7 +91,7 @@ layout = html.Div(
                         selected_row_indices=[],
                         id='Man005BL-table'
                     )
-                ], style={'text-align': 'center'}),
+                ]),
                 html.Div([
                     html.A(
                         'Download Data',

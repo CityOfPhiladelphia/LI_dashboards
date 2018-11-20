@@ -97,9 +97,7 @@ layout = html.Div(
                         selected_row_indices=[],
                         id='Man004TL-counttable'
                     ),
-                ], style={'text-align': 'center'},
-                    id='Man004TL-counttable-div'
-                )
+                ], id='Man004TL-counttable-div')
             ], style={'margin-top': '70px', 'margin-bottom': '50px',
                       'margin-left': 'auto', 'margin-right': 'auto', 'float': 'none'},
                 className='nine columns')
@@ -115,7 +113,7 @@ layout = html.Div(
                         selected_row_indices=[],
                         id='Man004TL-table'
                     )
-                ], style={'text-align': 'center'}),
+                ]),
                 html.Div([
                     html.A(
                         'Download Data',

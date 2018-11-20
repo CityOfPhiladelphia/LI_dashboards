@@ -249,6 +249,10 @@ div#ind-workloads-ind-records-table-div div.react-grid-Cell:nth-child(4) {
 div#ind-workloads-ind-records-table-div div.react-grid-Cell:nth-child(5) {
     text-align: left;
 }
-div#ind-workloads-ind-records-table-div div.react-grid-Cell:nth-child(8 ) {
+div#ind-workloads-ind-records-table-div div.react-grid-Cell:nth-child(8) {
+    text-align: right;
+}
+
+div#expiring-licenses-summary-table-div div.react-grid-Cell:nth-child(2) {
     text-align: right;
 }

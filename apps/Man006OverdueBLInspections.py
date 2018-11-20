@@ -159,7 +159,7 @@ layout = html.Div(
                         selected_row_indices=[],
                         id='Man006BL-count-table'
                     ),
-                ]),
+                ], id='Man006BL-count-table-div'),
                 html.Div([
                     html.A(
                         'Download Data',

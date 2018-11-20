@@ -51,6 +51,8 @@ summary_table = (summary_table.append({'Message Category': 'Total With Issues',
                               .append({'Message Category': 'Total',
                                        'Count': total}, ignore_index=True))
 
+summary_table['Count'] = summary_table.apply(lambda x: "{:,}".format(x['Count']), axis=1)
+
 unique_messages = message_values_with_issues
 unique_messages = np.append(['All'], unique_messages)
 
@@ -117,9 +119,7 @@ layout = html.Div(children=[
                                 filterable=True,
                                 id='expiring-licenses-table'
                             ),
-                        ], style={'text-align': 'center'},
-                           id='expiring-licenses-table-div'
-                        ),
+                        ], id='expiring-licenses-table-div'),
                         html.Div([
                             html.A(
                                 'Download Data',
@@ -141,8 +141,7 @@ layout = html.Div(children=[
                                 editable=False,
                                 id='expiring-licenses-summary-table'
                             ),
-                        ], style={'text-align': 'center'},
-                        ),
+                        ], id='expiring-licenses-summary-table-div'),
                         html.Div([
                             html.A(
                                 'Download Data',

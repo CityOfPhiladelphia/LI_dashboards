@@ -98,47 +98,50 @@ layout = html.Div([
             ),
         ], className='six columns'),
     ], className='dashrow filters'),
-    dcc.Graph(
-        id='002TL-graph',
-        figure=go.Figure(
-            data=[
-                go.Bar(
-                    x=df_counts[df_counts['JobType'] == 'Application'].groupby(['ProcessType'])['ProcessCounts'].agg(np.sum).index,
-                    y=df_counts[df_counts['JobType'] == 'Application'].groupby(['ProcessType'])['ProcessCounts'].agg(np.sum),
-                    name='Applications',
-                    marker=go.bar.Marker(
-                        color='rgb(55, 83, 109)'
+    html.Div([
+        dcc.Graph(
+            id='002TL-graph',
+            figure=go.Figure(
+                data=[
+                    go.Bar(
+                        x=df_counts[df_counts['JobType'] == 'Application'].groupby(['ProcessType'])['ProcessCounts'].agg(np.sum).index,
+                        y=df_counts[df_counts['JobType'] == 'Application'].groupby(['ProcessType'])['ProcessCounts'].agg(np.sum),
+                        name='Applications',
+                        marker=go.bar.Marker(
+                            color='rgb(55, 83, 109)'
+                        )
+                    ),
+                    go.Bar(
+                        x=df_counts[df_counts['JobType'] == 'Amend/Renew'].groupby(['ProcessType'])['ProcessCounts'].agg(np.sum).index,
+                        y=df_counts[df_counts['JobType'] == 'Amend/Renew'].groupby(['ProcessType'])['ProcessCounts'].agg(np.sum),
+                        name='Renewals/Amendments',
+                        marker=go.bar.Marker(
+                            color='rgb(26, 118, 255)'
+                        )
                     )
-                ),
-                go.Bar(
-                    x=df_counts[df_counts['JobType'] == 'Amend/Renew'].groupby(['ProcessType'])['ProcessCounts'].agg(np.sum).index,
-                    y=df_counts[df_counts['JobType'] == 'Amend/Renew'].groupby(['ProcessType'])['ProcessCounts'].agg(np.sum),
-                    name='Renewals/Amendments',
-                    marker=go.bar.Marker(
-                        color='rgb(26, 118, 255)'
-                    )
+                ],
+                layout=go.Layout(
+                    showlegend=True,
+                    legend=go.layout.Legend(
+                        x=.75,
+                        y=1
+                    ),
+                    xaxis=dict(
+                        autorange=True,
+                        tickangle=30,
+                        tickfont=dict(
+                            size=11
+                        )
+                    ),
+                    yaxis=dict(
+                        title='Active Processes'
+                    ),
+                    margin=go.layout.Margin(l=40, r=0, t=40, b=100)
                 )
-            ],
-            layout=go.Layout(
-                showlegend=True,
-                legend=go.layout.Legend(
-                    x=.75,
-                    y=1
-                ),
-                xaxis=dict(
-                    autorange=True,
-                    tickangle=30,
-                    tickfont=dict(
-                        size=11
-                    )
-                ),
-                yaxis=dict(
-                    title='Active Processes'
-                ),
-                margin=go.layout.Margin(l=40, r=0, t=40, b=100)
             )
         )
-    ),
+    ], style={'margin-left': 'auto', 'margin-right': 'auto', 'float': 'none'},
+        className='eight columns'),
     html.Div([
         html.Div([
             html.Div([

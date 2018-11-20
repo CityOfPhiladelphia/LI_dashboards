@@ -98,42 +98,45 @@ layout = html.Div([
             ),
         ], className='six columns'),
     ], className='dashrow filters'),
-    dcc.Graph(
-        id='my-graph',
-        figure=go.Figure(
-            data=[
-                go.Bar(
-                    x=df_counts[df_counts['JobType'] == 'Application'].groupby(['TimeSinceScheduledStartDate'])['JobCounts'].agg(np.sum).index,
-                    y=df_counts[df_counts['JobType'] == 'Application'].groupby(['TimeSinceScheduledStartDate'])['JobCounts'].agg(np.sum),
-                    name='Applications',
-                    marker=go.bar.Marker(
-                        color='rgb(55, 83, 109)'
+    html.Div([
+        dcc.Graph(
+            id='my-graph',
+            figure=go.Figure(
+                data=[
+                    go.Bar(
+                        x=df_counts[df_counts['JobType'] == 'Application'].groupby(['TimeSinceScheduledStartDate'])['JobCounts'].agg(np.sum).index,
+                        y=df_counts[df_counts['JobType'] == 'Application'].groupby(['TimeSinceScheduledStartDate'])['JobCounts'].agg(np.sum),
+                        name='Applications',
+                        marker=go.bar.Marker(
+                            color='rgb(55, 83, 109)'
+                        )
+                    ),
+                    go.Bar(
+                        x=df_counts[df_counts['JobType'] == 'Amend/Renew'].groupby(['TimeSinceScheduledStartDate'])['JobCounts'].agg(np.sum).index,
+                        y=df_counts[df_counts['JobType'] == 'Amend/Renew'].groupby(['TimeSinceScheduledStartDate'])['JobCounts'].agg(np.sum),
+                        name='Renewals/Amendments',
+                        marker=go.bar.Marker(
+                            color='rgb(26, 118, 255)'
+                        )
                     )
-                ),
-                go.Bar(
-                    x=df_counts[df_counts['JobType'] == 'Amend/Renew'].groupby(['TimeSinceScheduledStartDate'])['JobCounts'].agg(np.sum).index,
-                    y=df_counts[df_counts['JobType'] == 'Amend/Renew'].groupby(['TimeSinceScheduledStartDate'])['JobCounts'].agg(np.sum),
-                    name='Renewals/Amendments',
-                    marker=go.bar.Marker(
-                        color='rgb(26, 118, 255)'
+                ],
+                layout=go.Layout(
+                    xaxis=dict(
+                        title='Time Since Scheduled Start Date of Process'
+                    ),
+                    yaxis=dict(
+                        title='Active Trade License Jobs'
+                    ),
+                    showlegend=True,
+                    legend=go.layout.Legend(
+                        x=.75,
+                        y=1
                     )
-                )
-            ],
-            layout=go.Layout(
-                xaxis=dict(
-                    title='Time Since Scheduled Start Date of Process'
-                ),
-                yaxis=dict(
-                    title='Active Trade License Jobs'
-                ),
-                showlegend=True,
-                legend=go.layout.Legend(
-                    x=.75,
-                    y=1
                 )
             )
         )
-    ),
+    ], style={'margin-left': 'auto', 'margin-right': 'auto', 'float': 'none'},
+       className='nine columns'),
     html.Div([
         html.Div([
             html.Div([
