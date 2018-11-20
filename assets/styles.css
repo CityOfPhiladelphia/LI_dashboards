@@ -1,7 +1,15 @@
-
+/* For devices larger than 400px */
+@media (min-width: 400px) {
+    .container {
+      width: 85%;
+      padding: 0; }
+  }
+  
 /* For devices larger than 550px */
 @media (min-width: 550px) {
-    .column,
+    .container {
+      width: 80%; }
+	.column,
     .columns {
       margin-left: 0.5%; }
     .column:first-child,
@@ -71,13 +79,12 @@
   margin-bottom: 40px;
 }
 
-
 /* Navbar container */
 .navbar {
-    overflow: hidden;
-    background-color: #0f4d90;
-    font-family: Arial;
-    width: 100%;
+	overflow: hidden;
+	background-color: #0f4d90;
+	font-family: Arial;
+	width: 100%;
 }
   
 /* Titles inside the navbar */

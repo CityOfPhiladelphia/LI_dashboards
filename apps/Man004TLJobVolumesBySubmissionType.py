@@ -9,12 +9,12 @@ import urllib.parse
 
 from app import app, con
 
-testing_mode = False
+testing_mode = True
 print("Man004TLJobVolumesBySubmissionType.py")
 print("Testing mode? " + str(testing_mode))
 
 if testing_mode:
-    df_table = pd.read_csv("man004TL_test_data2.csv")
+    df_table = pd.read_csv("test_data/Man004TLJobVolumesBySubmissionType_test_data_short.csv")
     df_table['JobCreatedDateField'] = pd.to_datetime(df_table['JobCreatedDateField'])
 else:
     with con() as con:

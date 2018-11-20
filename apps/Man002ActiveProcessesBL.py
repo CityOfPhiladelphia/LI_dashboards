@@ -9,7 +9,7 @@ import urllib.parse
 
 from app import app, con
 
-testing_mode = False
+testing_mode = True
 print("Man002ActiveProcessesBL.py")
 print("Testing mode? " + str(testing_mode))
 
@@ -19,8 +19,8 @@ print("Testing mode? " + str(testing_mode))
 #No completion date on processes
 
 if testing_mode:
-    df_table = pd.read_csv("002BL_ind_records_test_data.csv")
-    df_counts = pd.read_csv("002BL_counts_test_data.csv")
+    df_table = pd.read_csv("test_data/Man002ActiveProcessesBL_ind_records_test_data.csv")
+    df_counts = pd.read_csv("test_data/Man002ActiveProcessesBL_counts_test_data.csv")
 else:
     with con() as con:
         sql_tl = """select distinct j.ExternalFileNum "JobNumber", jt.Description "JobType", nvl(lt.Name, lt2.Name) "LicenseType", stat.Description "JobStatus", proc.ProcessId "ProcessID", pt.Description "ProcessType", extract(month from proc.CreatedDate) || '/'||extract(day from proc.CreatedDate)|| '/'|| extract(year from proc.CreatedDate) "CreatedDate", extract(month from proc.ScheduledStartDate) || '/'|| extract(day from proc.ScheduledStartDate)|| '/'||extract(year from proc.ScheduledStartDate) "ScheduledStartDate", proc.ProcessStatus "ProcessStatus",(CASE WHEN round(sysdate - proc.ScheduledStartDate) <= 1 then '0-1 Day' WHEN round(sysdate - proc.ScheduledStartDate) between 2 and 5 then '2-5 Days' WHEN round(sysdate - proc.ScheduledStartDate) between 6 and 10 then '6-10 Days' ELSE '11+ Days' END) "TimeSinceScheduledStartDate",(CASE when jt.Description like 'Business License Application' then 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1239699&objectHandle='||j.JobId||'&processHandle=&paneId=1239699_151'when jt.Description like 'Amendment/Renewal' then 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1243107&objectHandle='||j.JobId||'&processHandle=&paneId=1243107_175' End) "ProcessLink" from api.PROCESSES proc, api.jobs j, api.processtypes pt, api.jobtypes jt, api.statuses stat, query.r_bl_amendrenew_license arl, query.r_bl_license_licensetype lrl, query.o_bl_licensetype lt, query.r_bl_application_license apl, query.r_bl_license_licensetype lrl2, query.o_bl_licensetype lt2 where proc.JobId = j.JobId and proc.ProcessTypeId = pt.ProcessTypeId and proc.DateCompleted is null and j.JobTypeId = jt.JobTypeId and j.StatusId = stat.StatusId and pt.ProcessTypeId not in ('984507','2852606','2853029') and jt.JobTypeId in ('1240320', '1244773') and j.StatusId not in ('1030266','964970','1014809','1036493','1010379') and j.JobId = arl.AmendRenewId (+) and arl.LicenseId = lrl.LicenseId (+) and lrl.LicenseTypeId = lt.ObjectId (+) and j.JobId = apl.ApplicationObjectId (+) and apl.LicenseObjectId = lrl2.LicenseId (+) and lrl2.LicenseTypeId = lt2.ObjectId (+)"""

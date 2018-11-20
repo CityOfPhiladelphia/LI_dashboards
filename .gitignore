@@ -11,3 +11,4 @@ config.py
 *.bat
 *.ipynb
 *.vscode
+queries/query_pieces/

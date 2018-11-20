@@ -52,4 +52,4 @@ AND j.statusid          = stat.statusid
 AND j.completeddate    IS NULL
 AND j.jobtypeid        IN ( '1240320', '1244773' )
 AND j.statusid NOT     IN ( '1014809', '978845', '964970', '967394' )
-ORDER BY j.externalfilenum 
+ORDER BY j.externalfilenum

@@ -9,13 +9,13 @@ import urllib.parse
 
 from app import app, con
 
-testing_mode = False
+testing_mode = True
 print("Man002ActiveProcessesTL.py")
 print("Testing mode? " + str(testing_mode))
 
 if testing_mode:
-    df_table = pd.read_csv("002TL_ind_records_test_data.csv")
-    df_counts = pd.read_csv("002TL_counts_test_data.csv")
+    df_table = pd.read_csv("test_data/Man002ActiveProcessesTL_ind_records_test_data.csv")
+    df_counts = pd.read_csv("test_data/Man002ActiveProcessesTL_counts_test_data.csv")
 else:
     # Definitions: TL Apps and Renewals
     # excludes jobs in Statuses More Information Required, Denied, Draft, Withdrawn, Approved

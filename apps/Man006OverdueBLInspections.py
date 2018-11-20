@@ -9,12 +9,12 @@ import urllib.parse
 
 from app import app, con
 
-testing_mode = False
+testing_mode = True
 print("Man006OverdueBLInspections.py")
 print("Testing mode? " + str(testing_mode))
 
 if testing_mode:
-    df = pd.read_csv("man006BL_test_data.csv")
+    df = pd.read_csv("test_data/Man006OverdueBLInspections_test_data_short.csv")
     df['ScheduledInspectionDateField'] = pd.to_datetime(df['ScheduledInspectionDateField'])
 else:
     with con() as con:
@@ -115,7 +115,7 @@ layout = html.Div(
         ),
         html.Div(
             children=[
-                'Please Select Date Range (Job Created Date)'
+                'Please Select Date Range (Scheduled Inspection Date)'
             ],
             style={'margin-left': '5%', 'margin-top': '10px', 'margin-bottom': '5px'}
         ),
