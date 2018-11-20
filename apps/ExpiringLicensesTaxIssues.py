@@ -105,7 +105,7 @@ layout = html.Div(children=[
                         ),
                     ], className='four columns'),
                 ], className='dashrow filters',
-                   style={'width': '80%', 'margin-left': 'auto', 'margin-right': 'auto'}
+                   style={'width': '100%', 'margin-left': 'auto', 'margin-right': 'auto'}
                 ),
                 html.Div([
                     html.Div([
@@ -129,7 +129,7 @@ layout = html.Div(children=[
                                 target='_blank',
                             )
                         ], style={'text-align': 'right'})
-                    ], style={'width': '85%', 'margin-left': 'auto', 'margin-right': 'auto','margin-top': '50px', 'margin-bottom': '50px'})
+                    ], style={'width': '100%', 'margin-left': 'auto', 'margin-right': 'auto','margin-top': '50px', 'margin-bottom': '50px'})
                 ], className='dashrow'),
                 html.Div([
                     html.Div([
@@ -152,7 +152,7 @@ layout = html.Div(children=[
                                 target='_blank',
                             )
                         ], style={'text-align': 'right'})
-                    ], style={'width': '35%', 'margin-left': 'auto', 'margin-right': 'auto','margin-top': '50px', 'margin-bottom': '50px'})
+                    ], style={'width': '55%', 'margin-left': 'auto', 'margin-right': 'auto','margin-top': '50px', 'margin-bottom': '50px'})
                 ], className='dashrow'),
             ])
 
