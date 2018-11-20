@@ -145,8 +145,7 @@ layout = html.Div(children=[
                             value='All'
                         ),
                     ], className='four columns'),
-                ], className='dashrow filters'
-                ),
+                ], className='dashrow filters'),
                 html.Div([
                     html.Div([
                         dcc.Graph(id='ind-workloads-graph',

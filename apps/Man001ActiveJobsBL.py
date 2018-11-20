@@ -80,28 +80,25 @@ layout = html.Div(
             '(Business Licenses)',
             style={'margin-bottom': '50px'}
         ),
-        html.Div(
-            children=[
-                'Time Since Scheduled Start Date of Process'
-            ],
-            style={'margin-left': '15%', 'margin-top': '10px', 'margin-bottom': '5px'}
-        ),
         html.Div([
-            dcc.Dropdown(
-                id='Man001ActiveJobsBL-duration-dropdown',
-                options=duration_options,
-                multi=True
-            ),
-        ], style={'width': '33%', 'display': 'inline-block', 'margin-left': '15%'}),
-        html.Div('License Type', style={'margin-left': '15%', 'margin-top': '25px'}),
-        html.Div([
-            dcc.Dropdown(
-                id='Man001ActiveJobsBL-licensetype-dropdown',
-                options=licensetype_options_sorted,
-                value='All',
-                searchable=True
-            ),
-        ], style={'width': '60%', 'margin-left': '15%'}),
+            html.Div([
+                html.P('Time Since Scheduled Start Date of Process'),
+                dcc.Dropdown(
+                    id='Man001ActiveJobsBL-duration-dropdown',
+                    options=duration_options,
+                    multi=True
+                ),
+            ], className='four columns'),
+            html.Div([
+                html.P('License Type'),
+                dcc.Dropdown(
+                    id='Man001ActiveJobsBL-licensetype-dropdown',
+                    options=licensetype_options_sorted,
+                    value='All',
+                    searchable=True
+                ),
+            ], className='six columns'),
+        ], className='dashrow filters'),
         dcc.Graph(
             id='Man001ActiveJobsBL-my-graph',
             figure=go.Figure(
@@ -136,27 +133,32 @@ layout = html.Div(
                         y=1
                     )
                 )
-            ), style={'height': '500px', 'display': 'block', 'margin-bottom': '75px', 'width': '70%', 'margin-left': 'auto', 'margin-right': 'auto'}),
-        html.Div([
-            dt.DataTable(
-                rows=[{}],
-                row_selectable=True,
-                filterable=True,
-                sortable=True,
-                selected_row_indices=[],
-                editable=False,
-                id='Man001ActiveJobsBL-table'
             )
-        ], style={'width': '90%', 'margin-left': 'auto', 'margin-right': 'auto'}),
+        ),
         html.Div([
-            html.A(
-                'Download Data',
-                id='Man001ActiveJobsBL-download-link',
-                download='Man001ActiveJobsBL.csv',
-                href='',
-                target='_blank',
-            )
-        ], style={'text-align': 'right', 'margin-right': '5%'}),
+            html.Div([
+                html.Div([
+                    dt.DataTable(
+                        rows=[{}],
+                        row_selectable=True,
+                        filterable=True,
+                        sortable=True,
+                        selected_row_indices=[],
+                        editable=False,
+                        id='Man001ActiveJobsBL-table'
+                    )
+                ], style={'text-align': 'center'}),
+                html.Div([
+                    html.A(
+                        'Download Data',
+                        id='Man001ActiveJobsBL-download-link',
+                        download='Man001ActiveJobsBL.csv',
+                        href='',
+                        target='_blank',
+                    )
+                ], style={'text-align': 'right'})
+            ], style={'margin-top': '70px', 'margin-bottom': '50px'})
+        ], className='dashrow')
     ]
 )
 

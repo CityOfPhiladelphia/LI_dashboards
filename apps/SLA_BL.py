@@ -150,9 +150,7 @@ layout = html.Div(children=[
                             value='Month'
                         ),
                     ], className='four columns'),
-                ], className='dashrow filters',
-                   style={'width': '90%', 'margin-left': 'auto', 'margin-right': 'auto'}
-                ),
+                ], className='dashrow filters'),
                 html.Div([
                     html.Div([
                         dcc.Graph(id='sla-graph',
@@ -165,10 +163,8 @@ layout = html.Div(children=[
                                 )
                             )
                         )
-                    ], className='ten columns'),
-                ], className='dashrow',
-                    style={'margin-left': 'auto', 'margin-right': 'auto'}
-                ),
+                    ], className='twelve columns'),
+                ], className='dashrow'),
                 html.Div([
                     html.Div([
                         html.H1('', id='sla-jobs-created-indicator', style={'font-size': '35pt'}),
