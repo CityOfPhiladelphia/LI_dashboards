@@ -56,46 +56,56 @@ layout = html.Div(
             ),
         ], style={'margin-left': '5%', 'margin-bottom': '25px'}),
         html.Div([
-            dt.DataTable(
-                rows=[{}],
-                columns=["JobType", "LicenseType", "Count"],
-                row_selectable=True,
-                filterable=True,
-                sortable=True,
-                selected_row_indices=[],
-                id='Man005BL-count-table'
-            ),
-        ], style={'width': '70%', 'margin-left': '5%'},
-            id='Man005BL-count-table-div'
-        ),
+            html.Div([
+                html.Div([
+                    dt.DataTable(
+                        rows=[{}],
+                        columns=["JobType", "LicenseType", "Count"],
+                        row_selectable=True,
+                        filterable=True,
+                        sortable=True,
+                        selected_row_indices=[],
+                        id='Man005BL-count-table'
+                    )
+                ], style={'text-align': 'center'},
+                    id='Man005BL-count-table-div'),
+                html.Div([
+                    html.A(
+                        'Download Data',
+                        id='Man005BL-count-table-download-link',
+                        download='Man005BLExpirationVolumesBySubmissionType-counts.csv',
+                        href='',
+                        target='_blank',
+                    )
+                ], style={'text-align': 'right'})
+            ], style={'margin-bottom': '50px',
+                      'margin-left': 'auto', 'margin-right': 'auto', 'float': 'none'},
+                className='nine columns')
+        ], className='dashrow'),
         html.Div([
-            html.A(
-                'Download Data',
-                id='Man005BL-count-table-download-link',
-                download='Man005BLExpirationVolumesBySubmissionType-counts.csv',
-                href='',
-                target='_blank',
-            )
-        ], style={'text-align': 'right', 'margin-right': '25%'}),
-        html.Div([
-            dt.DataTable(
-                rows=[{}],
-                row_selectable=True,
-                filterable=True,
-                sortable=True,
-                selected_row_indices=[],
-                id='Man005BL-table'
-            )
-        ], style={'width': '90%', 'margin-left': 'auto', 'margin-right': 'auto', 'margin-top': '75px'}),
-        html.Div([
-            html.A(
-                'Download Data',
-                id='Man005BL-table-download-link',
-                download='Man005BLExpirationVolumesBySubmissionType.csv',
-                href='',
-                target='_blank',
-            )
-        ], style={'text-align': 'right', 'margin-right': '5%'}),
+            html.Div([
+                html.Div([
+                    dt.DataTable(
+                        rows=[{}],
+                        row_selectable=True,
+                        filterable=True,
+                        sortable=True,
+                        selected_row_indices=[],
+                        id='Man005BL-table'
+                    )
+                ], style={'text-align': 'center'}),
+                html.Div([
+                    html.A(
+                        'Download Data',
+                        id='Man005BL-table-download-link',
+                        download='Man005BLExpirationVolumesBySubmissionType-ind-records.csv',
+                        href='',
+                        target='_blank',
+                    )
+                ], style={'text-align': 'right'})
+            ], style={'margin-top': '70px', 'margin-bottom': '50px',
+                      'margin-left': 'auto', 'margin-right': 'auto', 'float': 'none'})
+        ], className='dashrow')
     ]
 )
 
