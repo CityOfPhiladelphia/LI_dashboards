@@ -9,9 +9,11 @@ from datetime import datetime
 from app import app, server
 #from log_visitors import log_visitor
 
-from apps import Man001ActiveJobsBL, Man001ActiveJobsTL, Man002ActiveProcessesBL, Man002ActiveProcessesTL, \
-    Man004BLJobVolumesBySubmissionType, Man004TLJobVolumesBySubmissionType, Man005BLExpirationVolumesBySubmissionType, \
-    Man005TLExpirationVolumesBySubmissionType, Man006OverdueBLInspections, IndividualWorkloadsBL, SLA_BL, ExpiringLicensesTaxIssues
+from apps import (Man001ActiveJobsBL, Man001ActiveJobsTL, Man002ActiveProcessesBL, Man002ActiveProcessesTL,
+                  Man004BLJobVolumesBySubmissionType, Man004TLJobVolumesBySubmissionType,
+                  Man005BLExpirationVolumesBySubmissionType, Man005TLExpirationVolumesBySubmissionType,
+                  Man006OverdueBLInspections, IndividualWorkloadsBL, SLA_BL, ExpiringLicensesTaxIssues,
+                  LicensesWithCompletenessChecksButNoCompletedInspections)
 
 time = datetime.strftime(datetime.now(), '%I:%M %p %m/%d/%y')
 
@@ -42,7 +44,8 @@ app.layout = html.Div([
                             html.A('License Expiration Volumes by Submission Type', href='/ExpirationVolumesBySubmissionTypeBL'),
                             html.A('Inspections Past their Scheduled Completion Date', href='/OverdueInspectionsBL'),
                             html.A('Individual Workloads', href='/IndividualWorkloadsBL'),
-                            html.A('SLA Compliance', href='/SLA_BL')
+                            html.A('SLA License Issuance', href='/SLA_BL'),
+                            html.A('Licenses with Completed Completeness Checks but no Completed Inspections', href='/LicensesWithCompletenessChecksButNoCompletedInspections')
                         ], className='dropdown-content')
                     ], className='dropdown'),
                 ], className='navbar'),
@@ -84,6 +87,8 @@ def display_page(pathname):
         return SLA_BL.layout
     elif pathname == '/ExpiringLicensesTaxIssues':
         return ExpiringLicensesTaxIssues.layout
+    elif pathname == '/LicensesWithCompletenessChecksButNoCompletedInspections':
+        return LicensesWithCompletenessChecksButNoCompletedInspections.layout
     else:
         return Man001ActiveJobsBL.layout
 
