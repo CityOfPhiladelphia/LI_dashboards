@@ -4,6 +4,7 @@ import cx_Oracle
 from flask import Flask
 from li_dbs import ECLIPSE_PROD, GISLICLD
 from config import USERNAME_PASSWORD_PAIRS
+import datetime
 
 
 con = ECLIPSE_PROD.ECLIPSE_PROD
@@ -21,3 +22,4 @@ server = Flask(__name__)
 app = dash.Dash(server=server, external_stylesheets=external_stylesheets, meta_tags=meta_tags)
 auth = dash_auth.BasicAuth(app, USERNAME_PASSWORD_PAIRS)
 app.config.suppress_callback_exceptions = True
+print('App initialized: ' + str(datetime.datetime.now()))
