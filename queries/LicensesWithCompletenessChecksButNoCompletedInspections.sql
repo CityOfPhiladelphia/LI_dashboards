@@ -1,11 +1,66 @@
 SELECT DISTINCT cc.licensenumber,
   lt.name LicenseType,
-  cc.mostrecentissuedate,
-  cc.MostRecentCompletenessCheck,
-  lg.expirationdate,
-  inspe.InspectionCreatedDate,
-  inspe.ScheduledInspectionDate,
-  inspe.InspectionCompletedDate
+  (CASE
+    WHEN cc.mostrecentissuedate IS NOT NULL
+    THEN Extract(MONTH FROM cc.mostrecentissuedate)
+      || '/'
+      ||Extract(DAY FROM cc.mostrecentissuedate)
+      || '/'
+      || Extract(YEAR FROM cc.mostrecentissuedate)
+    WHEN cc.mostrecentissuedate IS NULL
+    THEN NULL
+  END) mostrecentissuedate,
+  (CASE
+    WHEN cc.MostRecentCompletenessCheck IS NOT NULL
+    THEN Extract(MONTH FROM cc.MostRecentCompletenessCheck)
+      || '/'
+      ||Extract(DAY FROM cc.MostRecentCompletenessCheck)
+      || '/'
+      || Extract(YEAR FROM cc.MostRecentCompletenessCheck)
+    WHEN cc.MostRecentCompletenessCheck IS NULL
+    THEN NULL
+  END) MostRecentCompletenessCheck,
+  cc.MostRecentCompletenessCheck MostRecentCCField,
+  (CASE
+    WHEN lg.expirationdate IS NOT NULL
+    THEN Extract(MONTH FROM lg.expirationdate)
+      || '/'
+      ||Extract(DAY FROM lg.expirationdate)
+      || '/'
+      || Extract(YEAR FROM lg.expirationdate)
+    WHEN lg.expirationdate IS NULL
+    THEN NULL
+  END) expirationdate,
+  (CASE
+    WHEN inspe.InspectionCreatedDate IS NOT NULL
+    THEN Extract(MONTH FROM inspe.InspectionCreatedDate)
+      || '/'
+      ||Extract(DAY FROM inspe.InspectionCreatedDate)
+      || '/'
+      || Extract(YEAR FROM inspe.InspectionCreatedDate)
+    WHEN inspe.InspectionCreatedDate IS NULL
+    THEN NULL
+  END) InspectionCreatedDate,
+  (CASE
+    WHEN inspe.ScheduledInspectionDate IS NOT NULL
+    THEN Extract(MONTH FROM inspe.ScheduledInspectionDate)
+      || '/'
+      ||Extract(DAY FROM inspe.ScheduledInspectionDate)
+      || '/'
+      || Extract(YEAR FROM inspe.ScheduledInspectionDate)
+    WHEN inspe.ScheduledInspectionDate IS NULL
+    THEN NULL
+  END) ScheduledInspectionDate,
+  (CASE
+    WHEN inspe.InspectionCompletedDate IS NOT NULL
+    THEN Extract(MONTH FROM inspe.InspectionCompletedDate)
+      || '/'
+      ||Extract(DAY FROM inspe.InspectionCompletedDate)
+      || '/'
+      || Extract(YEAR FROM inspe.InspectionCompletedDate)
+    WHEN inspe.InspectionCompletedDate IS NULL
+    THEN NULL
+  END) InspectionCompletedDate
 FROM lmscorral.bl_licensetype lt,
   lmscorral.bl_licensegroup lg,
   (SELECT l.licensenumber,

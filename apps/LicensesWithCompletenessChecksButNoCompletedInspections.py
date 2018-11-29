@@ -14,15 +14,12 @@ print("Testing mode? " + str(testing_mode))
 
 if testing_mode:
     df = pd.read_csv("test_data/licenses_with_completed_completeness_check_and_no_completed_inspection3.csv",
-                     parse_dates=['MOSTRECENTISSUEDATE', 'MOSTRECENTCOMPLETENESSCHECK', 'EXPIRATIONDATE',
-                                  'INSPECTIONCREATEDDATE', 'SCHEDULEDINSPECTIONDATE', 'INSPECTIONCOMPLETEDDATE'])
+                     parse_dates=['MOSTRECENTCCFIELD'])
 else:
     with con() as con:
         with open(r'queries/LicensesWithCompletenessChecksButNoCompletedInspections.sql') as sql:
             df = pd.read_sql_query(sql=sql.read(), con=con,
-                                   parse_dates=['MOSTRECENTISSUEDATE', 'MOSTRECENTCOMPLETENESSCHECK', 'EXPIRATIONDATE',
-                                                'INSPECTIONCREATEDDATE','SCHEDULEDINSPECTIONDATE',
-                                                'INSPECTIONCOMPLETEDDATE'])
+                                   parse_dates=['MOSTRECENTCCFIELD'])
 
 licensetype_options_unsorted = [{'label': 'All', 'value': 'All'}]
 for licensetype in df['LICENSETYPE'].unique():
@@ -36,7 +33,7 @@ def get_summary_data(selected_start, selected_end, selected_license_type):
     if selected_license_type != "All":
         df_selected = df_selected[(df_selected['LICENSETYPE'] == selected_license_type)]
 
-    df_selected = (df_selected.loc[(df_selected['MOSTRECENTCOMPLETENESSCHECK'] >= selected_start) & (df_selected['MOSTRECENTCOMPLETENESSCHECK'] <= selected_end)]
+    df_selected = (df_selected.loc[(df_selected['MOSTRECENTCCFIELD'] >= selected_start) & (df_selected['MOSTRECENTCCFIELD'] <= selected_end)]
                    .groupby(['LICENSETYPE']).count()
                    .reset_index()
                    .rename(columns={'LICENSETYPE': 'License Type', 'LICENSENUMBER': 'Licenses',
@@ -44,7 +41,7 @@ def get_summary_data(selected_start, selected_end, selected_license_type):
                                     'SCHEDULEDINSPECTIONDATE': 'Inspections Scheduled',
                                     'INSPECTIONCOMPLETEDDATE': 'Inspections Completed'})
                    .sort_values(by=['Licenses'], ascending=False))
-    return df_selected.drop(['MOSTRECENTISSUEDATE', 'MOSTRECENTCOMPLETENESSCHECK', 'EXPIRATIONDATE'], axis=1)
+    return df_selected.drop(['MOSTRECENTISSUEDATE', 'MOSTRECENTCOMPLETENESSCHECK', 'MOSTRECENTCCFIELD', 'EXPIRATIONDATE'], axis=1)
 
 
 def get_ind_records_data(selected_start, selected_end, selected_license_type):
@@ -53,7 +50,7 @@ def get_ind_records_data(selected_start, selected_end, selected_license_type):
     if selected_license_type != "All":
         df_selected = df_selected[(df_selected['LICENSETYPE'] == selected_license_type)]
         
-    df_selected = (df_selected.loc[(df_selected['MOSTRECENTCOMPLETENESSCHECK'] >= selected_start) & (df_selected['MOSTRECENTCOMPLETENESSCHECK'] <= selected_end)]
+    df_selected = (df_selected.loc[(df_selected['MOSTRECENTCCFIELD'] >= selected_start) & (df_selected['MOSTRECENTCCFIELD'] <= selected_end)]
                    .rename(columns={'LICENSENUMBER': 'License Number', 'LICENSETYPE': 'License Type',
                                     'MOSTRECENTISSUEDATE': 'Most Recent Issue Date',
                                     'MOSTRECENTCOMPLETENESSCHECK': 'Most Recent Completeness Check',
@@ -61,13 +58,8 @@ def get_ind_records_data(selected_start, selected_end, selected_license_type):
                                     'INSPECTIONCREATEDDATE': 'Inspection Created Date',
                                     'SCHEDULEDINSPECTIONDATE': 'Inspection Scheduled Date',
                                     'INSPECTIONCOMPLETEDDATE': 'Inspection Completed Date'})
-                   .sort_values(by=['Most Recent Completeness Check']))
-    #df_selected['Most Recent Issue Date'] = df_selected['Most Recent Issue Date'].dt.strftime('%m/%d/%Y')
-    #df_selected['Most Recent Completeness Check'] = df_selected['Most Recent Completeness Check'].dt.strftime('%m/%d/%Y')
-    #df_selected['Expiration Date'] = df_selected['Expiration Date'].dt.strftime('%m/%d/%Y')
-    #df_selected['Inspection Created Date'] = df_selected['Inspection Created Date'].dt.strftime('%m/%d/%Y')
-    #df_selected['Inspection Scheduled Date'] = df_selected['Inspection Scheduled Date'].dt.strftime('%m/%d/%Y')
-    return df_selected
+                   .sort_values(by=['MOSTRECENTCCFIELD']))
+    return df_selected.drop(['MOSTRECENTCCFIELD'], axis=1)
 
 
 
