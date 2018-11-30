@@ -7,6 +7,7 @@ from flask import request
 from datetime import datetime
 
 from app import app, server
+from email import send_email
 #from log_visitors import log_visitor
 
 from apps import Man001ActiveJobsBL, Man001ActiveJobsTL, Man002ActiveProcessesBL, Man002ActiveProcessesTL, \
@@ -87,5 +88,8 @@ def display_page(pathname):
 
 if __name__ == '__main__':
     # app.run_server(host='127.0.0.1', port=5001)
-    http_server = WSGIServer(('0.0.0.0', 8000), server)
-    http_server.serve_forever()
+    try:
+        http_server = WSGIServer(('0.0.0.0', 8000), server)
+        http_server.serve_forever()
+    except:
+        send_email()

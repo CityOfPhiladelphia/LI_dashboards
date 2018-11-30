@@ -24,6 +24,8 @@ The dashboards are as follows:
 - dash_auth==1.0.2
 - cx_Oracle==6.4.1
 - gevent==1.3.5
+- phila_mail
+- li_dbs
 
 ## Usage
 Copy the li_dbs folder from G:\PythonModules and paste it into the ..\Lib\site-packages folder of your Python installation.
