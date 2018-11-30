@@ -14,18 +14,18 @@ print("Man002ActiveProcessesTL.py")
 print("Testing mode? " + str(testing_mode))
 
 if testing_mode:
-    df_table = pd.read_csv("002TL_ind_records_test_data.csv")
-    df_counts = pd.read_csv("002TL_counts_test_data.csv")
+    df_table = pd.read_csv("test_data/Man002ActiveProcessesTL_ind_records_test_data.csv")
+    df_counts = pd.read_csv("test_data/Man002ActiveProcessesTL_counts_test_data.csv")
 else:
     # Definitions: TL Apps and Renewals
     # excludes jobs in Statuses More Information Required, Denied, Draft, Withdrawn, Approved
     # excludes processes of Pay Fees, Provide More Information for Renewal, Amend License
     # No completion date on processes
     with con() as con:
-        sql_tl = """SELECT DISTINCT j.externalfilenum "JobNumber", jt.description "JobType", Nvl(lt.description, lt2.description) "LicenseType", stat.description "JobStatus", proc.processid "ProcessID", pt.description "ProcessType", Extract(month FROM proc.createddate) || '/' ||Extract(day FROM proc.createddate) || '/' || Extract(year FROM proc.createddate) CreatedDate, Extract(month FROM proc.scheduledstartdate) || '/' || Extract(day FROM proc.scheduledstartdate) || '/' ||Extract(year FROM proc.scheduledstartdate) "ScheduledStartDate", proc.processstatus "ProcessStatus",( CASE WHEN Round(SYSDATE - proc.scheduledstartdate) <= 1 THEN '0-1 Day' WHEN Round(SYSDATE - proc.scheduledstartdate) BETWEEN 2 AND 5 THEN '2-5 Days' WHEN Round(SYSDATE - proc.scheduledstartdate) BETWEEN 6 AND 10 THEN '6-10 Days' ELSE '11+ Days' END) "Duration", ( CASE WHEN jt.description LIKE 'Trade License Application' THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=2854033&objectHandle=' ||j.jobid ||'&processHandle=&paneId=2854033_116' WHEN jt.description LIKE 'Trade License Amend/Renew' THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=2857688&objectHandle=' ||j.jobid ||'&processHandle=&paneId=2857688_87' END ) "ProcessLink" FROM api.processes proc, api.jobs j, api.processtypes pt, api.jobtypes jt, api.statuses stat, query.r_tl_amendrenew_license arl, query.o_tl_license lic, query.o_tl_licensetype lt, query.r_tllicenselicense apl, query.o_tl_license lic2, query.o_tl_licensetype lt2 WHERE proc.jobid = j.jobid AND proc.processtypeid = pt.processtypeid AND proc.datecompleted IS NULL AND j.jobtypeid = jt.jobtypeid AND j.statusid = stat.statusid AND pt.processtypeid NOT IN ( '984507', '2852606', '2853029' ) AND jt.jobtypeid IN ( '2853921', '2857525' ) AND j.statusid NOT IN ( '1030266', '964970', '1014809', '1036493', '1010379' ) AND j.jobid = arl.amendrenewid (+) AND arl.licenseid = lic.objectid (+) AND lic.revenuecode = lt.revenuecode (+) AND j.jobid = apl.tlapp (+) AND apl.license = lic2.objectid (+) AND lic2.revenuecode = lt2.revenuecode (+)"""
-        sql_counts = """SELECT DISTINCT JobType "JobType", ProcessType "ProcessType", LicenseType "LicenseType", COUNT(DISTINCT ProcessID) "ProcessCounts" FROM(SELECT DISTINCT j.ExternalFileNum JobExtNum, j.StatusId, jt.Description JobType, NVL(lt.description, lt2.description) LicenseType, stat.Description JobStatus, pt.ProcessTypeId, proc.ProcessId ProcessID, pt.Description ProcessType, extract(MONTH FROM proc.CreatedDate) || '/' ||extract(DAY FROM proc.CreatedDate) || '/' || extract(YEAR FROM proc.CreatedDate) CreatedDate, extract(MONTH FROM proc.ScheduledStartDate) || '/' || extract(DAY FROM proc.ScheduledStartDate) || '/' ||extract(YEAR FROM proc.ScheduledStartDate) ScheduledStartDate, ( CASE WHEN proc.DateCompleted IS NOT NULL THEN extract(MONTH FROM proc.DateCompleted) || '/' || extract(DAY FROM proc.DateCompleted) || '/' ||extract(YEAR FROM proc.DateCompleted) ELSE NULL END) DateCompleted, proc.ProcessStatus, ( CASE WHEN ROUND(sysdate - proc.ScheduledStartDate) <= 1 THEN '0-1 Day' WHEN ROUND(sysdate - proc.ScheduledStartDate) BETWEEN 2 AND 5 THEN '2-5 Days' WHEN ROUND(sysdate - proc.ScheduledStartDate) BETWEEN 6 AND 10 THEN '6-10 Days' ELSE '11+ Days' END) Duration FROM api.PROCESSES PROC, api.jobs j, api.processtypes pt, api.jobtypes jt, api.statuses stat, query.r_tl_amendrenew_license arl, query.o_tl_license lic, query.o_tl_licensetype lt, query.r_tllicenselicense apl, query.o_tl_license lic2, query.o_tl_licensetype lt2 WHERE proc.JobId = j.JobId AND proc.ProcessTypeId = pt.ProcessTypeId AND proc.DateCompleted IS NULL AND j.JobTypeId = jt.JobTypeId AND j.StatusId = stat.StatusId AND pt.ProcessTypeId NOT IN ('984507','2852606','2853029') AND jt.JobTypeId IN ('2853921', '2857525') AND j.StatusId NOT IN ('1030266','964970','1014809','1036493','1010379') AND j.jobid = arl.amendrenewid (+) AND arl.licenseid = lic.objectid (+) AND lic.revenuecode = lt.revenuecode (+) AND j.jobid = apl.tlapp (+) AND apl.license = lic2.objectid (+) AND lic2.revenuecode = lt2.revenuecode (+)) GROUP BY JobType, ProcessType, LicenseType"""
-        df_table = pd.read_sql(sql_tl, con)
-        df_counts = pd.read_sql(sql_counts, con)
+        with open(r'queries/Man002ActiveProcessesTL_ind_records.sql') as sql:
+            df_table = pd.read_sql_query(sql=sql.read(), con=con)
+        with open(r'queries/Man002ActiveProcessesTL_counts.sql') as sql:
+            df_counts = pd.read_sql_query(sql=sql.read(), con=con)
 
 # Remove the words "Trade License" just to make it easier for user to read
 df_table['JobType'] = df_table['JobType'].map(lambda x: x.replace("Trade License ", ""))
@@ -79,96 +79,94 @@ layout = html.Div([
         '(Trade Licenses)',
         style={'margin-bottom': '50px'}
     ),
-    html.Div(
-        children=[
-            'Process Type'
-        ],
-        style={'margin-left': '15%', 'margin-bottom': '5px'}
-    ),
     html.Div([
-        dcc.Dropdown(
-            id='processtype-dropdown',
-            options=processtype_options_sorted,
-            multi=True
-        ),
-    ], style={'width': '25%', 'display': 'inline-block', 'margin-left': '15%'}),
-
-    html.Div(
-        children=[
-            'License Type'
-        ],
-        style={'margin-left': '15%', 'margin-bottom': '5px'}
-    ),
+        html.Div([
+            html.P('Process Type'),
+            dcc.Dropdown(
+                id='processtype-dropdown',
+                options=processtype_options_sorted,
+                multi=True
+            ),
+        ], className='four columns'),
+        html.Div([
+            html.P('License Type'),
+            dcc.Dropdown(
+                id='licensetype-dropdown',
+                options=licensetype_options_sorted,
+                value='All',
+                searchable=True
+            ),
+        ], className='six columns'),
+    ], className='dashrow filters'),
     html.Div([
-        dcc.Dropdown(
-            id='licensetype-dropdown',
-            options=licensetype_options_sorted,
-            value='All',
-            searchable=True
-        ),
-    ], style={'width': '33%', 'display': 'inline-block', 'margin-left': '15%'}),
-    dcc.Graph(
-        id='002TL-graph',
-        figure=go.Figure(
-            data=[
-                go.Bar(
-                    x=df_counts[df_counts['JobType'] == 'Application'].groupby(['ProcessType'])['ProcessCounts'].agg(np.sum).index,
-                    y=df_counts[df_counts['JobType'] == 'Application'].groupby(['ProcessType'])['ProcessCounts'].agg(np.sum),
-                    name='Applications',
-                    marker=go.bar.Marker(
-                        color='rgb(55, 83, 109)'
+        dcc.Graph(
+            id='002TL-graph',
+            figure=go.Figure(
+                data=[
+                    go.Bar(
+                        x=df_counts[df_counts['JobType'] == 'Application'].groupby(['ProcessType'])['ProcessCounts'].agg(np.sum).index,
+                        y=df_counts[df_counts['JobType'] == 'Application'].groupby(['ProcessType'])['ProcessCounts'].agg(np.sum),
+                        name='Applications',
+                        marker=go.bar.Marker(
+                            color='rgb(55, 83, 109)'
+                        )
+                    ),
+                    go.Bar(
+                        x=df_counts[df_counts['JobType'] == 'Amend/Renew'].groupby(['ProcessType'])['ProcessCounts'].agg(np.sum).index,
+                        y=df_counts[df_counts['JobType'] == 'Amend/Renew'].groupby(['ProcessType'])['ProcessCounts'].agg(np.sum),
+                        name='Renewals/Amendments',
+                        marker=go.bar.Marker(
+                            color='rgb(26, 118, 255)'
+                        )
                     )
-                ),
-                go.Bar(
-                    x=df_counts[df_counts['JobType'] == 'Amend/Renew'].groupby(['ProcessType'])['ProcessCounts'].agg(np.sum).index,
-                    y=df_counts[df_counts['JobType'] == 'Amend/Renew'].groupby(['ProcessType'])['ProcessCounts'].agg(np.sum),
-                    name='Renewals/Amendments',
-                    marker=go.bar.Marker(
-                        color='rgb(26, 118, 255)'
-                    )
+                ],
+                layout=go.Layout(
+                    showlegend=True,
+                    legend=go.layout.Legend(
+                        x=.75,
+                        y=1
+                    ),
+                    xaxis=dict(
+                        autorange=True,
+                        tickangle=30,
+                        tickfont=dict(
+                            size=11
+                        )
+                    ),
+                    yaxis=dict(
+                        title='Active Processes'
+                    ),
+                    margin=go.layout.Margin(l=40, r=0, t=40, b=100)
                 )
-            ],
-            layout=go.Layout(
-                showlegend=True,
-                legend=go.layout.Legend(
-                    x=.75,
-                    y=1
-                ),
-                xaxis=dict(
-                    autorange=True,
-                    tickangle=30,
-                    tickfont=dict(
-                        size=11
-                    )
-                ),
-                yaxis=dict(
-                    title='Active Processes'
-                ),
-                margin=go.layout.Margin(l=40, r=0, t=40, b=100)
             )
-        ), style={'height': '500px', 'display': 'block', 'margin-bottom': '75px', 'width': '70%', 'margin-left': 'auto', 'margin-right': 'auto'}
-    ),
-    html.Div([
-        dt.DataTable(
-            # Initialise the rows
-            rows=[{}],
-            row_selectable=True,
-            filterable=True,
-            sortable=True,
-            selected_row_indices=[],
-            editable=False,
-            id='Man002ActiveProcessesTL-table'
         )
-    ], style={'width': '90%', 'margin-left': 'auto', 'margin-right': 'auto'}),
+    ], style={'margin-left': 'auto', 'margin-right': 'auto', 'float': 'none'},
+        className='eight columns'),
     html.Div([
-        html.A(
-            'Download Data',
-            id='Man002ActiveProcessesTL-download-link',
-            download='Man002ActiveProcessesTL.csv',
-            href='',
-            target='_blank',
-        )
-    ], style={'text-align': 'right', 'margin-right': '5%'}),
+        html.Div([
+            html.Div([
+                dt.DataTable(
+                    # Initialise the rows
+                    rows=[{}],
+                    row_selectable=True,
+                    filterable=True,
+                    sortable=True,
+                    selected_row_indices=[],
+                    editable=False,
+                    id='Man002ActiveProcessesTL-table'
+                )
+            ], style={'text-align': 'center'}),
+            html.Div([
+                html.A(
+                    'Download Data',
+                    id='Man002ActiveProcessesTL-download-link',
+                    download='Man002ActiveProcessesTL.csv',
+                    href='',
+                    target='_blank',
+                )
+            ], style={'text-align': 'right'}),
+        ], style={'margin-top': '70px', 'margin-bottom': '50px'})
+    ], className='dashrow')
 ])
 
 @app.callback(

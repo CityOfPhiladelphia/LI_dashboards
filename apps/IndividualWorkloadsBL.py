@@ -99,9 +99,10 @@ def update_ind_records_table_data(selected_start, selected_end, selected_person,
 
 layout = html.Div(children=[
                 html.H1('Individual Workloads', style={'text-align': 'center'}),
+                html.H1('(Business Licenses)', style={'text-align': 'center'}),
                 html.Div([
                     html.Div([
-                        html.P('Filter by Date Range'),
+                        html.P('Filter by Process Completion Date'),
                         dcc.DatePickerRange(
                             display_format='MMM Y',
                             id='ind-workloads-date-picker-range',
@@ -117,9 +118,7 @@ layout = html.Div(children=[
                                 value='All'
                         ),
                     ], className='six columns'),
-                ], className='dashrow filters',
-                   style={'width': '80%', 'margin-left': 'auto', 'margin-right': 'auto'}
-                ),
+                ], className='dashrow filters'),
                 html.Div([
                     html.Div([
                         html.P('Filter by Process Type'),
@@ -145,9 +144,7 @@ layout = html.Div(children=[
                             value='All'
                         ),
                     ], className='four columns'),
-                ], className='dashrow filters',
-                   style={'width': '80%', 'margin-left': 'auto', 'margin-right': 'auto'}
-                ),
+                ], className='dashrow filters'),
                 html.Div([
                     html.Div([
                         dcc.Graph(id='ind-workloads-graph',
@@ -161,9 +158,8 @@ layout = html.Div(children=[
                                 )
                             )
                         )
-                    ], className='ten columns'),
-                ], className='dashrow',
-                    style={'margin-left': 'auto', 'margin-right': 'auto'}
+                    ], className='twelve columns'),
+                ], className='dashrow'
                 ),
                 html.Div([
                     html.Div([
@@ -188,7 +184,7 @@ layout = html.Div(children=[
                                 target='_blank',
                             )
                         ], style={'text-align': 'right'})
-                    ], style={'width': '55%', 'margin-left': 'auto', 'margin-right': 'auto','margin-top': '50px', 'margin-bottom': '50px'})
+                    ], style={'margin-top': '50px', 'margin-bottom': '50px'})
                 ], className='dashrow'),
                 html.Div([
                     html.Div([
@@ -213,8 +209,7 @@ layout = html.Div(children=[
                                 target='_blank',
                             )
                         ], style={'text-align': 'right'})
-                    ], style={'width': '90%', 'margin-left': 'auto', 'margin-right': 'auto', 'margin-top': '50px',
-                              'margin-bottom': '50px'})
+                    ], style={'margin-top': '50px', 'margin-bottom': '50px'})
                 ], className='dashrow')
             ])
 

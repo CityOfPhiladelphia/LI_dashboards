@@ -13,11 +13,11 @@ print("Man005BLExpirationVolumesBySubmissionType.py")
 print("Testing mode? " + str(testing_mode))
 
 if testing_mode:
-    df = pd.read_csv("man005BL_test_data.csv")
+    df = pd.read_csv("test_data/Man005BLExpirationVolumesBySubmissionType_test_data_short.csv")
 else:
     with con() as con:
-        sql = """SELECT lic.licensenumber "LicenseNumber", lt.name "LicenseType", lg.expirationdate "ExpirationDate",( CASE WHEN ap.createdby LIKE '%2%' THEN 'Online' WHEN ap.createdby LIKE '%3%' THEN 'Online' WHEN ap.createdby LIKE '%4%' THEN 'Online' WHEN ap.createdby LIKE '%5%' THEN 'Online' WHEN ap.createdby LIKE '%6%' THEN 'Online' WHEN ap.createdby LIKE '%7%' THEN 'Online' WHEN ap.createdby LIKE '%7%' THEN 'Online' WHEN ap.createdby LIKE '%9%' THEN 'Online' WHEN ap.createdby = 'PPG User' THEN 'Online' WHEN ap.createdby = 'POSSE system power user' THEN 'Revenue' ELSE 'Staff' END) "CreatedByType", ap.externalfilenum "JobNumber", jt.name "JobType", Extract(month FROM ap.createddate) || '/' ||Extract(day FROM ap.createddate) || '/' || Extract(year FROM ap.createddate) "JobCreatedDate", Extract(month FROM ap.completeddate) || '/' ||Extract(day FROM ap.completeddate) || '/' || Extract(year FROM ap.completeddate) "JobCompletedDate", ( CASE WHEN jt.description LIKE 'Business License Application' THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1239699&objectHandle=' ||apl.applicationobjectid ||'&processHandle=&paneId=1239699_151' END ) "JobLink" FROM lmscorral.bl_licensetype lt, (SELECT licensenumber, licensetypeobjectid, licensegroupobjectid, objectid, mostrecentissuedate FROM lmscorral.bl_license WHERE mostrecentissuedate >= '01-JAN-2015') lic, (SELECT expirationdate, objectid FROM lmscorral.bl_licensegroup WHERE expirationdate >= '01-JAN-2015') lg, query.r_bl_application_license apl, query.j_bl_application ap, query.o_jobtypes jt WHERE lt.objectid = lic.licensetypeobjectid (+) AND lic.licensegroupobjectid = lg.objectid (+) AND lic.objectid = apl.licenseobjectid (+) AND apl.applicationobjectid = ap.objectid(+) AND ap.jobtypeid = jt.jobtypeid (+) AND lic.mostrecentissuedate BETWEEN ( ap.completeddate - 1 ) AND ( ap.completeddate + 1 ) AND ap.statusid LIKE '1036493' AND ap.externalfilenum LIKE 'BA%' AND lic.licensetypeobjectid != 10571 UNION SELECT lic.licensenumber "LicenseNumber", lt.name "LicenseType", lg.expirationdate "ExpirationDate", ( CASE WHEN ar.createdby LIKE '%2%' THEN 'Online' WHEN ar.createdby LIKE '%3%' THEN 'Online' WHEN ar.createdby LIKE '%4%' THEN 'Online' WHEN ar.createdby LIKE '%5%' THEN 'Online' WHEN ar.createdby LIKE '%6%' THEN 'Online' WHEN ar.createdby LIKE '%7%' THEN 'Online' WHEN ar.createdby LIKE '%7%' THEN 'Online' WHEN ar.createdby LIKE '%9%' THEN 'Online' WHEN ar.createdby = 'PPG User' THEN 'Online' WHEN ar.createdby = 'POSSE system power user' THEN 'Revenue' ELSE 'Staff' END ) "CreatedByType", ar.externalfilenum "JobNumber", jt.name "JobType", Extract(month FROM ar.createddate) || '/' ||Extract(day FROM ar.createddate) || '/' || Extract(year FROM ar.createddate) "JobCreatedDate", Extract(month FROM ar.completeddate) || '/' ||Extract(day FROM ar.completeddate) || '/' || Extract(year FROM ar.completeddate) "JobCompletedDate", ( CASE WHEN jt.description LIKE 'Amendment/Renewal' THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1243107&objectHandle=' ||arl.amendrenewid ||'&processHandle=&paneId=1243107_175' END ) "JobLink" FROM lmscorral.bl_licensetype lt, (SELECT licensenumber, licensetypeobjectid, licensegroupobjectid, objectid, mostrecentissuedate FROM lmscorral.bl_license WHERE mostrecentissuedate >= '01-JAN-2015') lic, (SELECT expirationdate, objectid FROM lmscorral.bl_licensegroup WHERE expirationdate >= '01-JAN-2015') lg, query.r_bl_amendrenew_license arl, query.j_bl_amendrenew ar, query.o_jobtypes jt WHERE lt.objectid = lic.licensetypeobjectid (+) AND lic.licensegroupobjectid = lg.objectid (+) AND lic.objectid = arl.licenseid (+) AND arl.amendrenewid = ar.objectid (+) AND ar.jobtypeid = jt.jobtypeid (+) AND lic.mostrecentissuedate BETWEEN ( ar.completeddate - 1 ) AND ( ar.completeddate + 1 ) AND ar.statusid LIKE '1036493' AND ar.externalfilenum LIKE 'BR%' AND lic.licensetypeobjectid != 10571"""
-        df = pd.read_sql(sql, con)
+        with open(r'queries/Man005BLExpirationVolumesBySubmissionType.sql') as sql:
+            df = pd.read_sql_query(sql=sql.read(), con=con)
     
 #make sure ExpirationDate column is of type datetime so that filtering of dataframe based on date can happen later
 df['ExpirationDate'] = pd.to_datetime(df['ExpirationDate'], errors = 'coerce')
@@ -56,46 +56,54 @@ layout = html.Div(
             ),
         ], style={'margin-left': '5%', 'margin-bottom': '25px'}),
         html.Div([
-            dt.DataTable(
-                rows=[{}],
-                columns=["JobType", "LicenseType", "Count"],
-                row_selectable=True,
-                filterable=True,
-                sortable=True,
-                selected_row_indices=[],
-                id='Man005BL-count-table'
-            ),
-        ], style={'width': '70%', 'margin-left': '5%'},
-            id='Man005BL-count-table-div'
-        ),
+            html.Div([
+                html.Div([
+                    dt.DataTable(
+                        rows=[{}],
+                        columns=["JobType", "LicenseType", "Count"],
+                        row_selectable=True,
+                        filterable=True,
+                        sortable=True,
+                        selected_row_indices=[],
+                        id='Man005BL-count-table'
+                    )
+                ], id='Man005BL-count-table-div'),
+                html.Div([
+                    html.A(
+                        'Download Data',
+                        id='Man005BL-count-table-download-link',
+                        download='Man005BLExpirationVolumesBySubmissionType-counts.csv',
+                        href='',
+                        target='_blank',
+                    )
+                ], style={'text-align': 'right'})
+            ], style={'margin-left': 'auto', 'margin-right': 'auto', 'float': 'none'},
+                className='nine columns')
+        ], className='dashrow'),
         html.Div([
-            html.A(
-                'Download Data',
-                id='Man005BL-count-table-download-link',
-                download='Man005BLExpirationVolumesBySubmissionType-counts.csv',
-                href='',
-                target='_blank',
-            )
-        ], style={'text-align': 'right', 'margin-right': '25%'}),
-        html.Div([
-            dt.DataTable(
-                rows=[{}],
-                row_selectable=True,
-                filterable=True,
-                sortable=True,
-                selected_row_indices=[],
-                id='Man005BL-table'
-            )
-        ], style={'width': '90%', 'margin-left': 'auto', 'margin-right': 'auto', 'margin-top': '75px'}),
-        html.Div([
-            html.A(
-                'Download Data',
-                id='Man005BL-table-download-link',
-                download='Man005BLExpirationVolumesBySubmissionType.csv',
-                href='',
-                target='_blank',
-            )
-        ], style={'text-align': 'right', 'margin-right': '5%'}),
+            html.Div([
+                html.Div([
+                    dt.DataTable(
+                        rows=[{}],
+                        row_selectable=True,
+                        filterable=True,
+                        sortable=True,
+                        selected_row_indices=[],
+                        id='Man005BL-table'
+                    )
+                ]),
+                html.Div([
+                    html.A(
+                        'Download Data',
+                        id='Man005BL-table-download-link',
+                        download='Man005BLExpirationVolumesBySubmissionType-ind-records.csv',
+                        href='',
+                        target='_blank',
+                    )
+                ], style={'text-align': 'right'})
+            ], style={'margin-top': '70px', 'margin-bottom': '50px',
+                      'margin-left': 'auto', 'margin-right': 'auto', 'float': 'none'})
+        ], className='dashrow')
     ]
 )
 

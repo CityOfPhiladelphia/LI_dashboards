@@ -14,12 +14,12 @@ print("Man006OverdueBLInspections.py")
 print("Testing mode? " + str(testing_mode))
 
 if testing_mode:
-    df = pd.read_csv("man006BL_test_data.csv")
+    df = pd.read_csv("test_data/Man006OverdueBLInspections_test_data_short.csv")
     df['ScheduledInspectionDateField'] = pd.to_datetime(df['ScheduledInspectionDateField'])
 else:
     with con() as con:
-        sql = """SELECT biz.address "Business Address", lic.externalfilenum "License Number", lic.licensetype "License Type",( CASE WHEN jt.name LIKE 'j_BL_Inspection' THEN ins.externalfilenum END) "Job Number", jt.Description "Job Type", ( CASE WHEN jt.name LIKE 'j_BL_Inspection' THEN 'License' WHEN jt.name LIKE 'j_BL_Application' THEN 'Application' WHEN jt.name LIKE 'j_BL_AmendRenew' THEN 'Renewal or Amend' END ) "Inspection On", ins.inspectiontype "Inspection Type", ins.objectid "Insp Object Id", Extract(month FROM ins.createddate) || '/' ||Extract(day FROM ins.createddate) || '/' || Extract(year FROM ins.createddate) "Inspection Created Date", round(SYSDATE - ins.createddate) "Days Since Insp Created", Extract(month FROM ins.scheduledinspectiondate) || '/' ||Extract(day FROM ins.scheduledinspectiondate) || '/' || Extract(year FROM ins.scheduledinspectiondate) "Scheduled Inspection Date", ins.scheduledinspectiondate "ScheduledInspectionDateField", ins.inspectorname "Inspector" FROM query.j_bl_inspection ins, query.r_bl_licenseinspection li, query.o_bl_license lic, query.o_bl_business biz, query.o_jobtypes jt WHERE ins.objectid = li.inspectionid AND ins.jobtypeid = jt.jobtypeid AND li.licenseid = lic.objectid AND lic.businessobjectid = biz.objectid AND ins.scheduledinspectiondate <= SYSDATE AND ins.completeddate IS NULL UNION SELECT biz.address "Business Address", lic.externalfilenum "License Number", lic.licensetype "License Type", ( CASE WHEN jt.name LIKE 'j_BL_Inspection' THEN ins.externalfilenum WHEN jt.name LIKE 'j_BL_Application' THEN ap.externalfilenum END ) "Job Number", jt.Description "Job Type", ( CASE WHEN jt.name LIKE 'j_BL_Inspection' THEN 'License' WHEN jt.name LIKE 'j_BL_Application' THEN 'Application' WHEN jt.name LIKE 'j_BL_AmendRenew' THEN 'Renewal or Amend' END ) "Inspection On", ins.inspectiontype "Inspection Type", ins.objectid "Insp Object Id", Extract(month FROM ins.createddate) || '/' ||Extract(day FROM ins.createddate) || '/' || Extract(year FROM ins.createddate) "Inspection Created Date", round(SYSDATE - ins.createddate) "Days Since Insp Created", Extract(month FROM ins.scheduledinspectiondate) || '/' ||Extract(day FROM ins.scheduledinspectiondate) || '/' || Extract(year FROM ins.scheduledinspectiondate) "Scheduled Inspection Date", ins.scheduledinspectiondate "ScheduledInspectionDateField", ins.inspectorname "Inspector" FROM query.j_bl_inspection ins, query.r_bl_applicationinspection api, query.j_bl_application ap, query.o_jobtypes jt, query.r_bl_application_license apl, query.o_bl_license lic, query.o_bl_business biz WHERE ins.objectid = api.inspectionid AND api.applicationid = ap.objectid AND ap.jobtypeid = jt.jobtypeid AND ap.objectid = apl.applicationobjectid AND apl.licenseobjectid = lic.objectid AND lic.businessobjectid = biz.objectid AND ins.scheduledinspectiondate <= SYSDATE AND ins.completeddate IS NULL UNION SELECT biz.address "Business Address", lic.externalfilenum "License Number", lic.licensetype "License Type", ( CASE WHEN jt.name LIKE 'j_BL_Inspection' THEN ins.externalfilenum WHEN jt.name LIKE 'j_BL_AmendRenew' THEN ar.externalfilenum END ) "Job Number", jt.Description "Job Type", ( CASE WHEN jt.name LIKE 'j_BL_Inspection' THEN 'License' WHEN jt.name LIKE 'j_BL_Application' THEN 'Application' WHEN jt.name LIKE 'j_BL_AmendRenew' THEN 'Renewal or Amend' END ) "Inspection On", ins.inspectiontype "Inspection Type", ins.objectid "Insp Object Id", Extract(month FROM ins.createddate) || '/' ||Extract(day FROM ins.createddate) || '/' || Extract(year FROM ins.createddate) "Inspection Created Date", round(SYSDATE - ins.createddate) "Days Since Insp Created", Extract(month FROM ins.scheduledinspectiondate) || '/' ||Extract(day FROM ins.scheduledinspectiondate) || '/' || Extract(year FROM ins.scheduledinspectiondate) "Scheduled Inspection Date", ins.scheduledinspectiondate "ScheduledInspectionDateField", ins.inspectorname "Inspector" FROM query.j_bl_inspection ins, query.r_bl_amendrenewinspection ari, query.j_bl_amendrenew ar, query.o_jobtypes jt, query.r_bl_amendrenew_license arl, query.o_bl_license lic, query.o_bl_business biz WHERE ins.objectid = ari.inspectionid AND ari.amendrenewid = ar.jobid AND ar.jobtypeid = jt.jobtypeid AND ar.objectid = arl.amendrenewid AND arl.licenseid = lic.objectid AND lic.businessobjectid = biz.objectid AND ins.scheduledinspectiondate <= SYSDATE AND ins.completeddate IS NULL"""
-        df = pd.read_sql(sql, con)
+        with open(r'queries/Man006OverdueBLInspections.sql') as sql:
+            df = pd.read_sql_query(sql=sql.read(), con=con)
 
 licensetype_options_unsorted = []
 for licensetype in df['License Type'].unique():
@@ -113,78 +113,66 @@ layout = html.Div(
             '(Business Licenses and BL Jobs)',
             style={'margin-bottom': '50px'}
         ),
-        html.Div(
-            children=[
-                'Please Select Date Range (Job Created Date)'
-            ],
-            style={'margin-left': '5%', 'margin-top': '10px', 'margin-bottom': '5px'}
-        ),
         html.Div([
-            dcc.DatePickerRange(
-                id='Man006BL-my-date-picker-range',
-                start_date=datetime(2018, 1, 1),
-                end_date=datetime.now()
-            ),
-        ], style={'margin-left': '5%', 'margin-bottom': '25px'}),
-html.Div(
-            children=[
-                'License Type'
-            ],
-            style={'margin-left': '5%', 'margin-top': '10px', 'margin-bottom': '5px'}
-        ),
+            html.Div([
+                html.P('Please Select Date Range (Scheduled Inspection Date)'),
+                dcc.DatePickerRange(
+                    id='Man006BL-my-date-picker-range',
+                    start_date=datetime(2018, 1, 1),
+                    end_date=datetime.now()
+                )
+            ], className='five columns'),
+            html.Div([
+                html.P('Inspector'),
+                dcc.Dropdown(
+                    id='inspector-dropdown',
+                    options=inspector_options_sorted,
+                    multi=True
+                )
+            ], className='five columns'),
+        ], className='dashrow filters'),
         html.Div([
-            dcc.Dropdown(
-                id='licensetype-dropdown',
-                options=licensetype_options_sorted,
-                multi=True
-            ),
-        ], style={'width': '33%', 'display': 'inline-block', 'margin-left': '5%'}),
-        html.Div(
-            children=[
-                'Job Type'
-            ],
-            style={'margin-left': '5%', 'margin-top': '10px', 'margin-bottom': '5px'}
-        ),
+            html.Div([
+                html.P('License Type'),
+                dcc.Dropdown(
+                    id='licensetype-dropdown',
+                    options=licensetype_options_sorted,
+                    multi=True
+                ),
+            ], className='five columns'),
+            html.Div([
+                html.P('Job Type'),
+                dcc.Dropdown(
+                    id='jobtype-dropdown',
+                    options=jobtype_options_sorted,
+                    multi=True
+                ),
+            ], className='five columns'),
+        ], className='dashrow filters'),
         html.Div([
-            dcc.Dropdown(
-                id='jobtype-dropdown',
-                options=jobtype_options_sorted,
-                multi=True
-            ),
-        ], style={'width': '33%', 'display': 'inline-block', 'margin-left': '5%'}),
-        html.Div(
-            children=[
-                'Inspector'
-            ],
-            style={'margin-left': '5%', 'margin-top': '10px', 'margin-bottom': '5px'}
-        ),
-        html.Div([
-            dcc.Dropdown(
-                id='inspector-dropdown',
-                options=inspector_options_sorted,
-                multi=True
-            ),
-        ], style={'width': '33%', 'display': 'inline-block', 'margin-left': '5%', 'margin-bottom': '25px'}),
-        html.Div([
-            dt.DataTable(
-                rows=[{}],
-                row_selectable=True,
-                sortable=True,
-                selected_row_indices=[],
-                id='Man006BL-count-table'
-            ),
-        ], style={'width': '70%', 'margin-left': '5%'},
-            id='Man006BL-count-table-div'
-        ),
-        html.Div([
-            html.A(
-                'Download Data',
-                id='Man006BL-count-table-download-link',
-                download='Man006BL-counts.csv',
-                href='',
-                target='_blank'
-            ),
-        ], style={'text-align': 'right', 'margin-right': '25%'}),
+            html.Div([
+                html.Div([
+                    dt.DataTable(
+                        rows=[{}],
+                        row_selectable=True,
+                        sortable=True,
+                        selected_row_indices=[],
+                        id='Man006BL-count-table'
+                    ),
+                ], id='Man006BL-count-table-div'),
+                html.Div([
+                    html.A(
+                        'Download Data',
+                        id='Man006BL-count-table-download-link',
+                        download='Man006BL-counts.csv',
+                        href='',
+                        target='_blank'
+                    ),
+                ], style={'text-align': 'right'})
+            ], style={'margin-top': '70px', 'margin-bottom': '50px',
+                      'margin-left': 'auto', 'margin-right': 'auto', 'float': 'none'},
+               className='ten columns')
+        ], className='dashrow'),
         html.Div([
             dt.DataTable(
                 rows=[{}],
@@ -194,7 +182,7 @@ html.Div(
                 selected_row_indices=[],
                 id='Man006BL-table'
             ),
-        ], style={'width': '90%', 'margin-left': 'auto', 'margin-right': 'auto'},
+        ], style={'width': '100%', 'margin-left': 'auto', 'margin-right': 'auto'},
             id='Man006BL-table-div'
         ),
         html.Div([

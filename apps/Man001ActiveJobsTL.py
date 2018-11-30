@@ -23,10 +23,10 @@ if testing_mode:
     df_counts = pd.read_csv("test_data/Man001ActiveJobsTLCounts_test_data.csv")
 else:
     with con() as con:
-        sql_tl = """SELECT DISTINCT j.externalfilenum "JobNumber", jt.description "JobType", Nvl(lt.title, lt2.title) "LicenseType", stat.description "JobStatus", proc.processid "ProcessID", pt.description "ProcessType", Extract(month FROM proc.datecompleted) || '/' ||Extract(day FROM proc.datecompleted) || '/' || Extract(year FROM proc.datecompleted) "JobAcceptedDate", proc.processstatus "ProcessStatus", proc.assignedstaff "AssignedStaff",( CASE WHEN Round(SYSDATE - proc.scheduledstartdate) <= 1 THEN '0-1 Day' WHEN Round(SYSDATE - proc.scheduledstartdate) BETWEEN 2 AND 5 THEN '2-5 Days' WHEN Round(SYSDATE - proc.scheduledstartdate) BETWEEN 6 AND 10 THEN '6-10 Days' WHEN Round(SYSDATE - proc.scheduledstartdate) BETWEEN 11 AND 365 THEN '11 Days-1 Year' ELSE 'Over 1 Year' END) "TimeSinceScheduledStartDate", ( CASE WHEN jt.description LIKE 'Trade License Application' THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=2854033&objectHandle=' ||j.jobid ||'&processHandle=&paneId=2854033_116' WHEN jt.description LIKE 'Trade License Amend/Renew' THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=2857688&objectHandle=' ||j.jobid ||'&processHandle=&paneId=2857688_87' END ) "JobLink" FROM api.jobs j, api.jobtypes jt, api.statuses stat, api.processes proc, api.processtypes pt, query.j_tl_amendrenew ar, query.r_tl_amendrenew_license arl, query.r_tllicensetype lrl, query.o_tl_licensetype lt, query.j_tl_application apl, query.r_tllicensetype lrl2, query.o_tl_licensetype lt2 WHERE j.jobid = proc.jobid AND proc.processtypeid = pt.processtypeid AND j.externalfilenum = ar.externalfilenum (+) AND ar.objectid = arl.amendrenewid (+) AND arl.licenseid = lrl.licenseobjectid (+) AND lrl.licensetypeobjectid = lt.objectid (+) AND j.jobid = apl.objectid (+) AND apl.tradelicenseobjectid = lrl2.licenseobjectid (+) AND lrl2.licensetypeobjectid = lt2.objectid (+) AND j.externalfilenum LIKE 'T%' AND pt.processtypeid IN ( '2851903', '2854108', '2852692', '2852680', '2854639', '2853029', '2854845', '2855079' ) AND proc.datecompleted IS NOT NULL AND j.jobtypeid = jt.jobtypeid AND j.statusid = stat.statusid AND j.completeddate IS NULL AND j.jobtypeid IN ( '2853921', '2857525' ) AND j.statusid NOT IN ( '1014809', '978845', '964970', '967394' ) ORDER BY j.externalfilenum"""
-        sql_counts = """SELECT DISTINCT timesincescheduledstartdate "TimeSinceScheduledStartDate", jobtype "JobType", licensetype "LicenseType", Count(DISTINCT jobnumber) "JobCounts", Avg(TIME) AvgTime FROM(SELECT DISTINCT j.externalfilenum JobNumber, Nvl(lt.title, lt2.title) LicenseType, jt.description JobType, j.statusid, j.jobstatus, stat.description "JobStatus", pt.processtypeid, pt.description, Extract(month FROM proc.datecompleted) || '/' ||Extract(day FROM proc.datecompleted) || '/' || Extract(year FROM proc.datecompleted) "JobAcceptedDate", proc.processstatus, proc.assignedstaff, ( CASE WHEN Round(SYSDATE - proc.scheduledstartdate) <= 1 THEN '0-1 Day' WHEN Round(SYSDATE - proc.scheduledstartdate) BETWEEN 2 AND 5 THEN '2-5 Days' WHEN Round(SYSDATE - proc.scheduledstartdate) BETWEEN 6 AND 10 THEN '6-10 Days' WHEN Round(SYSDATE - proc.scheduledstartdate) BETWEEN 11 AND 365 THEN '11 Days-1 Year' ELSE 'Over 1 Year' END) TimeSinceScheduledStartDate, j.jobid, ( SYSDATE - proc.scheduledstartdate ) TIME FROM api.jobs j, api.jobtypes jt, api.statuses stat, api.processes proc, api.processtypes pt, query.j_tl_amendrenew ar, query.r_tl_amendrenew_license arl, query.r_tllicensetype lrl, query.o_tl_licensetype lt, query.j_tl_application apl, query.r_tllicensetype lrl2, query.o_tl_licensetype lt2 WHERE j.jobid = proc.jobid AND proc.processtypeid = pt.processtypeid AND j.externalfilenum = ar.externalfilenum (+) AND ar.objectid = arl.amendrenewid (+) AND arl.licenseid = lrl.licenseobjectid (+) AND lrl.licensetypeobjectid = lt.objectid (+) AND j.jobid = apl.objectid (+) AND apl.tradelicenseobjectid = lrl2.licenseobjectid (+) AND lrl2.licensetypeobjectid = lt2.objectid (+) AND j.externalfilenum LIKE 'T%' AND pt.processtypeid IN( '2851903', '2854108', '2852692', '2852680', '2854639', '2853029', '2854845', '2855079' ) AND proc.datecompleted IS NOT NULL AND j.jobtypeid = jt.jobtypeid AND j.statusid = stat.statusid AND j.completeddate IS NULL AND j.jobtypeid IN ( '2853921', '2857525' ) AND j.statusid NOT IN ( '1014809', '978845', '964970', '967394' )) GROUP BY timesincescheduledstartdate, jobtype, licensetype ORDER BY avgtime DESC"""
-        df_table = pd.read_sql(sql_tl, con)
-        df_counts = pd.read_sql(sql_counts, con)
+        with open(r'queries/Man001ActiveJobsTL_ind_records.sql') as sql:
+            df_table = pd.read_sql_query(sql=sql.read(), con=con)
+        with open(r'queries/Man001ActiveJobsTL_counts.sql') as sql:
+            df_counts = pd.read_sql_query(sql=sql.read(), con=con)
 
 # Remove the words "Trade License" just to make it easier for user to read
 df_table['JobType'] = df_table['JobType'].map(lambda x: x.replace("Trade License ", ""))
@@ -79,84 +79,88 @@ layout = html.Div([
         '(Trade Licenses)',
         style={'margin-bottom': '50px'}
     ),
-    html.Div(
-        children=[
-            'Time Since Scheduled Start Date of Process'
-        ],
-        style={'margin-left': '15%', 'margin-bottom': '5px'}
-    ),
     html.Div([
-        dcc.Dropdown(
-            id='duration-dropdown',
-            options=duration_options,
-            multi=True
-        ),
-    ], style={'width': '33%', 'display': 'inline-block', 'margin-left': '15%'}),
-    html.Div('License Type', style={'margin-left': '15%', 'margin-top': '25px'}),
+        html.Div([
+            html.P('Time Since Scheduled Start Date of Process'),
+            dcc.Dropdown(
+                id='duration-dropdown',
+                options=duration_options,
+                multi=True
+            ),
+        ], className='four columns'),
+        html.Div([
+            html.P('License Type'),
+            dcc.Dropdown(
+                id='licensetype-dropdown',
+                options=licensetype_options_sorted,
+                value='All',
+                searchable=True
+            ),
+        ], className='six columns'),
+    ], className='dashrow filters'),
     html.Div([
-        dcc.Dropdown(
-            id='licensetype-dropdown',
-            options=licensetype_options_sorted,
-            value='All',
-            searchable=True
-        ),
-    ], style={'width': '33%', 'margin-left': '15%'}),
-    dcc.Graph(
-        id='my-graph',
-        figure=go.Figure(
-            data=[
-                go.Bar(
-                    x=df_counts[df_counts['JobType'] == 'Application'].groupby(['TimeSinceScheduledStartDate'])['JobCounts'].agg(np.sum).index,
-                    y=df_counts[df_counts['JobType'] == 'Application'].groupby(['TimeSinceScheduledStartDate'])['JobCounts'].agg(np.sum),
-                    name='Applications',
-                    marker=go.bar.Marker(
-                        color='rgb(55, 83, 109)'
+        dcc.Graph(
+            id='my-graph',
+            figure=go.Figure(
+                data=[
+                    go.Bar(
+                        x=df_counts[df_counts['JobType'] == 'Application'].groupby(['TimeSinceScheduledStartDate'])['JobCounts'].agg(np.sum).index,
+                        y=df_counts[df_counts['JobType'] == 'Application'].groupby(['TimeSinceScheduledStartDate'])['JobCounts'].agg(np.sum),
+                        name='Applications',
+                        marker=go.bar.Marker(
+                            color='rgb(55, 83, 109)'
+                        )
+                    ),
+                    go.Bar(
+                        x=df_counts[df_counts['JobType'] == 'Amend/Renew'].groupby(['TimeSinceScheduledStartDate'])['JobCounts'].agg(np.sum).index,
+                        y=df_counts[df_counts['JobType'] == 'Amend/Renew'].groupby(['TimeSinceScheduledStartDate'])['JobCounts'].agg(np.sum),
+                        name='Renewals/Amendments',
+                        marker=go.bar.Marker(
+                            color='rgb(26, 118, 255)'
+                        )
                     )
-                ),
-                go.Bar(
-                    x=df_counts[df_counts['JobType'] == 'Amend/Renew'].groupby(['TimeSinceScheduledStartDate'])['JobCounts'].agg(np.sum).index,
-                    y=df_counts[df_counts['JobType'] == 'Amend/Renew'].groupby(['TimeSinceScheduledStartDate'])['JobCounts'].agg(np.sum),
-                    name='Renewals/Amendments',
-                    marker=go.bar.Marker(
-                        color='rgb(26, 118, 255)'
+                ],
+                layout=go.Layout(
+                    xaxis=dict(
+                        title='Time Since Scheduled Start Date of Process'
+                    ),
+                    yaxis=dict(
+                        title='Active Trade License Jobs'
+                    ),
+                    showlegend=True,
+                    legend=go.layout.Legend(
+                        x=.75,
+                        y=1
                     )
-                )
-            ],
-            layout=go.Layout(
-                xaxis=dict(
-                    title='Time Since Scheduled Start Date of Process'
-                ),
-                yaxis=dict(
-                    title='Active Trade License Jobs'
-                ),
-                showlegend=True,
-                legend=go.layout.Legend(
-                    x=.75,
-                    y=1
                 )
             )
-        ), style={'height': '500px', 'display': 'block', 'margin-bottom': '75px', 'width': '70%', 'margin-left': 'auto', 'margin-right': 'auto'}
-    ),
-    html.Div([
-        dt.DataTable(
-            rows=[{}],
-            row_selectable=True,
-            filterable=True,
-            sortable=True,
-            selected_row_indices=[],
-            editable=False,
-            id='Man001ActiveJobsTL-table'
         )
-    ], style={'width': '90%', 'margin-left': 'auto', 'margin-right': 'auto'}),
+    ], style={'margin-left': 'auto', 'margin-right': 'auto', 'float': 'none'},
+       className='nine columns'),
     html.Div([
-        html.A(
-            'Download Data',
-            id='Man001ActiveJobsTL-download-link',
-            download='Man001ActiveJobsTL.csv',
-            href='',
-            target='_blank',
-        )
-    ], style={'text-align': 'right', 'margin-right': '5%'}),
+        html.Div([
+            html.Div([
+                dt.DataTable(
+                    rows=[{}],
+                    row_selectable=True,
+                    filterable=True,
+                    sortable=True,
+                    selected_row_indices=[],
+                    editable=False,
+                    id='Man001ActiveJobsTL-table'
+                )
+            ], style={'text-align': 'center'}),
+            html.Div([
+                html.A(
+                    'Download Data',
+                    id='Man001ActiveJobsTL-download-link',
+                    download='Man001ActiveJobsTL.csv',
+                    href='',
+                    target='_blank',
+                )
+            ], style={'text-align': 'right'})
+        ], style={'margin-top': '70px', 'margin-bottom': '50px'})
+    ], className='dashrow')
 ])
 
 @app.callback(
