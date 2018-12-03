@@ -30,7 +30,8 @@ SELECT biz.address "Business Address",
   || '/'
   || Extract(YEAR FROM ins.scheduledinspectiondate) "Scheduled Inspection Date",
   ins.scheduledinspectiondate "ScheduledInspectionDateField",
-  ins.inspectorname "Inspector"
+  ins.inspectorname "Inspector",
+  'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1244842&objectHandle=' || ins.objectid || '&processHandle=' "Link"
 FROM query.j_bl_inspection ins,
   query.r_bl_licenseinspection li,
   query.o_bl_license lic,
@@ -77,7 +78,8 @@ SELECT biz.address "Business Address",
   || '/'
   || Extract(YEAR FROM ins.scheduledinspectiondate) "Scheduled Inspection Date",
   ins.scheduledinspectiondate "ScheduledInspectionDateField",
-  ins.inspectorname "Inspector"
+  ins.inspectorname "Inspector",
+  'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1244842&objectHandle=' || ins.objectid || '&processHandle=' "Link"
 FROM query.j_bl_inspection ins,
   query.r_bl_applicationinspection api,
   query.j_bl_application ap,
@@ -128,7 +130,8 @@ SELECT biz.address "Business Address",
   || '/'
   || Extract(YEAR FROM ins.scheduledinspectiondate) "Scheduled Inspection Date",
   ins.scheduledinspectiondate "ScheduledInspectionDateField",
-  ins.inspectorname "Inspector"
+  ins.inspectorname "Inspector",
+  'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1244842&objectHandle=' || ins.objectid || '&processHandle=' "Link"
 FROM query.j_bl_inspection ins,
   query.r_bl_amendrenewinspection ari,
   query.j_bl_amendrenew ar,

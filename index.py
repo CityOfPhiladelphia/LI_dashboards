@@ -100,4 +100,5 @@ if __name__ == '__main__':
     except:
         send_email()
 
+    print('Server has loaded.')
     http_server.serve_forever()
