@@ -30,12 +30,12 @@ else:
 df = (df.rename(columns={'JOBID': 'Job ID', 'PROCESSID': 'Process ID', 'JOBTYPE': 'Job Type',
                          'JOBCREATEDDATE': 'Job Created Date', 'PROCESSDATECOMPLETED': 'Process Completed Date'})
       .assign(MonthDateText=lambda x: x['JOBCREATEDDATEFIELD'].dt.strftime('%b %Y'))
-      .assign(onthDateText=lambda x: x['JOBCREATEDDATEFIELD'].dt.strftime('%b %Y'))
-      .assign(WeekText=lambda x: x['JOBCREATEDDATEFIELD'].dt.strftime('%W')))
+      .assign(WeekText=lambda x: x['JOBCREATEDDATEFIELD'].dt.strftime('%W'))
+      .assign(DayDateText=lambda x: x['JOBCREATEDDATEFIELD'].dt.strftime('%b %d %Y')))
 
 df['Month Year'] = df['JOBCREATEDDATEFIELD'].map(lambda dt: dt.date().replace(day=1))
-df['Day Month Year'] = df['JOBCREATEDDATEFIELD'].map(lambda dt: dt.date())
 df['Week'] = df['JOBCREATEDDATEFIELD'].map(lambda dt: dt.week)
+df['Day Month Year'] = df['JOBCREATEDDATEFIELD'].map(lambda dt: dt.date())
 
 us_bd = CustomBusinessDay(calendar=USFederalHolidayCalendar())
 def calc_bus_days(row):
@@ -119,7 +119,7 @@ def update_graph_data(selected_start, selected_end, selected_job_type, selected_
 
 
 layout = html.Div(children=[
-                html.H1('SLA Compliance (Business Licenses)', style={'text-align': 'center'}),
+                html.H1('SLA License Issuance (Business Licenses)', style={'text-align': 'center'}),
                 html.Div([
                     html.Div([
                         html.P('Filter by Job Created Date'),
