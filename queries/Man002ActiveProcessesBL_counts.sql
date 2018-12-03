@@ -3,45 +3,11 @@ SELECT DISTINCT jobtype "JobType",
   licensetype "LicenseType",
   COUNT(DISTINCT processid) "ProcessCounts"
 FROM
-  (SELECT DISTINCT j.externalfilenum JobExtNum,
-    j.statusid,
+  (SELECT DISTINCT 
     jt.description JobType,
     NVL(ap.licensetypesdisplayformat, ar.licensetypesdisplayformat) LicenseType,
-    stat.description JobStatus,
-    pt.processtypeid,
     proc.processid ProcessID,
-    pt.description ProcessType,
-    Extract( MONTH FROM proc.createddate)
-    || '/'
-    ||Extract(DAY FROM proc.createddate)
-    || '/'
-    || Extract(YEAR FROM proc.createddate) CreatedDate,
-    Extract( MONTH FROM proc.scheduledstartdate)
-    || '/'
-    || Extract(DAY FROM proc.scheduledstartdate)
-    || '/'
-    ||Extract(YEAR FROM proc.scheduledstartdate) ScheduledStartDate ,
-    (
-    CASE
-      WHEN proc.datecompleted IS NOT NULL
-      THEN Extract(MONTH FROM proc.datecompleted)
-        || '/'
-        || Extract( DAY FROM proc.datecompleted)
-        || '/'
-        ||Extract(YEAR FROM proc.datecompleted)
-      ELSE NULL
-    END) DateCompleted,
-    proc.processstatus,
-    (
-    CASE
-      WHEN ROUND(SYSDATE - proc.scheduledstartdate) <= 1
-      THEN '0-1 Day'
-      WHEN ROUND(SYSDATE - proc.scheduledstartdate) BETWEEN 2 AND 5
-      THEN '2-5 Days'
-      WHEN ROUND(SYSDATE - proc.scheduledstartdate) BETWEEN 6 AND 10
-      THEN '6-10 Days'
-      ELSE '11+ Days'
-    END ) TimeSinceScheduledStartDate
+    pt.description ProcessType
   FROM api.processes PROC,
     api.jobs j,
     api.processtypes pt,
