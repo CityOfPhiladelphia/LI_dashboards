@@ -29,7 +29,7 @@ SELECT lt.name "LicenseType",
   (
   CASE
     WHEN jt.name LIKE 'j_BL_Application'
-    THEN 'Application'
+    THEN 'Initial Application'
     WHEN jt.name LIKE 'j_BL_AmendRenew'
     THEN 'Renewal or Amendment'
   END ) "JobType",
@@ -99,7 +99,7 @@ SELECT lt.name "LicenseType",
   (
   CASE
     WHEN jt.name LIKE 'j_BL_Application'
-    THEN 'Application'
+    THEN 'Initial Application'
     WHEN jt.name LIKE 'j_BL_AmendRenew'
     THEN 'Renewal or Amendment'
   END ) "JobType",
