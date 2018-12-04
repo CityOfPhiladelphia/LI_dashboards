@@ -55,7 +55,7 @@ def update_jobs_created(selected_start, selected_end, selected_job_type):
     if selected_job_type != "All":
         df_selected = df_selected[(df_selected['Job Type'] == selected_job_type)]
 
-    df_selected = df_selected.loc[(df['JOBCREATEDDATEFIELD'] >= selected_start)&(df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
+    df_selected = df_selected.loc[(df_selected['JOBCREATEDDATEFIELD'] >= selected_start)&(df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
     jobs_created = df_selected['JOBCREATEDDATEFIELD'].count()
     return '{:,.0f}'.format(jobs_created)
 
@@ -66,7 +66,7 @@ def update_percent_completed(selected_start, selected_end, selected_job_type):
     if selected_job_type != "All":
         df_selected = df_selected[(df_selected['Job Type'] == selected_job_type)]
 
-    df_selected = df_selected.loc[(df['JOBCREATEDDATEFIELD'] >= selected_start)&(df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
+    df_selected = df_selected.loc[(df_selected['JOBCREATEDDATEFIELD'] >= selected_start)&(df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
     percent_completed = df_selected['PROCESSDATECOMPLETEDFIELD'].count() / df_selected['JOBCREATEDDATEFIELD'].count() * 100
     return '{:,.0f}%'.format(percent_completed)
 
@@ -77,7 +77,7 @@ def update_percent_completed_within_sla(selected_start, selected_end, selected_j
     if selected_job_type != "All":
         df_selected = df_selected[(df_selected['Job Type'] == selected_job_type)]
 
-    df_selected = df_selected.loc[(df['JOBCREATEDDATEFIELD'] >= selected_start)&(df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
+    df_selected = df_selected.loc[(df_selected['JOBCREATEDDATEFIELD'] >= selected_start)&(df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
     percent_completed_within_sla = df_selected['W/in SLA'].sum() / df_selected['JOBCREATEDDATEFIELD'].count() * 100
     return '{:,.0f}%'.format(percent_completed_within_sla)
 

@@ -109,33 +109,33 @@ layout = html.Div(
 
 
 @app.callback(Output('Man005TL-count-table', 'rows'),
-            [Input('Man005TL-my-date-picker-range', 'start_date'),
-            Input('Man005TL-my-date-picker-range', 'end_date')])
+              [Input('Man005TL-my-date-picker-range', 'start_date'),
+               Input('Man005TL-my-date-picker-range', 'end_date')])
 def updatecount_table(start_date, end_date):
     df_counts = count_jobs(start_date, end_date)
     return df_counts.to_dict('records')
 
-@app.callback(
-            Output('Man005TL-count-table-download-link', 'href'),
-            [Input('Man005TL-my-date-picker-range', 'start_date'),
-            Input('Man005TL-my-date-picker-range', 'end_date')])
+
+@app.callback(Output('Man005TL-count-table-download-link', 'href'),
+              [Input('Man005TL-my-date-picker-range', 'start_date'),
+               Input('Man005TL-my-date-picker-range', 'end_date')])
 def update_count_table_download_link(start_date, end_date):
     df_results = count_jobs(start_date, end_date)
     csv_string = df_results.to_csv(index=False, encoding='utf-8')
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
     return csv_string
 
+
 @app.callback(Output('Man005TL-table', 'rows'),
-            [Input('Man005TL-my-date-picker-range', 'start_date'),
-            Input('Man005TL-my-date-picker-range', 'end_date')])
+              [Input('Man005TL-my-date-picker-range', 'start_date'),
+               Input('Man005TL-my-date-picker-range', 'end_date')])
 def update_table(start_date, end_date):
     df_inv = get_data_object(start_date, end_date)
     return df_inv.to_dict('records')
 
-@app.callback(
-            Output('Man005TL-table-download-link', 'href'),
-            [Input('Man005TL-my-date-picker-range', 'start_date'),
-            Input('Man005TL-my-date-picker-range', 'end_date')])
+@app.callback(Output('Man005TL-table-download-link', 'href'),
+              [Input('Man005TL-my-date-picker-range', 'start_date'),
+               Input('Man005TL-my-date-picker-range', 'end_date')])
 def update_table_download_link(start_date, end_date):
     df_results = get_data_object(start_date, end_date)
     csv_string = df_results.to_csv(index=False, encoding='utf-8')
