@@ -119,8 +119,8 @@ def updatecount_table(start_date, end_date):
             [Input('Man005BL-my-date-picker-range', 'start_date'),
             Input('Man005BL-my-date-picker-range', 'end_date')])
 def update_count_table_download_link(start_date, end_date):
-    df = count_jobs(start_date, end_date)
-    csv_string = df.to_csv(index=False, encoding='utf-8')
+    df_counts = count_jobs(start_date, end_date)
+    csv_string = df_counts.to_csv(index=False, encoding='utf-8')
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
     return csv_string
 
@@ -136,7 +136,7 @@ def update_table(start_date, end_date):
             [Input('Man005BL-my-date-picker-range', 'start_date'),
             Input('Man005BL-my-date-picker-range', 'end_date')])
 def update_table_download_link(start_date, end_date):
-    df = get_data_object(start_date, end_date)
-    csv_string = df.to_csv(index=False, encoding='utf-8')
+    df_inv = get_data_object(start_date, end_date)
+    csv_string = df_inv.to_csv(index=False, encoding='utf-8')
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
     return csv_string
