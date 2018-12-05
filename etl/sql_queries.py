@@ -1,6 +1,6 @@
 class SqlQuery():
     def __init__(self, extract_query_file, target_table):
-        self.extract_query_file = r'G:/01_Peter_Dannemann_Project_Folder/Web Apps/LI_dashboards/etl/queries/' + extract_query_file
+        self.extract_query_file = 'queries/' + extract_query_file
         self.target_table = target_table
 
     @property
