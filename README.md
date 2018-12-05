@@ -30,4 +30,5 @@ The dashboards are as follows:
 ## Usage
 - Install dependencies and grab phila_mail and li_dbs from G:/PythonModules and paste into the  ..\Lib\site-packages folder of your Python installation.
 - Get the config.py file from one of us containing usernames and password logins and put it in your LI_dashboards folder.
-- `index.py` to launch the application
+- `python index.py` to launch the application
+- `python etl/etl.py` to run the etl process
