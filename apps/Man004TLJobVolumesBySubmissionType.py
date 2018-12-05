@@ -139,8 +139,8 @@ def updatecount_table(start_date, end_date, username_val):
      Input('my-date-picker-range', 'end_date'),
      Input('username-dropdown', 'value')])
 def update_download_link(start_date, end_date, username_val):
-    df = get_data_object(start_date, end_date, username_val)
-    csv_string = df.to_csv(index=False, encoding='utf-8')
+    df_inv = get_data_object(start_date, end_date, username_val)
+    csv_string = df_inv.to_csv(index=False, encoding='utf-8')
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
     return csv_string
 
