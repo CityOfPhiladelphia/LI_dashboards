@@ -8,18 +8,12 @@ import urllib.parse
 
 from app import app, con
 
-testing_mode = False
 print("LicensesWithCompletenessChecksButNoCompletedInspections.py")
-print("Testing mode? " + str(testing_mode))
 
-if testing_mode:
-    df = pd.read_csv("test_data/licenses_with_completed_completeness_check_and_no_completed_inspection3.csv",
-                     parse_dates=['MOSTRECENTCCFIELD'])
-else:
-    with con() as con:
-        with open(r'queries/LicensesWithCompletenessChecksButNoCompletedInspections.sql') as sql:
-            df = pd.read_sql_query(sql=sql.read(), con=con,
-                                   parse_dates=['MOSTRECENTCCFIELD'])
+with con() as con:
+    sql = 'SELECT * FROM li_dash_licenseswcompleteness'
+    df = pd.read_sql_query(sql=sql, con=con,
+                            parse_dates=['MOSTRECENTCCFIELD'])
 
 licensetype_options_unsorted = [{'label': 'All', 'value': 'All'}]
 for licensetype in df['LICENSETYPE'].unique():

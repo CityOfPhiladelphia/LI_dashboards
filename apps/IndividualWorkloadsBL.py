@@ -10,17 +10,12 @@ import urllib.parse
 
 from app import app, con
 
-testing_mode = False
+
 print('IndividualWorkloadsBL.py')
-print('Testing mode: ' + str(testing_mode))
 
-if testing_mode:
-    df = pd.read_csv('test_data/individual_workloads_bl.csv', parse_dates=['DATECOMPLETEDFIELD'])
-
-else:
-    with con() as con:
-        with open(r'queries/individual_workloads_bl.sql') as sql:
-            df = pd.read_sql_query(sql=sql.read(), con=con, parse_dates=['DATECOMPLETEDFIELD'])
+with con() as con:
+    sql = 'SELECT * FROM li_dash_indworkloads_bl'
+    df = pd.read_sql_query(sql=sql, con=con, parse_dates=['DATECOMPLETEDFIELD'])
 
 # Rename the columns to be more readable
 df = (df.rename(columns={'PROCESSID': 'Process ID', 'PROCESSTYPE': 'Process Type', 'JOBTYPE': 'Job Type', 'LICENSETYPE': 'License Type', 'NAME': 'Person',

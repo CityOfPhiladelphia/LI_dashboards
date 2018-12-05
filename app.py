@@ -7,8 +7,7 @@ from config import USERNAME_PASSWORD_PAIRS
 import datetime
 
 
-con = ECLIPSE_PROD.ECLIPSE_PROD
-con_CLOUD = GISLICLD.GISLICLD
+con = GISLICLD.GISLICLD
 
 external_stylesheets = ['https://unpkg.com/phila-standards@0.11.2/dist/css/phila-app.min.css']
 

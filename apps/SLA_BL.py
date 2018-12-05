@@ -12,30 +12,23 @@ from pandas.tseries.offsets import CustomBusinessDay
 
 from app import app, con
 
-testing_mode = False
+
 print('SLA_BL.py')
-print('Testing mode: ' + str(testing_mode))
 
-if testing_mode:
-    df = pd.read_csv('test_data/bl_sla_completeness_checks_only-short.csv', parse_dates=['JOBCREATEDDATEFIELD', 'JOBCOMPLETEDDATEFIELD',
-                                                                                   'PROCESSSCHEDULEDSTARTDATEFIELD', 'PROCESSDATECOMPLETEDFIELD'])
-
-else:
-    with con() as con:
-        with open(r'queries/SLA_BL.sql') as sql:
-            df = pd.read_sql_query(sql=sql.read(), con=con, parse_dates=['JOBCREATEDDATEFIELD', 'JOBCOMPLETEDDATEFIELD',
+with con() as con:
+    sql = 'SELECT * FROM li_dash_sla_bl'
+    df = pd.read_sql_query(sql=sql, con=con, parse_dates=['JOBCREATEDDATEFIELD', 'JOBCOMPLETEDDATEFIELD',
                                                                          'PROCESSSCHEDULEDSTARTDATEFIELD', 'PROCESSDATECOMPLETEDFIELD'])
-
 # Rename the columns to be more readable
 df = (df.rename(columns={'JOBID': 'Job ID', 'PROCESSID': 'Process ID', 'JOBTYPE': 'Job Type',
                          'JOBCREATEDDATE': 'Job Created Date', 'PROCESSDATECOMPLETED': 'Process Completed Date'})
       .assign(MonthDateText=lambda x: x['JOBCREATEDDATEFIELD'].dt.strftime('%b %Y'))
-      .assign(onthDateText=lambda x: x['JOBCREATEDDATEFIELD'].dt.strftime('%b %Y'))
-      .assign(WeekText=lambda x: x['JOBCREATEDDATEFIELD'].dt.strftime('%W')))
+      .assign(WeekText=lambda x: x['JOBCREATEDDATEFIELD'].dt.strftime('%W'))
+      .assign(DayDateText=lambda x: x['JOBCREATEDDATEFIELD'].dt.strftime('%b %d %Y')))
 
 df['Month Year'] = df['JOBCREATEDDATEFIELD'].map(lambda dt: dt.date().replace(day=1))
-df['Day Month Year'] = df['JOBCREATEDDATEFIELD'].map(lambda dt: dt.date())
 df['Week'] = df['JOBCREATEDDATEFIELD'].map(lambda dt: dt.week)
+df['Day Month Year'] = df['JOBCREATEDDATEFIELD'].map(lambda dt: dt.date())
 
 us_bd = CustomBusinessDay(calendar=USFederalHolidayCalendar())
 def calc_bus_days(row):
@@ -55,7 +48,7 @@ def update_jobs_created(selected_start, selected_end, selected_job_type):
     if selected_job_type != "All":
         df_selected = df_selected[(df_selected['Job Type'] == selected_job_type)]
 
-    df_selected = df_selected.loc[(df['JOBCREATEDDATEFIELD'] >= selected_start)&(df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
+    df_selected = df_selected.loc[(df_selected['JOBCREATEDDATEFIELD'] >= selected_start)&(df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
     jobs_created = df_selected['JOBCREATEDDATEFIELD'].count()
     return '{:,.0f}'.format(jobs_created)
 
@@ -66,7 +59,7 @@ def update_percent_completed(selected_start, selected_end, selected_job_type):
     if selected_job_type != "All":
         df_selected = df_selected[(df_selected['Job Type'] == selected_job_type)]
 
-    df_selected = df_selected.loc[(df['JOBCREATEDDATEFIELD'] >= selected_start)&(df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
+    df_selected = df_selected.loc[(df_selected['JOBCREATEDDATEFIELD'] >= selected_start)&(df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
     percent_completed = df_selected['PROCESSDATECOMPLETEDFIELD'].count() / df_selected['JOBCREATEDDATEFIELD'].count() * 100
     return '{:,.0f}%'.format(percent_completed)
 
@@ -77,7 +70,7 @@ def update_percent_completed_within_sla(selected_start, selected_end, selected_j
     if selected_job_type != "All":
         df_selected = df_selected[(df_selected['Job Type'] == selected_job_type)]
 
-    df_selected = df_selected.loc[(df['JOBCREATEDDATEFIELD'] >= selected_start)&(df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
+    df_selected = df_selected.loc[(df_selected['JOBCREATEDDATEFIELD'] >= selected_start)&(df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
     percent_completed_within_sla = df_selected['W/in SLA'].sum() / df_selected['JOBCREATEDDATEFIELD'].count() * 100
     return '{:,.0f}%'.format(percent_completed_within_sla)
 
@@ -119,7 +112,7 @@ def update_graph_data(selected_start, selected_end, selected_job_type, selected_
 
 
 layout = html.Div(children=[
-                html.H1('SLA Compliance (Business Licenses)', style={'text-align': 'center'}),
+                html.H1('SLA License Issuance (Business Licenses)', style={'text-align': 'center'}),
                 html.Div([
                     html.Div([
                         html.P('Filter by Job Created Date'),

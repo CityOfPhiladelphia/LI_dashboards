@@ -11,92 +11,87 @@ from app import app, con
 
 testing_mode = False
 print("Man006OverdueBLInspections.py")
-print("Testing mode? " + str(testing_mode))
 
-if testing_mode:
-    df = pd.read_csv("test_data/Man006OverdueBLInspections_test_data_short.csv")
-    df['ScheduledInspectionDateField'] = pd.to_datetime(df['ScheduledInspectionDateField'])
-else:
-    with con() as con:
-        with open(r'queries/Man006OverdueBLInspections.sql') as sql:
-            df = pd.read_sql_query(sql=sql.read(), con=con)
+with con() as con:
+    sql = 'SELECT * FROM li_dash_overdueinsp_bl'
+    df = pd.read_sql_query(sql=sql, con=con)
 
 licensetype_options_unsorted = []
-for licensetype in df['License Type'].unique():
+for licensetype in df['LICENSETYPE'].unique():
     if str(licensetype) != "nan":
         licensetype_options_unsorted.append({'label': str(licensetype), 'value': licensetype})
 licensetype_options_sorted = sorted(licensetype_options_unsorted, key=lambda k: k['label'])
 
 jobtype_options_unsorted = []
-for jobtype in df['Job Type'].unique():
+for jobtype in df['JOBTYPE'].unique():
     if str(jobtype) != "nan":
         jobtype_options_unsorted.append({'label': str(jobtype), 'value': jobtype})
 jobtype_options_sorted = sorted(jobtype_options_unsorted, key=lambda k: k['label'])
 
 inspector_options_unsorted = []
-for inspector in df['Inspector'].unique():
+for inspector in df['INSPECTOR'].unique():
     if str(inspector) != "nan":
         inspector_options_unsorted.append({'label': str(inspector), 'value': inspector})
 inspector_options_sorted = sorted(inspector_options_unsorted, key=lambda k: k['label'])
 
 def get_data_object(selected_start, selected_end, license_type, job_type, inspector):
-    df_selected = df[(df['ScheduledInspectionDateField'] >= selected_start) & (df['ScheduledInspectionDateField'] <= selected_end)]
+    df_selected = df[(df['SCHEDULEDINSPECTIONDATEFIELD'] >= selected_start) & (df['SCHEDULEDINSPECTIONDATEFIELD'] <= selected_end)]
     if license_type is not None:
         if isinstance(license_type, str):
-            df_selected = df_selected[df_selected['License Type'] == license_type]
+            df_selected = df_selected[df_selected['LICENSETYPE'] == license_type]
         elif isinstance(license_type, list):
             if len(license_type) > 1:
-                df_selected = df_selected[df_selected['License Type'].isin(license_type)]
+                df_selected = df_selected[df_selected['LICENSETYPE'].isin(license_type)]
             elif len(license_type) == 1:
-                df_selected = df_selected[df_selected['License Type'] == license_type[0]]
+                df_selected = df_selected[df_selected['LICENSETYPE'] == license_type[0]]
     if job_type is not None:
         if isinstance(job_type, str):
-            df_selected = df_selected[df_selected['Job Type'] == job_type]
+            df_selected = df_selected[df_selected['JOBTYPE'] == job_type]
         elif isinstance(job_type, list):
             if len(job_type) > 1:
-                df_selected = df_selected[df_selected['Job Type'].isin(job_type)]
+                df_selected = df_selected[df_selected['JOBTYPE'].isin(job_type)]
             elif len(job_type) == 1:
-                df_selected = df_selected[df_selected['Job Type'] == job_type[0]]
+                df_selected = df_selected[df_selected['JOBTYPE'] == job_type[0]]
     if inspector is not None:
         if isinstance(inspector, str):
-            df_selected = df_selected[df_selected['Inspector'] == inspector]
+            df_selected = df_selected[df_selected['INSPECTOR'] == inspector]
         elif isinstance(inspector, list):
             if len(inspector) > 1:
-                df_selected = df_selected[df_selected['Inspector'].isin(inspector)]
+                df_selected = df_selected[df_selected['INSPECTOR'].isin(inspector)]
             elif len(inspector) == 1:
-                df_selected = df_selected[df_selected['Inspector'] == inspector[0]]
-    if len(df_selected['Days Since Insp Created']) > 0:
-        df_selected['Days Since Insp Created'] = df_selected.apply(lambda x: "{:,}".format(x['Days Since Insp Created']), axis=1)
-    return df_selected.drop('ScheduledInspectionDateField', axis=1)
+                df_selected = df_selected[df_selected['INSPECTOR'] == inspector[0]]
+    if len(df_selected['DAYSSINCEINSPECTIONCREATED']) > 0:
+        df_selected['DAYSSINCEINSPECTIONCREATED'] = df_selected.apply(lambda x: "{:,}".format(x['DAYSSINCEINSPECTIONCREATED']), axis=1)
+    return df_selected.drop('SCHEDULEDINSPECTIONDATEFIELD', axis=1)
 
 def count_jobs(selected_start, selected_end, license_type, job_type, inspector):
-    df_count_selected = df[(df['ScheduledInspectionDateField'] >= selected_start) & (df['ScheduledInspectionDateField'] <=selected_end)]
+    df_count_selected = df[(df['SCHEDULEDINSPECTIONDATEFIELD'] >= selected_start) & (df['SCHEDULEDINSPECTIONDATEFIELD'] <=selected_end)]
     if license_type is not None:
         if isinstance(license_type, str):
-            df_count_selected = df_count_selected[df_count_selected['License Type'] == license_type]
+            df_count_selected = df_count_selected[df_count_selected['LICENSETYPE'] == license_type]
         elif isinstance(license_type, list):
             if len(license_type) > 1:
-                df_count_selected = df_count_selected[df_count_selected['License Type'].isin(license_type)]
+                df_count_selected = df_count_selected[df_count_selected['LICENSETYPE'].isin(license_type)]
             elif len(license_type) == 1:
-                df_count_selected = df_count_selected[df_count_selected['License Type'] == license_type[0]]
+                df_count_selected = df_count_selected[df_count_selected['LICENSETYPE'] == license_type[0]]
     if job_type is not None:
         if isinstance(job_type, str):
-            df_count_selected = df_count_selected[df_count_selected['Job Type'] == job_type]
+            df_count_selected = df_count_selected[df_count_selected['JOBTYPE'] == job_type]
         elif isinstance(job_type, list):
             if len(job_type) > 1:
-                df_count_selected = df_count_selected[df_count_selected['Job Type'].isin(job_type)]
+                df_count_selected = df_count_selected[df_count_selected['JOBTYPE'].isin(job_type)]
             elif len(job_type) == 1:
-                df_count_selected = df_count_selected[df_count_selected['Job Type'] == job_type[0]]
+                df_count_selected = df_count_selected[df_count_selected['JOBTYPE'] == job_type[0]]
     if inspector is not None:
         if isinstance(inspector, str):
-            df_count_selected = df_count_selected[df_count_selected['Inspector'] == inspector]
+            df_count_selected = df_count_selected[df_count_selected['INSPECTOR'] == inspector]
         elif isinstance(inspector, list):
             if len(inspector) > 1:
-                df_count_selected = df_count_selected[df_count_selected['Inspector'].isin(inspector)]
+                df_count_selected = df_count_selected[df_count_selected['INSPECTOR'].isin(inspector)]
             elif len(inspector) == 1:
-                df_count_selected = df_count_selected[df_count_selected['Inspector'] == inspector[0]]
-    df_counter = df_count_selected.groupby(by=['License Type', 'Inspection On'], as_index=False).agg({'Insp Object Id': pd.Series.nunique})
-    df_counter = df_counter.rename(columns={'License Type': "License Type", 'Inspection On': 'Inspection On', 'Insp Object Id': 'Count of Overdue Inspections'})
+                df_count_selected = df_count_selected[df_count_selected['INSPECTOR'] == inspector[0]]
+    df_counter = df_count_selected.groupby(by=['LICENSETYPE', 'INSPECTIONON'], as_index=False).agg({'INSPECTIONOBJECTID': pd.Series.nunique})
+    df_counter = df_counter.rename(columns={'LICENSETYPE': "License Type", 'INSPECTIONON': 'Inspection On', 'INSPECTIONOBJECTID': 'Count of Overdue Inspections'})
     if len(df_counter['Count of Overdue Inspections']) > 0:
         df_counter['Count of Overdue Inspections'] = df_counter.apply(lambda x: "{:,}".format(x['Count of Overdue Inspections']), axis=1)
     return df_counter

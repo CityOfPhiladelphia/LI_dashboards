@@ -8,19 +8,13 @@ from datetime import datetime
 import numpy as np
 import urllib.parse
 
-from app import app, con_CLOUD
+from app import app, con
 
-testing_mode = False
 print('ExpiringLicensesTaxIssues.py')
-print('Testing mode: ' + str(testing_mode))
 
-if testing_mode:
-    df = pd.read_csv('test_data/expiring_licenses.csv', parse_dates=['EXPIRATIONDATE'])
-
-else:
-    with con_CLOUD() as con:
-        sql = 'SELECT DISTINCT * FROM expiring_licenses'
-        df = pd.read_sql_query(sql=sql, con=con, parse_dates=['EXPIRATIONDATE'])
+with con() as con:
+    sql = 'SELECT DISTINCT * FROM expiring_licenses'
+    df = pd.read_sql_query(sql=sql, con=con, parse_dates=['EXPIRATIONDATE'])
 
 # Rename the columns to be more readable
 df = (df.rename(columns={'LEGALNAME': 'Legal Name', 

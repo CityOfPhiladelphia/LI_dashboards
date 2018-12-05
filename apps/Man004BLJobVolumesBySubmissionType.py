@@ -9,50 +9,46 @@ import urllib.parse
 
 from app import app, con
 
-testing_mode = False
-print("Man004BLJobVolumesBySubmissionType.py")
-print("Testing mode? " + str(testing_mode))
 
-if testing_mode:
-    df_table = pd.read_csv("test_data/Man004BLJobVolumesBySubmissionType_test_data_short.csv")
-    df_table['JobCreatedDateField'] = pd.to_datetime(df_table['JobCreatedDateField'])
-else:
-    with con() as con:
-        with open(r'queries/Man004BLJobVolumesBySubmissionType.sql') as sql:
-            df_table = pd.read_sql_query(sql=sql.read(), con=con)
+print("Man004BLJobVolumesBySubmissionType.py")
+
+with con() as con:
+    sql = 'SELECT * FROM li_dash_jobvolsbysubtype_bl'
+    df_table = pd.read_sql_query(sql=sql, con=con)
+    df_table['JOBCREATEDDATEFIELD'] = pd.to_datetime(df_table['JOBCREATEDDATEFIELD'])
 
 username_options_unsorted = []
-df_staff = df_table[df_table['CreatedByType'] == 'Staff']
-for username in df_staff['CreatedByUserName'].unique():
+df_staff = df_table[df_table['CREATEDBYTYPE'] == 'Staff']
+for username in df_staff['CREATEDBYUSERNAME'].unique():
     username_options_unsorted.append({'label': str(username), 'value': username})
 username_options_sorted = sorted(username_options_unsorted, key=lambda k: k['label'])
 
 
 def get_data_object(selected_start, selected_end, username):
-    df_selected = df_table[(df_table['JobCreatedDateField'] >= selected_start) & (df_table['JobCreatedDateField'] <= selected_end)]
+    df_selected = df_table[(df_table['JOBCREATEDDATEFIELD'] >= selected_start) & (df_table['JOBCREATEDDATEFIELD'] <= selected_end)]
     if username is not None:
         if isinstance(username, str):
-            df_selected = df_selected[df_selected['CreatedByUserName'] == username]
+            df_selected = df_selected[df_selected['CREATEDBYUSERNAME'] == username]
         elif isinstance(username, list):
             if len(username) > 1:
-                df_selected = df_selected[df_selected['CreatedByUserName'].isin(username)]
+                df_selected = df_selected[df_selected['CREATEDBYUSERNAME'].isin(username)]
             elif len(username) == 1:
-                df_selected = df_selected[df_selected['CreatedByUserName'] == username[0]]
-    return df_selected.drop('JobCreatedDateField', axis=1)
+                df_selected = df_selected[df_selected['CREATEDBYUSERNAME'] == username[0]]
+    return df_selected.drop('JOBCREATEDDATEFIELD', axis=1)
 
 
 def count_jobs(selected_start, selected_end, username):
-    df_count_selected = df_table[(df_table['JobCreatedDateField'] >= selected_start) & (df_table['JobCreatedDateField'] <= selected_end)]
+    df_count_selected = df_table[(df_table['JOBCREATEDDATEFIELD'] >= selected_start) & (df_table['JOBCREATEDDATEFIELD'] <= selected_end)]
     if username is not None:
         if isinstance(username, str):
-            df_count_selected = df_count_selected[df_count_selected['CreatedByUserName'] == username]
+            df_count_selected = df_count_selected[df_count_selected['CREATEDBYUSERNAME'] == username]
         elif isinstance(username, list):
             if len(username) > 1:
-                df_count_selected = df_count_selected[df_count_selected['CreatedByUserName'].isin(username)]
+                df_count_selected = df_count_selected[df_count_selected['CREATEDBYUSERNAME'].isin(username)]
             elif len(username) == 1:
-                df_count_selected = df_count_selected[df_count_selected['CreatedByUserName'] == username[0]]
-    df_counter = df_count_selected.groupby(by=['CreatedByType', 'JobType'], as_index=False).agg({'JobObjectID': pd.Series.nunique})
-    df_counter = df_counter.rename(columns={'CreatedByType': 'Job Submission Type', 'JobType': 'Job Type', 'JobObjectID': 'Count of Jobs Submitted'})
+                df_count_selected = df_count_selected[df_count_selected['CREATEDBYUSERNAME'] == username[0]]
+    df_counter = df_count_selected.groupby(by=['CREATEDBYTYPE', 'JOBTYPE'], as_index=False).agg({'JOBOBJECTID': pd.Series.nunique})
+    df_counter = df_counter.rename(columns={'CREATEDBYTYPE': 'Job Submission Type', 'JOBTYPE': 'Job Type', 'JOBOBJECTID': 'Count of Jobs Submitted'})
     if len(df_counter['Count of Jobs Submitted']) > 0:
         df_counter['Count of Jobs Submitted'] = df_counter.apply(lambda x: "{:,}".format(x['Count of Jobs Submitted']), axis=1)
     return df_counter
@@ -159,4 +155,3 @@ def update_download_link(start_date, end_date, username_val):
 def update_table(start_date, end_date, username_val):
     df_inv = get_data_object(start_date, end_date, username_val)
     return df_inv.to_dict('records')
-

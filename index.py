@@ -16,6 +16,7 @@ from apps import (Man001ActiveJobsBL, Man001ActiveJobsTL, Man002ActiveProcessesB
                   Man006OverdueBLInspections, IndividualWorkloadsBL, SLA_BL, ExpiringLicensesTaxIssues,
                   LicensesWithCompletenessChecksButNoCompletedInspections)
 
+
 time = datetime.strftime(datetime.now(), '%I:%M %p %m/%d/%y')
 
 app.layout = html.Div([
@@ -63,7 +64,7 @@ app.layout = html.Div([
 @app.callback(Output('page-content', 'children'),
               [Input('url', 'pathname')])
 def display_page(pathname):
-#    log_visitor()
+    #    log_visitor()
     if pathname == '/ActiveJobsTL':
         return Man001ActiveJobsTL.layout
     elif pathname == '/ActiveJobsBL':
