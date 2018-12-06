@@ -1,5 +1,4 @@
 import click
-import ast
 
 from etl import etl_process
 from sql_queries import queries
