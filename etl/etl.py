@@ -1,5 +1,4 @@
 from li_dbs import ECLIPSE_PROD, GISLICLD
-from sql_queries import queries
 
 
 def etl(query):
@@ -29,13 +28,3 @@ def etl_process(queries):
             # send_email()
             print(f'ETL Process into GISLICLD.{query.target_table} failed.')
             print(f'Error Message: {e}')
-
-def main():
-    etl_process(queries)
-
-if __name__ == '__main__':
-    main()
-    # try:
-    #     main()
-    # except:
-    #     send_email()
