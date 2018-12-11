@@ -1,4 +1,5 @@
 from li_dbs import ECLIPSE_PROD, GISLICLD
+import sys
 
 
 def etl(query):
@@ -27,4 +28,8 @@ def etl_process(queries):
         except Exception as e:
             # send_email()
             print(f'ETL Process into GISLICLD.{query.target_table} failed.')
+            exc_type, exc_obj, tb = sys.exc_info()
+            lineno = tb.tb_lineno
+            print('Exception on line {}'.format(lineno))
             print(f'Error Message: {e}')
+
