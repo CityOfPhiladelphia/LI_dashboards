@@ -1,24 +1,22 @@
 import dash_core_components as dcc
 import dash_html_components as html
-import dash_table_experiments as table
 import plotly.graph_objs as go
 import pandas as pd
 from dash.dependencies import Input, Output
 from datetime import datetime
 import numpy as np
-import urllib.parse
-from pandas.tseries.holiday import USFederalHolidayCalendar
-from pandas.tseries.offsets import CustomBusinessDay
 
 from app import app, con
-
 
 print('SLA_BL.py')
 
 with con() as con:
     sql = 'SELECT * FROM li_dash_sla_bl'
     df = pd.read_sql_query(sql=sql, con=con, parse_dates=['JOBCREATEDDATEFIELD', 'JOBCOMPLETEDDATEFIELD',
-                                                                         'PROCESSSCHEDULEDSTARTDATEFIELD', 'PROCESSDATECOMPLETEDFIELD'])
+                                                          'PROCESSSCHEDULEDSTARTDATEFIELD', 'PROCESSDATECOMPLETEDFIELD'])
+    sql_bd17 = 'SELECT * FROM business_days_since_2017'
+    df_bd17 = pd.read_sql_query(sql=sql_bd17, con=con, parse_dates=['DATEOFYEAR'])
+
 # Rename the columns to be more readable
 df = (df.rename(columns={'JOBID': 'Job ID', 'PROCESSID': 'Process ID', 'JOBTYPE': 'Job Type',
                          'JOBCREATEDDATE': 'Job Created Date', 'PROCESSDATECOMPLETED': 'Process Completed Date'})
@@ -28,22 +26,26 @@ df = (df.rename(columns={'JOBID': 'Job ID', 'PROCESSID': 'Process ID', 'JOBTYPE'
 
 df['Month Year'] = df['JOBCREATEDDATEFIELD'].map(lambda dt: dt.date().replace(day=1))
 df['Week'] = df['JOBCREATEDDATEFIELD'].map(lambda dt: dt.week)
-df['Day Month Year'] = df['JOBCREATEDDATEFIELD'].map(lambda dt: dt.date())
+df['Job Created Day'] = df['JOBCREATEDDATEFIELD'].dt.date
+df['Process Completed Day'] = df['PROCESSDATECOMPLETEDFIELD'].dt.date
 
-us_bd = CustomBusinessDay(calendar=USFederalHolidayCalendar())
-def calc_bus_days(row):
-    row['Bus. Days Duration'] = pd.DatetimeIndex(start=row['JOBCREATEDDATEFIELD'], end=row['PROCESSDATECOMPLETEDFIELD'], freq=us_bd).shape[0] - 1
-    return row['Bus. Days Duration']
+df_bd17['DATEOFYEARDATEONLY'] = df_bd17['DATEOFYEAR'].dt.date
 
-df['Bus. Days Duration'] = df[df['PROCESSDATECOMPLETEDFIELD'].notnull()].apply(calc_bus_days, axis=1)
-df['W/in SLA'] = np.where(df['Bus. Days Duration'] <= 2, 1, 0)
+#Get the number of business days since 1/1/2017 for all the Job Created Dates and Process Completed Dates
+df_merged = df.merge(df_bd17, left_on='Job Created Day', right_on='DATEOFYEARDATEONLY', how='left')
+df_merged2 = df_merged.merge(df_bd17, left_on='Process Completed Day', right_on='DATEOFYEARDATEONLY', how='left')
+#Subtract the number of business days between 1/1/2017 and the Job Created Date from the number of business days between
+#1/1/2017 and the Process Completed Date to get the number of business days that the job was open/in progress.
+df_merged2['Bus. Days Open'] = df_merged2['BUSINESSDAYSSINCE_y'] - df_merged2['BUSINESSDAYSSINCE_x']
+#Flag each job as either being within SLA or not based on whether the job was open for 2 days or fewer
+df_merged2['W/in SLA'] = np.where(df_merged2['Bus. Days Open'] <= 2, 1, 0)
 
-unique_job_types = df['Job Type'].unique()
+unique_job_types = df_merged2['Job Type'].unique()
 unique_job_types = np.append(['All'], unique_job_types)
 
 
 def update_jobs_created(selected_start, selected_end, selected_job_type):
-    df_selected = df.copy(deep=True)
+    df_selected = df_merged2.copy(deep=True)
 
     if selected_job_type != "All":
         df_selected = df_selected[(df_selected['Job Type'] == selected_job_type)]
@@ -54,7 +56,7 @@ def update_jobs_created(selected_start, selected_end, selected_job_type):
 
 
 def update_percent_completed(selected_start, selected_end, selected_job_type):
-    df_selected = df.copy(deep=True)
+    df_selected = df_merged2.copy(deep=True)
 
     if selected_job_type != "All":
         df_selected = df_selected[(df_selected['Job Type'] == selected_job_type)]
@@ -65,7 +67,7 @@ def update_percent_completed(selected_start, selected_end, selected_job_type):
 
 
 def update_percent_completed_within_sla(selected_start, selected_end, selected_job_type):
-    df_selected = df.copy(deep=True)
+    df_selected = df_merged2.copy(deep=True)
 
     if selected_job_type != "All":
         df_selected = df_selected[(df_selected['Job Type'] == selected_job_type)]
@@ -76,7 +78,7 @@ def update_percent_completed_within_sla(selected_start, selected_end, selected_j
 
 
 def update_graph_data(selected_start, selected_end, selected_job_type, selected_time_agg):
-    df_selected = df.copy(deep=True)
+    df_selected = df_merged2.copy(deep=True)
 
     if selected_job_type != "All":
         df_selected = df_selected[(df_selected['Job Type'] == selected_job_type)]
@@ -98,10 +100,10 @@ def update_graph_data(selected_start, selected_end, selected_job_type, selected_
                        .sort_values(by='Date Created', ascending=False))
     if selected_time_agg == "Day":
         df_selected = (df_selected.loc[(df_selected['JOBCREATEDDATEFIELD'] >= selected_start) & (df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
-                       .groupby(['Day Month Year', 'DayDateText']).agg({'Job ID': 'count', 'Process Completed Date': 'count',
+                       .groupby(['Job Created Day', 'DayDateText']).agg({'Job ID': 'count', 'Process Completed Date': 'count',
                                                                         'W/in SLA': 'sum'})
                        .reset_index()
-                       .rename(columns={'Day Month Year': 'Date Created', 'DayDateText': 'DateText', 'Job ID': 'Jobs Created',
+                       .rename(columns={'Job Created Day': 'Date Created', 'DayDateText': 'DateText', 'Job ID': 'Jobs Created',
                                         'Process Completed Date': 'Completeness Checks Completed', 'W/in SLA': '# w/in SLA'})
                        .sort_values(by='Date Created', ascending=False))
     df_selected['% Completed'] = df_selected['Completeness Checks Completed'] / df_selected['Jobs Created'] * 100
