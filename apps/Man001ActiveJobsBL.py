@@ -27,6 +27,12 @@ with con() as con:
 df_table['JOBTYPE'] = df_table['JOBTYPE'].map(lambda x: x.replace("Business License ", ""))
 df_counts['JOBTYPE'] = df_counts['JOBTYPE'].map(lambda x: x.replace("Business License ", ""))
 
+# Make TIMESINCESCHEDULEDSTARTDATE a Categorical Series and give it a sort order
+df_counts['TIMESINCESCHEDULEDSTARTDATE'] = pd.Categorical(df_counts['TIMESINCESCHEDULEDSTARTDATE'],
+                                                           ["0-1 Day", "2-5 Days", "6-10 Days",
+                                                            "11 Days-1 Year", "Over 1 Year"])
+df_counts.sort_values(by='TIMESINCESCHEDULEDSTARTDATE')
+
 duration_options = []
 for duration in df_counts['TIMESINCESCHEDULEDSTARTDATE'].unique():
     duration_options.append({'label': str(duration), 'value': duration})
@@ -38,7 +44,7 @@ for licensetype in df_table['LICENSETYPE'].unique():
 licensetype_options_sorted = sorted(licensetype_options_unsorted, key=lambda k: k['label'])
 
 def get_data_object(duration, license_type):
-    df_selected = df_table
+    df_selected = df_table.copy(deep=True)
     if duration is not None:
         if isinstance(duration, str):
             df_selected = df_selected[df_selected['TIMESINCESCHEDULEDSTARTDATE'] == duration]
@@ -52,7 +58,7 @@ def get_data_object(duration, license_type):
     return df_selected
 
 def update_counts_graph_data(duration, license_type):
-    df_counts_selected = df_counts
+    df_counts_selected = df_counts.copy(deep=True)
     if duration is not None:
         if isinstance(duration, str):
             df_counts_selected = df_counts_selected[df_counts_selected['TIMESINCESCHEDULEDSTARTDATE'] == duration]
@@ -63,7 +69,10 @@ def update_counts_graph_data(duration, license_type):
                 df_counts_selected = df_counts_selected[df_counts_selected['TIMESINCESCHEDULEDSTARTDATE'] == duration[0]]
     if license_type != "All":
         df_counts_selected = df_counts_selected[df_counts_selected['LICENSETYPE'] == license_type]
-    return df_counts_selected
+    df_grouped = (df_counts_selected.groupby(by=['JOBTYPE', 'TIMESINCESCHEDULEDSTARTDATE'])['JOBCOUNTS']
+                  .sum()
+                  .reset_index())
+    return df_grouped.sort_values(by='TIMESINCESCHEDULEDSTARTDATE')
 
 layout = html.Div(
     children=[
@@ -100,17 +109,19 @@ layout = html.Div(
                 figure=go.Figure(
                     data=[
                         go.Bar(
-                            x=df_counts[df_counts['JOBTYPE'] == 'Application'].groupby(['TIMESINCESCHEDULEDSTARTDATE'])['JOBCOUNTS'].agg(np.sum).index,
-                            y=df_counts[df_counts['JOBTYPE'] == 'Application'].groupby(['TIMESINCESCHEDULEDSTARTDATE'])['JOBCOUNTS'].agg(np.sum),
-                            name='BL Application Jobs Active',
+                            x=df_counts[df_counts['JOBTYPE'] == 'Application'][
+                                'TIMESINCESCHEDULEDSTARTDATE'],
+                            y=df_counts[df_counts['JOBTYPE'] == 'Application']['JOBCOUNTS'],
+                            name='Application',
                             marker=go.bar.Marker(
                                 color='rgb(55, 83, 109)'
                             )
                         ),
                         go.Bar(
-                            x=df_counts[df_counts['JOBTYPE'] == 'Amendment/Renewal'].groupby(['TIMESINCESCHEDULEDSTARTDATE'])['JOBCOUNTS'].agg(np.sum).index,
-                            y=df_counts[df_counts['JOBTYPE'] == 'Amendment/Renewal'].groupby(['TIMESINCESCHEDULEDSTARTDATE'])['JOBCOUNTS'].agg(np.sum),
-                            name='BL Renewal/Amendment Jobs Active',
+                            x=df_counts[df_counts['JOBTYPE'] == 'Amendment/Renewal'][
+                                'TIMESINCESCHEDULEDSTARTDATE'],
+                            y=df_counts[df_counts['JOBTYPE'] == 'Amendment/Renewal']['JOBCOUNTS'],
+                            name='Amendment/Renewal',
                             marker=go.bar.Marker(
                                 color='rgb(26, 118, 255)'
                             )
@@ -169,17 +180,17 @@ def update_graph(duration, license_type):
     return {
         'data': [
              go.Bar(
-                 x=df_counts_updated[df_counts_updated['JOBTYPE'] == 'Application'].groupby(['TIMESINCESCHEDULEDSTARTDATE'])['JOBCOUNTS'].agg(np.sum).index,
-                 y=df_counts_updated[df_counts_updated['JOBTYPE'] == 'Application'].groupby(['TIMESINCESCHEDULEDSTARTDATE'])['JOBCOUNTS'].agg(np.sum),
-                 name='Applications',
+                 x=df_counts_updated[df_counts_updated['JOBTYPE'] == 'Application']['TIMESINCESCHEDULEDSTARTDATE'],
+                 y=df_counts_updated[df_counts_updated['JOBTYPE'] == 'Application']['JOBCOUNTS'],
+                 name='Application',
                  marker=go.bar.Marker(
                      color='rgb(55, 83, 109)'
                  )
              ),
              go.Bar(
-                 x=df_counts_updated[df_counts_updated['JOBTYPE'] == 'Amendment/Renewal'].groupby(['TIMESINCESCHEDULEDSTARTDATE'])['JOBCOUNTS'].agg(np.sum).index,
-                 y=df_counts_updated[df_counts_updated['JOBTYPE'] == 'Amendment/Renewal'].groupby(['TIMESINCESCHEDULEDSTARTDATE'])['JOBCOUNTS'].agg(np.sum),
-                 name='Renewals/Amendments',
+                 x=df_counts_updated[df_counts_updated['JOBTYPE'] == 'Amendment/Renewal']['TIMESINCESCHEDULEDSTARTDATE'],
+                 y=df_counts_updated[df_counts_updated['JOBTYPE'] == 'Amendment/Renewal']['JOBCOUNTS'],
+                 name='Amendment/Renewal',
                  marker=go.bar.Marker(
                      color='rgb(26, 118, 255)'
                  )
