@@ -167,7 +167,14 @@ layout = html.Div(
                     )
                 ], style={'text-align': 'right'})
             ], style={'margin-top': '70px', 'margin-bottom': '50px'})
-        ], className='dashrow')
+        ], className='dashrow'),
+        html.Details([
+            html.Summary('Query Description'),
+            html.Div('All business license application or amend/renew jobs that have a completed completeness check process,'
+                     ' but haven\'t been completed and don\'t have a status of "More Information Required", '
+                     '"Payment Pending", "Application Incomplete", or "Draft" (i.e. have a status of "Distribute", '
+                     '"In Adjudication", or "Submitted").')
+        ])
     ]
 )
 
