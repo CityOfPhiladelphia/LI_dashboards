@@ -164,7 +164,16 @@ layout = html.Div([
                 )
             ], style={'text-align': 'right'})
         ], style={'margin-top': '70px', 'margin-bottom': '50px'})
-    ], className='dashrow')
+    ], className='dashrow'),
+    html.Details([
+        html.Summary('Query Description'),
+        html.Div(
+            'Trade license application or amend/renew jobs that have a completed process of "Renewal Review Application",'
+            ' "Issue License", "Renew License", "Amend License", "Generate License", "Completeness Check", '
+            '"Review Application", or "Amendment or Renewal"; but haven\'t been completed and don\'t have a status of '
+            '"More Information Required", "Payment Pending", "Application Incomplete", or "Draft" (i.e. have a status '
+            'of "Distribute", "In Adjudication", or "Submitted").')
+    ])
 ])
 
 @app.callback(

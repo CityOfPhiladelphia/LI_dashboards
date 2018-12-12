@@ -159,7 +159,15 @@ layout = html.Div([
                 )
             ], style={'text-align': 'right'}),
         ], style={'margin-top': '70px', 'margin-bottom': '50px'})
-    ], className='dashrow')
+    ], className='dashrow'),
+    html.Details([
+        html.Summary('Query Description'),
+        html.Div(
+            'Incomplete processes (excluding "Pay Fees", "Provide More Information for Renewal", and "Amend License" processes) '
+            'associated with business license application or amend/renew jobs that have statuses of "Approved", "Draft", '
+            '"Withdrawn", or "More Information Required" (i.e. not "Application Incomplete", "Distribute", '
+            '"In Adjudication", "Payment Pending", "Rejected", or "Submitted")')
+    ])
 ])
 
 @app.callback(
