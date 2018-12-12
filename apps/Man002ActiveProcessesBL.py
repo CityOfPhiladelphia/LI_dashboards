@@ -139,9 +139,7 @@ layout = html.Div([
         html.Div([
             html.Div([
                 dt.DataTable(
-                    # Initialise the rows
                     rows=[{}],
-                    row_selectable=True,
                     filterable=True,
                     sortable=True,
                     selected_row_indices=[],
