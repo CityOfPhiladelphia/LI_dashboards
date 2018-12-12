@@ -61,8 +61,8 @@ app.layout = html.Div([
                         html.A('Contact LI GIS Team',
                                href='mailto:ligisteam@phila.gov',
                                style={'color': '#f2f2f2', 'float': 'left', 'margin-right': '10px'}),
-                        html.A('Documentation',
-                               href='http://192.168.105.240:8090/display/LI/Dashboards+Documentation',
+                        html.A('GitHub',
+                               href='https://github.com/CityOfPhiladelphia/LI_dashboards',
                                style={'color': '#f2f2f2', 'float': 'left', 'margin-left': '10px'})
                     ], style={'width': '500px', 'margin-left': 'auto', 'margin-right': 'auto'})
                 ], className='footer-navbar')

@@ -57,7 +57,7 @@ layout = html.Div(
                     dt.DataTable(
                         rows=[{}],
                         columns=["JobType", "LicenseType", "Count"],
-                        row_selectable=True,
+
                         filterable=True,
                         sortable=True,
                         selected_row_indices=[],
@@ -81,7 +81,6 @@ layout = html.Div(
                 html.Div([
                     dt.DataTable(
                         rows=[{}],
-                        row_selectable=True,
                         filterable=True,
                         sortable=True,
                         selected_row_indices=[],

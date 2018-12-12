@@ -142,7 +142,6 @@ layout = html.Div([
                 dt.DataTable(
                     # Initialise the rows
                     rows=[{}],
-                    row_selectable=True,
                     filterable=True,
                     sortable=True,
                     selected_row_indices=[],
@@ -160,7 +159,15 @@ layout = html.Div([
                 )
             ], style={'text-align': 'right'}),
         ], style={'margin-top': '70px', 'margin-bottom': '50px'})
-    ], className='dashrow')
+    ], className='dashrow'),
+    html.Details([
+        html.Summary('Query Description'),
+        html.Div(
+            'Incomplete processes (excluding "Pay Fees", "Provide More Information for Renewal", and "Amend License" '
+            'processes) associated with trade license application or amend/renew jobs that have statuses of "Approved", '
+            '"Draft", "Withdrawn", "More Information Required", or "Denied" (i.e. not "In Review", "Payment Pending", '
+            '"Submitted",  "Distribute", "Cancelled")')
+    ])
 ])
 
 @app.callback(
