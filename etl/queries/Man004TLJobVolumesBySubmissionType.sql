@@ -17,9 +17,9 @@ SELECT lt.licensecodedescription "LicenseType",
     THEN 'Online'
     WHEN ap.createdbyusername LIKE '%9%'
     THEN 'Online'
-    WHEN ap.createdby = 'PPG User'
+    WHEN ap.createdbyusername = 'PPG User'
     THEN 'Online'
-    WHEN ap.createdby = 'POSSE system power user'
+    WHEN ap.createdbyusername = 'POSSE system power user'
     THEN 'Revenue'
     ELSE 'Staff'
   END) AS "CreatedByType",
@@ -85,9 +85,9 @@ SELECT lt.licensecodedescription "LicenseType",
     THEN 'Online'
     WHEN ar.createdbyusername LIKE '%9%'
     THEN 'Online'
-    WHEN ar.createdby = 'PPG User'
+    WHEN ar.createdbyusername = 'PPG User'
     THEN 'Online'
-    WHEN ar.createdby = 'POSSE system power user'
+    WHEN ar.createdbyusername = 'POSSE system power user'
     THEN 'Revenue'
     ELSE 'Staff'
   END ) AS "CreatedByType",
