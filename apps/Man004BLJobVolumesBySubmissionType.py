@@ -122,9 +122,9 @@ layout = html.Div(
         html.Details([
             html.Summary('Query Description'),
             html.Div([
-                html.P('All approved business license amend/renew and application jobs, how they were submitted (online, staff,'
-                ' or revenue), and who they were submitted by. '),
-                html.P('We determine how a job was submitted (online, staff, or revenue) based on the username who created it:'),
+                html.P('All approved business license amend/renew and application jobs, how they were submitted (online, '
+                       'revenue, or staff), and who they were submitted by.'),
+                html.P('We determine how a job was submitted (online, revenue, or staff) based on the username who created it:'),
                 html.Ul(children=[
                     html.Li('Online: If the username contains a number or equals "PPG User"'),
                     html.Li('Revenue: If the username equals "POSSE system power user"'),

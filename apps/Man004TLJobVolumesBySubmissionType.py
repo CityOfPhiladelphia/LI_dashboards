@@ -118,7 +118,20 @@ layout = html.Div(
                     )
                 ], style={'text-align': 'right'})
             ], style={'margin-top': '70px', 'margin-bottom': '50px'})
-        ], className='dashrow')
+        ], className='dashrow'),
+        html.Details([
+            html.Summary('Query Description'),
+            html.Div([
+                html.P('All approved trade license amend/renew and application jobs, how they were submitted (online, '
+                       'revenue, or staff), and who they were submitted by.'),
+                html.P('We determine how a job was submitted (online, revenue, or staff) based on the username who created it:'),
+                html.Ul(children=[
+                    html.Li('Online: If the username contains a number or equals "PPG User"'),
+                    html.Li('Revenue: If the username equals "POSSE system power user"'),
+                    html.Li('Staff: If the username doesn\'t meet one of the other two conditions')
+                ])
+            ])
+        ])
     ])
 
 @app.callback(
