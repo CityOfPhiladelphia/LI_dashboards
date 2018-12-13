@@ -204,7 +204,14 @@ layout = html.Div(children=[
                             )
                         ], style={'text-align': 'right'})
                     ], style={'margin-top': '50px', 'margin-bottom': '50px'})
-                ], className='dashrow')
+                ], className='dashrow'),
+                html.Details([
+                    html.Summary('Query Description'),
+                    html.Div([
+                        html.P(
+                            'Business license processes completed by staff members since 1/1/2017.')
+                    ])
+                ])
             ])
 
 @app.callback(

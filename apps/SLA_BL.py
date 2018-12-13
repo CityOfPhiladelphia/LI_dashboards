@@ -174,6 +174,21 @@ layout = html.Div(children=[
                         html.H2('Completed Within SLA', style={'font-size': '30pt'})
                     ], className='four columns', style={'text-align': 'center', 'margin': 'auto', 'padding': '50px 0'})
                 ], className='dashrow'),
+                html.Details([
+                    html.Summary('Query Description'),
+                    html.Div([
+                        html.P(
+                            'Business license jobs created since 1/1/2017, the % of them that were completed, and the '
+                            '% of them that were completed within SLA.'),
+                        html.P(
+                            'Completed job: job having a completed completeness check.'),
+                        html.P(
+                            'Completed job within SLA: job having a completeness check that was completed 2 days or fewer after the job was '
+                            'created. So if a job was created on Monday it would be considered within SLA if it was '
+                            'completed on Monday, Tuesday, or Wednesday, but if it was completed on Thursday or later '
+                            'it would be considered outside of SLA.')
+                    ])
+                ])
             ])
 
 @app.callback(

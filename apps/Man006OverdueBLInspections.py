@@ -150,6 +150,7 @@ layout = html.Div(
                     dt.DataTable(
                         rows=[{}],
                         sortable=True,
+                        editable=False,
                         selected_row_indices=[],
                         id='Man006BL-count-table'
                     ),
@@ -172,6 +173,7 @@ layout = html.Div(
                 rows=[{}],
                 filterable=True,
                 sortable=True,
+                editable=False,
                 selected_row_indices=[],
                 id='Man006BL-table'
             ),
@@ -187,6 +189,12 @@ layout = html.Div(
                 target='_blank'
             ),
         ], style={'text-align': 'right', 'margin-right': '5%'}),
+        html.Details([
+            html.Summary('Query Description'),
+            html.Div([
+                html.P('Business licenses with inspections scheduled prior to today, but no completed inspection as of today.')
+            ])
+        ])
     ]
 )
 

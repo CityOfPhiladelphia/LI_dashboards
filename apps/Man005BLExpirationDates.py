@@ -213,7 +213,14 @@ layout = html.Div(
                 ], style={'text-align': 'right'})
             ], style={'margin-top': '70px', 'margin-bottom': '50px',
                       'margin-left': 'auto', 'margin-right': 'auto', 'float': 'none'})
-        ], className='dashrow')
+        ], className='dashrow'),
+        html.Details([
+            html.Summary('Query Description'),
+            html.Div([
+                html.P('Approved business license amend/renew and application '
+                       'jobs and when they expire. (Doesn\'t include commercial activity licenses)')
+            ])
+        ])
     ]
 )
 
