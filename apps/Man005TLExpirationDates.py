@@ -63,6 +63,7 @@ layout = html.Div(
                         columns=["JobType", "LicenseType", "Count"],
                         filterable=True,
                         sortable=True,
+                        editable=False,
                         selected_row_indices=[],
                         id='Man005TL-count-table'
                     )
@@ -86,6 +87,7 @@ layout = html.Div(
                         rows=[{}],
                         filterable=True,
                         sortable=True,
+                        editable=False,
                         selected_row_indices=[],
                         id='Man005TL-table'
                     )

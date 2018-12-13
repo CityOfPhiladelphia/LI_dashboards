@@ -87,7 +87,7 @@ layout = html.Div(
                 dcc.DatePickerRange(
                     id='Man005BL-my-date-picker-range',
                     start_date=date.today(),
-                    end_date=date.today() + relativedelta(months=+3)
+                    end_date=date.today() + relativedelta(months=+12)
                 ),
             ], className='four columns'),
             html.Div([
@@ -125,6 +125,7 @@ layout = html.Div(
                         columns=["Job Type", "License Type", "Expiring Licenses"],
                         filterable=True,
                         sortable=True,
+                        editable=False,
                         selected_row_indices=[],
                         id='Man005BL-count-table'
                     )
@@ -148,6 +149,7 @@ layout = html.Div(
                         rows=[{}],
                         filterable=True,
                         sortable=True,
+                        editable=False,
                         selected_row_indices=[],
                         id='Man005BL-table'
                     )
