@@ -1,5 +1,6 @@
 import dash_core_components as dcc
 import dash_html_components as html
+import plotly.graph_objs as go
 import pandas as pd
 from dash.dependencies import Input, Output
 from datetime import datetime, date
@@ -16,11 +17,43 @@ with con() as con:
     sql = 'SELECT * FROM li_dash_expirationdates_bl'
     df = pd.read_sql_query(sql=sql, con=con, parse_dates=['EXPIRATIONDATE'])
 
-def get_data_object(selected_start, selected_end):
+df = (df.assign(YearText=lambda x: x['EXPIRATIONDATE'].dt.strftime('%Y'))
+      .assign(MonthDateText=lambda x: x['EXPIRATIONDATE'].dt.strftime('%b %Y'))
+      .assign(WeekText=lambda x: x['EXPIRATIONDATE'].dt.strftime('%W'))
+      .assign(DayDateText=lambda x: x['EXPIRATIONDATE'].dt.strftime('%b %d %Y')))
+
+df['Year'] = df['EXPIRATIONDATE'].dt.year
+df['Month Year'] = df['EXPIRATIONDATE'].map(lambda dt: dt.date().replace(day=1))
+df['Week'] = df['EXPIRATIONDATE'].map(lambda dt: dt.week)
+df['Job Created Day'] = df['EXPIRATIONDATE'].dt.date
+
+
+def update_graph_data(selected_start, selected_end, selected_time_agg):
     df_selected = df.copy(deep=True)
-    df_selected = df_selected.loc[(df_selected['EXPIRATIONDATE'] >= selected_start) & (df_selected['EXPIRATIONDATE'] <= selected_end)]
-    df_selected['EXPIRATIONDATE'] = df_selected['EXPIRATIONDATE'].dt.strftime('%m/%d/%Y')  #change date format to make it consistent with other dates
+
+    if selected_time_agg == "Month":
+        df_selected = (df_selected.loc[(df_selected['EXPIRATIONDATE'] >= selected_start) & (df_selected['EXPIRATIONDATE'] <= selected_end)]
+                       .groupby(['Month Year', 'MonthDateText']).agg({'LICENSENUMBER': 'count'})
+                       .reset_index()
+                       .rename(index=str, columns={"Month Year": "Expiration Date", "MonthDateText": "DateText", "LICENSENUMBER": "Expiring Licenses"})
+                       .sort_values(by='Expiration Date', ascending=False))
+    if selected_time_agg == "Week":
+        df_selected = (df_selected.loc[(df_selected['EXPIRATIONDATE'] >= selected_start) & (df_selected['EXPIRATIONDATE'] <= selected_end)]
+                       .groupby(['Year', 'YearText', 'Week', 'WeekText']).agg({'LICENSENUMBER': 'count'})
+                       .reset_index()
+                       .rename(index=str, columns={"LICENSENUMBER": "Expiring Licenses"}))
+        df_selected['DateText'] = df_selected['YearText'] + ' week ' + df_selected['WeekText']
+        df_selected['YearWeekText'] = df_selected['YearText'] + '-' + df_selected['WeekText'] + '-0'
+        df_selected['Expiration Date'] = pd.to_datetime(df_selected['YearWeekText'], format='%Y-%W-%w')
+        df_selected.sort_values(by='Expiration Date', ascending=True, inplace=True)
+    if selected_time_agg == "Day":
+        df_selected = (df_selected.loc[(df_selected['EXPIRATIONDATE'] >= selected_start) & (df_selected['EXPIRATIONDATE'] <= selected_end)]
+                       .groupby(['Job Created Day', 'DayDateText']).agg({'LICENSENUMBER': 'count'})
+                       .reset_index()
+                       .rename(index=str, columns={"Job Created Day": "Expiration Date", "DayDateText": "DateText", "LICENSENUMBER": "Expiring Licenses"})
+                       .sort_values(by='Expiration Date', ascending=False))
     return df_selected
+
 
 def count_jobs(selected_start, selected_end):
     df_selected = df.copy(deep=True)
@@ -31,6 +64,13 @@ def count_jobs(selected_start, selected_end):
     df_selected['Count'] = df_selected.apply(lambda x: "{:,}".format(x['Expiring Licenses']), axis=1)
     return df_selected
 
+
+def get_data_object(selected_start, selected_end):
+    df_selected = df.copy(deep=True)
+    df_selected = df_selected.loc[(df_selected['EXPIRATIONDATE'] >= selected_start) & (df_selected['EXPIRATIONDATE'] <= selected_end)]
+    df_selected['EXPIRATIONDATE'] = df_selected['EXPIRATIONDATE'].dt.strftime('%m/%d/%Y')  #change date format to make it consistent with other dates
+    return df_selected.drop(['YearText', 'MonthDateText', 'WeekText', 'DayDateText', 'Year', 'Month Year', 'Week', 'Job Created Day'], axis=1)
+
 layout = html.Div(
     children=[
         html.H1(
@@ -39,21 +79,44 @@ layout = html.Div(
         ),
         html.H1(
             '(Business Licenses)',
-            style={'margin-bottom': '50px'}
-        ),
-        html.Div(
-            children=[
-                'Expiration Date'
-            ],
-            style={'margin-left': '5%', 'margin-top': '10px', 'margin-bottom': '5px'}
+            style={'margin-bottom': '20px'}
         ),
         html.Div([
-            dcc.DatePickerRange(
-                id='Man005BL-my-date-picker-range',
-                start_date=date.today(),
-                end_date=date.today() + relativedelta(months=+3)
-            ),
-        ], style={'margin-left': '5%', 'margin-bottom': '25px'}),
+            html.Div([
+                html.P('Expiration Date'),
+                dcc.DatePickerRange(
+                    id='Man005BL-my-date-picker-range',
+                    start_date=date.today(),
+                    end_date=date.today() + relativedelta(months=+3)
+                ),
+            ], className='four columns'),
+            html.Div([
+                html.P('Aggregate Data by...'),
+                dcc.Dropdown(
+                    id='expiration-dates-bl-time-agg-dropdown',
+                    options=[
+                        {'label': 'Month', 'value': 'Month'},
+                        {'label': 'Week', 'value': 'Week'},
+                        {'label': 'Day', 'value': 'Day'}
+                    ],
+                    value='Month'
+                ),
+            ], className='four columns'),
+        ], className='dashrow filters'),
+        html.Div([
+            html.Div([
+                dcc.Graph(id='expiration-dates-bl-graph',
+                          figure=go.Figure(
+                              data=[],
+                              layout=go.Layout(
+                                  yaxis=dict(
+                                      title='Expiring Licenses'
+                                  )
+                              )
+                          )
+                          )
+            ], className='twelve columns'),
+        ], className='dashrow'),
         html.Div([
             html.Div([
                 html.Div([
@@ -103,6 +166,38 @@ layout = html.Div(
         ], className='dashrow')
     ]
 )
+
+
+@app.callback(
+    Output('expiration-dates-bl-graph', 'figure'),
+    [Input('Man005BL-my-date-picker-range', 'start_date'),
+     Input('Man005BL-my-date-picker-range', 'end_date'),
+     Input('expiration-dates-bl-time-agg-dropdown', 'value')])
+def update_graph(start_date, end_date, time_agg):
+    df_results = update_graph_data(start_date, end_date, time_agg)
+    return {
+        'data': [
+            go.Scatter(
+                x=df_results['Expiration Date'],
+                y=df_results['Expiring Licenses'],
+                mode='lines',
+                text=df_results['DateText'],
+                hoverinfo='text+y',
+                line=dict(
+                    shape='spline',
+                    color='rgb(26, 118, 255)'
+                ),
+                name='Expiring Licenses'
+            )
+        ],
+        'layout': go.Layout(
+                title='Expiring Licenses',
+                yaxis=dict(
+                    title='Expiring Licenses',
+                    range=[0, df_results['Expiring Licenses'].max() + (df_results['Expiring Licenses'].max() / 25)]
+                )
+        )
+    }
 
 @app.callback(Output('Man005BL-count-table', 'rows'),
             [Input('Man005BL-my-date-picker-range', 'start_date'),

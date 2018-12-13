@@ -154,8 +154,7 @@ layout = html.Div(children=[
                             )
                         )
                     ], className='twelve columns'),
-                ], className='dashrow'
-                ),
+                ], className='dashrow'),
                 html.Div([
                     html.Div([
                         html.H3('Processes Completed by Person and Process Type', style={'text-align': 'center'}),
