@@ -27,9 +27,26 @@ df['Month Year'] = df['EXPIRATIONDATE'].map(lambda dt: dt.date().replace(day=1))
 df['Week'] = df['EXPIRATIONDATE'].map(lambda dt: dt.week)
 df['Job Created Day'] = df['EXPIRATIONDATE'].dt.date
 
+jobtype_options_unsorted = [{'label': 'All', 'value': 'All'}]
+for jobtype in df['JOBTYPE'].unique():
+    if str(jobtype) != "nan":
+        jobtype_options_unsorted.append({'label': str(jobtype), 'value': jobtype})
+jobtype_options_sorted = sorted(jobtype_options_unsorted, key=lambda k: k['label'])
 
-def update_graph_data(selected_start, selected_end, selected_time_agg):
+licensetype_options_unsorted = [{'label': 'All', 'value': 'All'}]
+for licensetype in df['LICENSETYPE'].unique():
+    if str(licensetype) != "nan":
+        licensetype_options_unsorted.append({'label': str(licensetype), 'value': licensetype})
+licensetype_options_sorted = sorted(licensetype_options_unsorted, key=lambda k: k['label'])
+
+
+def update_graph_data(selected_start, selected_end, selected_time_agg, selected_job_type, selected_license_type):
     df_selected = df.copy(deep=True)
+
+    if selected_job_type != "All":
+        df_selected = df_selected[df_selected['JOBTYPE'] == selected_job_type]
+    if selected_license_type != "All":
+        df_selected = df_selected[df_selected['LICENSETYPE'] == selected_license_type]
 
     if selected_time_agg == "Month":
         df_selected = (df_selected.loc[(df_selected['EXPIRATIONDATE'] >= selected_start) & (df_selected['EXPIRATIONDATE'] <= selected_end)]
@@ -55,18 +72,30 @@ def update_graph_data(selected_start, selected_end, selected_time_agg):
     return df_selected
 
 
-def count_jobs(selected_start, selected_end):
+def count_jobs(selected_start, selected_end, selected_job_type, selected_license_type):
     df_selected = df.copy(deep=True)
+
+    if selected_job_type != "All":
+        df_selected = df_selected[df_selected['JOBTYPE'] == selected_job_type]
+    if selected_license_type != "All":
+        df_selected = df_selected[df_selected['LICENSETYPE'] == selected_license_type]
+
     df_selected = (df_selected.loc[(df_selected['EXPIRATIONDATE'] >= selected_start) & (df_selected['EXPIRATIONDATE'] <= selected_end)]
                    .groupby(['JOBTYPE', 'LICENSETYPE']).agg({'LICENSENUMBER': 'count'})
                    .reset_index()
                    .rename(index=str, columns={"JOBTYPE": "Job Type", "LICENSETYPE": "License Type", "LICENSENUMBER": "Expiring Licenses"}))
-    df_selected['Count'] = df_selected.apply(lambda x: "{:,}".format(x['Expiring Licenses']), axis=1)
+    df_selected['Expiring Licenses'] = df_selected.apply(lambda x: "{:,}".format(x['Expiring Licenses']), axis=1)
     return df_selected
 
 
-def get_data_object(selected_start, selected_end):
+def get_data_object(selected_start, selected_end, selected_job_type, selected_license_type):
     df_selected = df.copy(deep=True)
+
+    if selected_job_type != "All":
+        df_selected = df_selected[df_selected['JOBTYPE'] == selected_job_type]
+    if selected_license_type != "All":
+        df_selected = df_selected[df_selected['LICENSETYPE'] == selected_license_type]
+
     df_selected = df_selected.loc[(df_selected['EXPIRATIONDATE'] >= selected_start) & (df_selected['EXPIRATIONDATE'] <= selected_end)]
     df_selected['EXPIRATIONDATE'] = df_selected['EXPIRATIONDATE'].dt.strftime('%m/%d/%Y')  #change date format to make it consistent with other dates
     return df_selected.drop(['YearText', 'MonthDateText', 'WeekText', 'DayDateText', 'Year', 'Month Year', 'Week', 'Job Created Day'], axis=1)
@@ -89,7 +118,7 @@ layout = html.Div(
                     start_date=date.today(),
                     end_date=date.today() + relativedelta(months=+12)
                 ),
-            ], className='four columns'),
+            ], className='four columns', style={'margin-left': '10%'}),
             html.Div([
                 html.P('Aggregate Data by...'),
                 dcc.Dropdown(
@@ -101,7 +130,26 @@ layout = html.Div(
                     ],
                     value='Month'
                 ),
-            ], className='four columns'),
+            ], className='four columns', style={'margin-left': '10%'}),
+        ], className='dashrow filters'),
+        html.Div([
+            html.Div([
+                html.P('Job Type'),
+                dcc.Dropdown(
+                    id='Man005BL-jobtype-dropdown',
+                    options=jobtype_options_sorted,
+                    value='All'
+                ),
+            ], className='four columns', style={'margin-left': '10%'}),
+            html.Div([
+                html.P('License Type'),
+                dcc.Dropdown(
+                    id='Man005BL-licensetype-dropdown',
+                    options=licensetype_options_sorted,
+                    value='All',
+                    searchable=True
+                ),
+            ], className='four columns', style={'margin-left': '10%'}),
         ], className='dashrow filters'),
         html.Div([
             html.Div([
@@ -174,9 +222,11 @@ layout = html.Div(
     Output('expiration-dates-bl-graph', 'figure'),
     [Input('Man005BL-my-date-picker-range', 'start_date'),
      Input('Man005BL-my-date-picker-range', 'end_date'),
-     Input('expiration-dates-bl-time-agg-dropdown', 'value')])
-def update_graph(start_date, end_date, time_agg):
-    df_results = update_graph_data(start_date, end_date, time_agg)
+     Input('expiration-dates-bl-time-agg-dropdown', 'value'),
+     Input('Man005BL-jobtype-dropdown', 'value'),
+     Input('Man005BL-licensetype-dropdown', 'value')])
+def update_graph(start_date, end_date, time_agg, jobtype, licensetype):
+    df_results = update_graph_data(start_date, end_date, time_agg, jobtype, licensetype)
     return {
         'data': [
             go.Scatter(
@@ -203,34 +253,42 @@ def update_graph(start_date, end_date, time_agg):
 
 @app.callback(Output('Man005BL-count-table', 'rows'),
             [Input('Man005BL-my-date-picker-range', 'start_date'),
-            Input('Man005BL-my-date-picker-range', 'end_date')])
-def updatecount_table(start_date, end_date):
-    df_counts = count_jobs(start_date, end_date)
+             Input('Man005BL-my-date-picker-range', 'end_date'),
+             Input('Man005BL-jobtype-dropdown', 'value'),
+             Input('Man005BL-licensetype-dropdown', 'value')])
+def updatecount_table(start_date, end_date, jobtype, licensetype):
+    df_counts = count_jobs(start_date, end_date, jobtype, licensetype)
     return df_counts.to_dict('records')
 
 @app.callback(
             Output('Man005BL-count-table-download-link', 'href'),
             [Input('Man005BL-my-date-picker-range', 'start_date'),
-            Input('Man005BL-my-date-picker-range', 'end_date')])
-def update_count_table_download_link(start_date, end_date):
-    df_counts = count_jobs(start_date, end_date)
+             Input('Man005BL-my-date-picker-range', 'end_date'),
+             Input('Man005BL-jobtype-dropdown', 'value'),
+             Input('Man005BL-licensetype-dropdown', 'value')])
+def update_count_table_download_link(start_date, end_date, jobtype, licensetype):
+    df_counts = count_jobs(start_date, end_date, jobtype, licensetype)
     csv_string = df_counts.to_csv(index=False, encoding='utf-8')
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
     return csv_string
 
 @app.callback(Output('Man005BL-table', 'rows'),
             [Input('Man005BL-my-date-picker-range', 'start_date'),
-            Input('Man005BL-my-date-picker-range', 'end_date')])
-def update_table(start_date, end_date):
-    df_inv = get_data_object(start_date, end_date)
+             Input('Man005BL-my-date-picker-range', 'end_date'),
+             Input('Man005BL-jobtype-dropdown', 'value'),
+             Input('Man005BL-licensetype-dropdown', 'value')])
+def update_table(start_date, end_date, jobtype, licensetype):
+    df_inv = get_data_object(start_date, end_date, jobtype, licensetype)
     return df_inv.to_dict('records')
 
 @app.callback(
             Output('Man005BL-table-download-link', 'href'),
             [Input('Man005BL-my-date-picker-range', 'start_date'),
-            Input('Man005BL-my-date-picker-range', 'end_date')])
-def update_table_download_link(start_date, end_date):
-    df_inv = get_data_object(start_date, end_date)
+             Input('Man005BL-my-date-picker-range', 'end_date'),
+             Input('Man005BL-jobtype-dropdown', 'value'),
+             Input('Man005BL-licensetype-dropdown', 'value')])
+def update_table_download_link(start_date, end_date, jobtype, licensetype):
+    df_inv = get_data_object(start_date, end_date, jobtype, licensetype)
     csv_string = df_inv.to_csv(index=False, encoding='utf-8')
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
     return csv_string
