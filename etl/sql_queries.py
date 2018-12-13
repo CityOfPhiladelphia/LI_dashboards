@@ -89,14 +89,14 @@ Man004TLJobVolumesBySubmissionTypes = SqlQuery(
     target_table = 'li_dash_jobvolsbysubtype_tl'
 )
 
-Man005BLExpirationVolumesBySubmissionType = SqlQuery(
-    extract_query_file = 'Man005BLExpirationVolumesBySubmissionType.sql',
-    target_table = 'li_dash_expvolsbysubtype_bl'
+Man005BLExpirationDates = SqlQuery(
+    extract_query_file = 'Man005BLExpirationDates.sql',
+    target_table = 'li_dash_expirationdates_bl'
 )
 
-Man005TLExpirationVolumesBySubmissionType = SqlQuery(
-    extract_query_file = 'Man005TLExpirationVolumesBySubmissionType.sql',
-    target_table = 'li_dash_expvolsbysubtype_tl'
+Man005TLExpirationDates = SqlQuery(
+    extract_query_file = 'Man005TLExpirationDates.sql',
+    target_table = 'li_dash_expirationdates_tl'
 )
 
 Man006OverdueBLInspections = SqlQuery(
@@ -128,8 +128,8 @@ queries = [
     Man002ActiveProcessesTLCount,
     Man004BLJobVolumesBySubmissionTypes,
     Man004TLJobVolumesBySubmissionTypes,
-    Man005BLExpirationVolumesBySubmissionType,
-    Man005TLExpirationVolumesBySubmissionType,
+    Man005BLExpirationDates,
+    Man005TLExpirationDates,
     Man006OverdueBLInspections,
     SLA_BL,
 ]

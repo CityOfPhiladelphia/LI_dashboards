@@ -9,12 +9,10 @@ from datetime import datetime
 from app import app, server
 from send_email import send_email
 #from log_visitors import log_visitor
-
 from apps import (Man001ActiveJobsBL, Man001ActiveJobsTL, Man002ActiveProcessesBL, Man002ActiveProcessesTL,
                   Man004BLJobVolumesBySubmissionType, Man004TLJobVolumesBySubmissionType,
-                  Man005BLExpirationVolumesBySubmissionType, Man005TLExpirationVolumesBySubmissionType,
-                  Man006OverdueBLInspections, IndividualWorkloadsBL, SLA_BL, ExpiringLicensesTaxIssues,
-                  LicensesWithCompletenessChecksButNoCompletedInspections)
+                  Man005BLExpirationDates, Man005TLExpirationDates, Man006OverdueBLInspections, IndividualWorkloadsBL,
+                  SLA_BL, ExpiringLicensesTaxIssues, LicensesWithCompletenessChecksButNoCompletedInspections)
 
 
 time = datetime.strftime(datetime.now(), '%I:%M %p %m/%d/%y')
@@ -34,7 +32,7 @@ app.layout = html.Div([
                             html.A('Active Jobs', href='/ActiveJobsTL'),
                             html.A('Active Processes', href='/ActiveProcessesTL'),
                             html.A('Job Volumes by Submission Type', href='/JobVolumesBySubmissionTypeTL'),
-                            html.A('License Expiration Volumes by Submission Type', href='/ExpirationVolumesBySubmissionTypeTL'),
+                            html.A('Expiration Dates', href='/ExpirationDatesTL'),
                         ], className='dropdown-content')
                     ], className='dropdown'),
                     html.Div([
@@ -43,7 +41,7 @@ app.layout = html.Div([
                             html.A('Active Jobs', href='ActiveJobsBL'),
                             html.A('Active Processes', href='/ActiveProcessesBL'),
                             html.A('Job Volumes by Submission Type', href='/JobVolumesBySubmissionTypeBL'),
-                            html.A('License Expiration Volumes by Submission Type', href='/ExpirationVolumesBySubmissionTypeBL'),
+                            html.A('Expiration Dates', href='/ExpirationDatesBL'),
                             html.A('Inspections Past their Scheduled Completion Date', href='/OverdueInspectionsBL'),
                             html.A('Individual Workloads', href='/IndividualWorkloadsBL'),
                             html.A('SLA License Issuance', href='/SLA_BL'),
@@ -84,10 +82,10 @@ def display_page(pathname):
         return Man004BLJobVolumesBySubmissionType.layout
     elif pathname == '/JobVolumesBySubmissionTypeTL':
         return Man004TLJobVolumesBySubmissionType.layout
-    elif pathname == '/ExpirationVolumesBySubmissionTypeBL':
-        return Man005BLExpirationVolumesBySubmissionType.layout
-    elif pathname == '/ExpirationVolumesBySubmissionTypeTL':
-        return Man005TLExpirationVolumesBySubmissionType.layout
+    elif pathname == '/ExpirationDatesBL':
+        return Man005BLExpirationDates.layout
+    elif pathname == '/ExpirationDatesTL':
+        return Man005TLExpirationDates.layout
     elif pathname == '/OverdueInspectionsBL':
         return Man006OverdueBLInspections.layout
     elif pathname == '/IndividualWorkloadsBL':
