@@ -2,7 +2,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 import pandas as pd
 from dash.dependencies import Input, Output
-from datetime import datetime
+from datetime import datetime, date
+from dateutil.relativedelta import relativedelta
 import dash_table_experiments as dt
 import urllib.parse
 
@@ -13,30 +14,28 @@ print("Man005BLExpirationDates.py")
 
 with con() as con:
     sql = 'SELECT * FROM li_dash_expirationdates_bl'
-    df = pd.read_sql_query(sql=sql, con=con)
-    
-#make sure EXPIRATIONDATE column is of type datetime so that filtering of dataframe based on date can happen later
-df['EXPIRATIONDATE'] = pd.to_datetime(df['EXPIRATIONDATE'], errors = 'coerce')
+    df = pd.read_sql_query(sql=sql, con=con, parse_dates=['EXPIRATIONDATE'])
 
 def get_data_object(selected_start, selected_end):
-    df_selected = df[(df['EXPIRATIONDATE']>=selected_start)&(df['EXPIRATIONDATE']<=selected_end)]
+    df_selected = df.copy(deep=True)
+    df_selected = df_selected.loc[(df_selected['EXPIRATIONDATE'] >= selected_start) & (df_selected['EXPIRATIONDATE'] <= selected_end)]
     df_selected['EXPIRATIONDATE'] = df_selected['EXPIRATIONDATE'].dt.strftime('%m/%d/%Y')  #change date format to make it consistent with other dates
-    df_selected['JOBTYPE'] = df_selected['JOBTYPE'].map(lambda x: str(x)[5:]) #strip first five characters "j_BL_" just to make it easier for user to read
     return df_selected
 
 def count_jobs(selected_start, selected_end):
-    df_countselected = df[(df['EXPIRATIONDATE']>=selected_start)&(df['EXPIRATIONDATE']<=selected_end)]
-    df_counter = df_countselected.groupby(by=['JOBTYPE', 'LICENSETYPE'], as_index=False).size().reset_index()
-    df_counter = df_counter.rename(index=str, columns={"JOBTYPE": "JobType", "LICENSETYPE": "LicenseType", 0: "Count"})
-    df_counter['JobType'] = df_counter['JobType'].map(lambda x: str(x)[5:]) #strip first five characters "j_BL_" just to make it easier for user to read
-    df_counter['Count'] = df_counter.apply(lambda x: "{:,}".format(x['Count']), axis=1)
-    return df_counter
+    df_selected = df.copy(deep=True)
+    df_selected = (df_selected.loc[(df_selected['EXPIRATIONDATE'] >= selected_start) & (df_selected['EXPIRATIONDATE'] <= selected_end)]
+                   .groupby(['JOBTYPE', 'LICENSETYPE']).agg({'LICENSENUMBER': 'count'})
+                   .reset_index()
+                   .rename(index=str, columns={"JOBTYPE": "Job Type", "LICENSETYPE": "License Type", "LICENSENUMBER": "Expiring Licenses"}))
+    df_selected['Count'] = df_selected.apply(lambda x: "{:,}".format(x['Expiring Licenses']), axis=1)
+    return df_selected
 
 layout = html.Div(
     children=[
         html.H1(
             'Expiration Dates',
-            style = {'margin-top': '10px'}
+            style={'margin-top': '10px'}
         ),
         html.H1(
             '(Business Licenses)',
@@ -44,15 +43,15 @@ layout = html.Div(
         ),
         html.Div(
             children=[
-                'Please Select Date Range (Job Created Date)'
+                'Expiration Date'
             ],
             style={'margin-left': '5%', 'margin-top': '10px', 'margin-bottom': '5px'}
         ),
         html.Div([
             dcc.DatePickerRange(
                 id='Man005BL-my-date-picker-range',
-                start_date=datetime(2018, 1, 1),
-                end_date=datetime.now()
+                start_date=date.today(),
+                end_date=date.today() + relativedelta(months=+3)
             ),
         ], style={'margin-left': '5%', 'margin-bottom': '25px'}),
         html.Div([
@@ -60,8 +59,7 @@ layout = html.Div(
                 html.Div([
                     dt.DataTable(
                         rows=[{}],
-                        columns=["JobType", "LicenseType", "Count"],
-
+                        columns=["Job Type", "License Type", "Expiring Licenses"],
                         filterable=True,
                         sortable=True,
                         selected_row_indices=[],
