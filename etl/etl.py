@@ -1,6 +1,6 @@
 from li_dbs import ECLIPSE_PROD, GISLICLD
 import sys
-
+import datetime
 
 def etl(query):
     # extract data from source db
@@ -21,6 +21,7 @@ def etl(query):
         print(f'{len(data)} rows loaded into GISLICLD.{query.target_table}.')
 
 def etl_process(queries):
+    print('ETL process initialized: ' + str(datetime.datetime.now()))
     # loop through sql queries
     for query in queries:
         try:
