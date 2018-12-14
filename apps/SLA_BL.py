@@ -20,10 +20,12 @@ with con() as con:
 # Rename the columns to be more readable
 df = (df.rename(columns={'JOBID': 'Job ID', 'PROCESSID': 'Process ID', 'JOBTYPE': 'Job Type',
                          'JOBCREATEDDATE': 'Job Created Date', 'PROCESSDATECOMPLETED': 'Process Completed Date'})
+      .assign(YearText=lambda x: x['JOBCREATEDDATEFIELD'].dt.strftime('%Y'))
       .assign(MonthDateText=lambda x: x['JOBCREATEDDATEFIELD'].dt.strftime('%b %Y'))
       .assign(WeekText=lambda x: x['JOBCREATEDDATEFIELD'].dt.strftime('%W'))
       .assign(DayDateText=lambda x: x['JOBCREATEDDATEFIELD'].dt.strftime('%b %d %Y')))
 
+df['Year'] = df['JOBCREATEDDATEFIELD'].dt.year
 df['Month Year'] = df['JOBCREATEDDATEFIELD'].map(lambda dt: dt.date().replace(day=1))
 df['Week'] = df['JOBCREATEDDATEFIELD'].map(lambda dt: dt.week)
 df['Job Created Day'] = df['JOBCREATEDDATEFIELD'].dt.date
@@ -92,12 +94,15 @@ def update_graph_data(selected_start, selected_end, selected_job_type, selected_
                        .sort_values(by='Date Created', ascending=False))
     if selected_time_agg == "Week":
         df_selected = (df_selected.loc[(df_selected['JOBCREATEDDATEFIELD'] >= selected_start) & (df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
-                       .groupby(['Week', 'WeekText']).agg({'Job ID': 'count', 'Process Completed Date': 'count',
+                       .groupby(['Year', 'YearText', 'Week', 'WeekText']).agg({'Job ID': 'count', 'Process Completed Date': 'count',
                                                                         'W/in SLA': 'sum'})
                        .reset_index()
-                       .rename(columns={'Week': 'Date Created', 'WeekText': 'DateText', 'Job ID': 'Jobs Created',
-                                        'Process Completed Date': 'Completeness Checks Completed', 'W/in SLA': '# w/in SLA'})
-                       .sort_values(by='Date Created', ascending=False))
+                       .rename(columns={'Job ID': 'Jobs Created',
+                                        'Process Completed Date': 'Completeness Checks Completed', 'W/in SLA': '# w/in SLA'}))
+        df_selected['DateText'] = df_selected['YearText'] + ' week ' + df_selected['WeekText']
+        df_selected['YearWeekText'] = df_selected['YearText'] + '-' + df_selected['WeekText'] + '-0'
+        df_selected['Date Created'] = pd.to_datetime(df_selected['YearWeekText'], format='%Y-%W-%w')
+        df_selected.sort_values(by='Date Created', ascending=True, inplace=True)
     if selected_time_agg == "Day":
         df_selected = (df_selected.loc[(df_selected['JOBCREATEDDATEFIELD'] >= selected_start) & (df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
                        .groupby(['Job Created Day', 'DayDateText']).agg({'Job ID': 'count', 'Process Completed Date': 'count',
@@ -243,7 +248,7 @@ def update_graph(start_date, end_date, job_type, time_agg):
         'layout': go.Layout(
                 yaxis=dict(
                     title='Jobs Created',
-                    range=[0, df_results['Jobs Created'].max() + (df_results['Jobs Created'].max()/50)]
+                    range=[0, df_results['Jobs Created'].max() + (df_results['Jobs Created'].max()/25)]
                 ),
                 xaxis=dict(
                     title='Job Creation Date'
