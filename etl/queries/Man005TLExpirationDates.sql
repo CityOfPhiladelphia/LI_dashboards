@@ -26,7 +26,7 @@ SELECT lic.licensenumber "LicenseNumber",
     ELSE 'Staff'
   END) "CreatedByType",
   ap.externalfilenum "JobNumber",
-  jt.name "JobType",
+  REPLACE(jt.name, 'j_TL_', '') "JobType",
   Extract(MONTH FROM ap.createddate)
   || '/'
   ||Extract(DAY FROM ap.createddate)
@@ -91,7 +91,7 @@ SELECT lic.licensenumber "LicenseNumber",
     ELSE 'Staff'
   END ) "CreatedByType",
   ar.externalfilenum "JobNumber",
-  jt.name "JobType",
+  REPLACE(jt.name, 'j_TL_', '') "JobType",
   Extract(MONTH FROM ar.createddate)
   || '/'
   ||Extract(DAY FROM ar.createddate)

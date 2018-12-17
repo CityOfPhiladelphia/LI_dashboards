@@ -89,6 +89,7 @@ layout = html.Div(
                     dt.DataTable(
                         rows=[{}],
                         sortable=True,
+                        editable=False,
                         selected_row_indices=[],
                         id='Man004TL-counttable'
                     ),
@@ -104,6 +105,7 @@ layout = html.Div(
                         rows=[{}],
                         filterable=True,
                         sortable=True,
+                        editable=False,
                         selected_row_indices=[],
                         id='Man004TL-table'
                     )
