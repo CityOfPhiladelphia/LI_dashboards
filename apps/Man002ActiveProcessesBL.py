@@ -22,6 +22,10 @@ with con() as con:
     df_table = pd.read_sql_query(sql=sql, con=con)
     sql = 'SELECT * FROM li_dash_activeproc_bl_counts'
     df_counts = pd.read_sql_query(sql=sql, con=con)
+    sql = "SELECT last_ddl_time FROM user_objects WHERE object_name = 'LI_DASH_ACTIVEPROC_BL_IND'"
+    ind_last_ddl_time = pd.read_sql_query(sql=sql, con=con)
+    sql = "SELECT last_ddl_time FROM user_objects WHERE object_name = 'LI_DASH_ACTIVEPROC_BL_COUNTS'"
+    counts_last_ddl_time = pd.read_sql_query(sql=sql, con=con)
 
 # Remove the words "Business License" just to make it easier for user to read
 df_table['JOBTYPE'] = df_table['JOBTYPE'].map(lambda x: x.replace("Business License ", ""))
@@ -135,6 +139,8 @@ layout = html.Div([
             )
         )
     ),
+    html.P(f"Data last updated {counts_last_ddl_time['LAST_DDL_TIME'].iloc[0]}", className = 'timestamp', style = {
+    'text-align': 'center'}),
     html.Div([
         html.Div([
             html.Div([
@@ -158,6 +164,8 @@ layout = html.Div([
             ], style={'text-align': 'right'}),
         ], style={'margin-top': '70px', 'margin-bottom': '50px'})
     ], className='dashrow'),
+    html.P(f"Data last updated {ind_last_ddl_time['LAST_DDL_TIME'].iloc[0]}", className = 'timestamp', style = {
+    'text-align': 'center'}),
     html.Details([
         html.Summary('Query Description'),
         html.Div(

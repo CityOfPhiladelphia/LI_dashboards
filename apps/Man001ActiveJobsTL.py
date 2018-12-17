@@ -170,7 +170,7 @@ layout = html.Div([
             ], style={'text-align': 'right'})
         ], style={'margin-top': '70px', 'margin-bottom': '50px'})
     ], className='dashrow'),
-    html.P(f"Data last updated {counts_last_ddl_time['LAST_DDL_TIME'].iloc[0]}", className = 'timestamp', style = {
+    html.P(f"Data last updated {ind_last_ddl_time['LAST_DDL_TIME'].iloc[0]}", className = 'timestamp', style = {
     'text-align': 'center'}),
     html.Details([
         html.Summary('Query Description'),
