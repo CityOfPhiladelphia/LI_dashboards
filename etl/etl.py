@@ -15,12 +15,15 @@ def etl(query):
         with target.cursor() as target_cursor:
             # truncate the target db
             target_cursor.execute(f'TRUNCATE TABLE {query.target_table}')
+            print(f'Truncated table {query.target_table}')
             # load data into target db
             target_cursor.executemany(query.insert_query, data)
+            print(f'Data loaded into table {query.target_table}')
         target.commit()
         print(f'{len(data)} rows loaded into GISLICLD.{query.target_table}.')
 
 def etl_process(queries):
+    print('---------------------------------')
     print('ETL process initialized: ' + str(datetime.datetime.now()))
     # loop through sql queries
     for query in queries:
