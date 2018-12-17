@@ -14,6 +14,8 @@ with con() as con:
     sql = 'SELECT * FROM li_dash_licenseswcompleteness'
     df = pd.read_sql_query(sql=sql, con=con,
                             parse_dates=['MOSTRECENTCCFIELD'])
+    sql = "SELECT from_tz(cast(last_ddl_time as timestamp), 'GMT') at TIME zone 'US/Eastern' as LAST_DDL_TIME FROM user_objects WHERE object_name = 'LI_DASH_LICENSESWCOMPLETENESS'"
+    last_ddl_time = pd.read_sql_query(sql=sql, con=con)
 
 licensetype_options_unsorted = [{'label': 'All', 'value': 'All'}]
 for licensetype in df['LICENSETYPE'].unique():
@@ -63,6 +65,7 @@ layout = html.Div(
             'Business Licenses with Completed Completeness Checks but No Completed Inspection',
             style={'margin-top': '10px', 'margin-bottom': '50px'}
         ),
+        html.P(f"Data last updated {last_ddl_time['LAST_DDL_TIME'].iloc[0]}", style = {'text-align': 'center'}),
         html.Div([
             html.Div([
                 html.P('Most Recent Completeness Check Completed Date'),

@@ -15,6 +15,8 @@ print("Man006OverdueBLInspections.py")
 with con() as con:
     sql = 'SELECT * FROM li_dash_overdueinsp_bl'
     df = pd.read_sql_query(sql=sql, con=con)
+    sql = "SELECT from_tz(cast(last_ddl_time as timestamp), 'GMT') at TIME zone 'US/Eastern' as LAST_DDL_TIME FROM user_objects WHERE object_name = 'LI_DASH_OVERDUEINSP_BL'"
+    last_ddl_time = pd.read_sql_query(sql=sql, con=con)
 
 licensetype_options_unsorted = []
 for licensetype in df['LICENSETYPE'].unique():
@@ -108,6 +110,7 @@ layout = html.Div(
             '(Business Licenses and BL Jobs)',
             style={'margin-bottom': '50px'}
         ),
+        html.P(f"Data last updated {last_ddl_time['LAST_DDL_TIME'].iloc[0]}", style = {'text-align': 'center'}),
         html.Div([
             html.Div([
                 html.P('Please Select Date Range (Scheduled Inspection Date)'),

@@ -16,6 +16,8 @@ with con() as con:
                                                           'PROCESSSCHEDULEDSTARTDATEFIELD', 'PROCESSDATECOMPLETEDFIELD'])
     sql_bd17 = 'SELECT * FROM business_days_since_2017'
     df_bd17 = pd.read_sql_query(sql=sql_bd17, con=con, parse_dates=['DATEOFYEAR'])
+    sql = "SELECT from_tz(cast(last_ddl_time as timestamp), 'GMT') at TIME zone 'US/Eastern' as LAST_DDL_TIME FROM user_objects WHERE object_name = 'LI_DASH_SLA_BL'"
+    last_ddl_time = pd.read_sql_query(sql=sql, con=con)
 
 # Rename the columns to be more readable
 df = (df.rename(columns={'JOBID': 'Job ID', 'PROCESSID': 'Process ID', 'JOBTYPE': 'Job Type',
@@ -120,6 +122,7 @@ def update_graph_data(selected_start, selected_end, selected_job_type, selected_
 
 layout = html.Div(children=[
                 html.H1('SLA License Issuance (Business Licenses)', style={'text-align': 'center'}),
+                html.P(f"Data last updated {last_ddl_time['LAST_DDL_TIME'].iloc[0]}", style = {'text-align': 'center'}),
                 html.Div([
                     html.Div([
                         html.P('Filter by Job Created Date'),
