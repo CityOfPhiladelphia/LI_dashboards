@@ -16,6 +16,8 @@ with con() as con:
     sql = 'SELECT * FROM li_dash_jobvolsbysubtype_tl'
     df_table = pd.read_sql_query(sql=sql, con=con)
     df_table['JOBCREATEDDATEFIELD'] = pd.to_datetime(df_table['JOBCREATEDDATEFIELD'])
+    sql = "SELECT from_tz(cast(last_ddl_time as timestamp), 'GMT') at TIME zone 'US/Eastern' as LAST_DDL_TIME FROM user_objects WHERE object_name = 'LI_DASH_JOBVOLSBYSUBTYPE_TL'"
+    last_ddl_time = pd.read_sql_query(sql=sql, con=con)
 
 username_options_unsorted = []
 df_staff = df_table[df_table['CREATEDBYTYPE'] == 'Staff']
@@ -65,6 +67,7 @@ layout = html.Div(
             '(Trade Licenses)',
             style={'margin-bottom': '50px'}
         ),
+        html.P(f"Data last updated {last_ddl_time['LAST_DDL_TIME'].iloc[0]}", style = {'text-align': 'center'}),
         html.Div([
             html.Div([
                 html.P('Please Select Date Range (Job Created Date)'),

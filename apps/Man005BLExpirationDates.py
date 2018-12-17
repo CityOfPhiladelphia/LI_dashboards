@@ -16,6 +16,8 @@ print("Man005BLExpirationDates.py")
 with con() as con:
     sql = 'SELECT * FROM li_dash_expirationdates_bl'
     df = pd.read_sql_query(sql=sql, con=con, parse_dates=['EXPIRATIONDATE'])
+    sql = "SELECT from_tz(cast(last_ddl_time as timestamp), 'GMT') at TIME zone 'US/Eastern' as LAST_DDL_TIME FROM user_objects WHERE object_name = 'LI_DASH_EXPIRATIONDATES_BL'"
+    last_ddl_time = pd.read_sql_query(sql=sql, con=con)
 
 df = (df.assign(YearText=lambda x: x['EXPIRATIONDATE'].dt.strftime('%Y'))
       .assign(MonthDateText=lambda x: x['EXPIRATIONDATE'].dt.strftime('%b %Y'))
@@ -110,6 +112,7 @@ layout = html.Div(
             '(Business Licenses)',
             style={'margin-bottom': '20px'}
         ),
+        html.P(f"Data last updated {last_ddl_time['LAST_DDL_TIME'].iloc[0]}", style = {'text-align': 'center'}),
         html.Div([
             html.Div([
                 html.P('Expiration Date'),

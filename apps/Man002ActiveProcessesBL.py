@@ -22,9 +22,9 @@ with con() as con:
     df_table = pd.read_sql_query(sql=sql, con=con)
     sql = 'SELECT * FROM li_dash_activeproc_bl_counts'
     df_counts = pd.read_sql_query(sql=sql, con=con)
-    sql = "SELECT last_ddl_time FROM user_objects WHERE object_name = 'LI_DASH_ACTIVEPROC_BL_IND'"
+    sql = "SELECT from_tz(cast(last_ddl_time as timestamp), 'GMT') at TIME zone 'US/Eastern' as LAST_DDL_TIME FROM user_objects WHERE object_name = 'LI_DASH_ACTIVEPROC_BL_IND'"
     ind_last_ddl_time = pd.read_sql_query(sql=sql, con=con)
-    sql = "SELECT last_ddl_time FROM user_objects WHERE object_name = 'LI_DASH_ACTIVEPROC_BL_COUNTS'"
+    sql = "SELECT from_tz(cast(last_ddl_time as timestamp), 'GMT') at TIME zone 'US/Eastern' as LAST_DDL_TIME FROM user_objects WHERE object_name = 'LI_DASH_ACTIVEPROC_BL_COUNTS'"
     counts_last_ddl_time = pd.read_sql_query(sql=sql, con=con)
 
 # Remove the words "Business License" just to make it easier for user to read
