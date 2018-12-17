@@ -203,6 +203,10 @@ td, th {
     padding: 8px;
 }
 
+.timestamp{
+	font-size: 9pt;
+}
+
 tr:nth-child(even) {
     background-color: #dddddd;
 }
