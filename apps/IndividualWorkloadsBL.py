@@ -26,6 +26,12 @@ df = (df.rename(columns={'PROCESSID': 'Process ID', 'PROCESSTYPE': 'Process Type
 
 df['Month Year'] = df['DATECOMPLETEDFIELD'].map(lambda dt: dt.date().replace(day=1))
 
+# Make 'Month Year' a Categorical Series and give it a sort order
+months = df['Month Year'].unique()
+months.sort()
+df['Month Year'] = pd.Categorical(df['Month Year'], months)
+df.sort_values(by='Month Year', inplace=True)
+
 unique_persons = df['Person'].unique()
 unique_persons = np.append(['All'], unique_persons)
 
@@ -40,6 +46,7 @@ unique_license_types = np.append(['All'], unique_license_types)
 
 def update_graph_data(selected_start, selected_end, selected_person, selected_process_type, selected_job_type, selected_license_type):
     df_selected = df.copy(deep=True)
+    selected_months = months[(months >= datetime.strptime(selected_start, "%Y-%m-%d").date()) & (months <= datetime.strptime(selected_end, "%Y-%m-%d %H:%M:%S.%f").date())]
 
     if selected_person != "All":
         df_selected = df_selected[(df_selected['Person'] == selected_person)]
@@ -53,9 +60,14 @@ def update_graph_data(selected_start, selected_end, selected_person, selected_pr
     df_selected = (df_selected.loc[(df_selected['DATECOMPLETEDFIELD'] >= selected_start) & (df_selected['DATECOMPLETEDFIELD'] <= selected_end)]
                    .groupby(['Month Year', 'DateText']).agg({'Process ID': 'count'})
                    .reset_index()
-                   .rename(columns={'Process ID': 'Processes Completed'})
-                   .sort_values(by='Month Year', ascending=False))
-    return df_selected
+                   .rename(columns={'Process ID': 'Processes Completed'}))
+    for month in selected_months:
+        if month not in df_selected['Month Year'].values:
+            df_missing_month = pd.DataFrame([[month, month.strftime('%b %Y'), 0]], columns=['Month Year', 'DateText', 'Processes Completed'])
+            df_selected = df_selected.append(df_missing_month, ignore_index=True)
+    df_selected['Month Year'] = pd.Categorical(df_selected['Month Year'], months)
+    return df_selected.sort_values(by='Month Year', ascending=False)
+
 
 def update_counts_table_data(selected_start, selected_end, selected_person, selected_process_type, selected_job_type, selected_license_type):
     df_selected = df.copy(deep=True)
