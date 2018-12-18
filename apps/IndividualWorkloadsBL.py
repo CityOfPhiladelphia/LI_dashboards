@@ -4,7 +4,7 @@ import dash_table_experiments as table
 import plotly.graph_objs as go
 import pandas as pd
 from dash.dependencies import Input, Output
-from datetime import datetime
+from datetime import datetime, date
 import numpy as np
 import urllib.parse
 
@@ -26,11 +26,8 @@ df = (df.rename(columns={'PROCESSID': 'Process ID', 'PROCESSTYPE': 'Process Type
 
 df['Month Year'] = df['DATECOMPLETEDFIELD'].map(lambda dt: dt.date().replace(day=1))
 
-# Make 'Month Year' a Categorical Series and give it a sort order
 months = df['Month Year'].unique()
 months.sort()
-df['Month Year'] = pd.Categorical(df['Month Year'], months)
-df.sort_values(by='Month Year', inplace=True)
 
 unique_persons = df['Person'].unique()
 unique_persons = np.append(['All'], unique_persons)
@@ -46,7 +43,7 @@ unique_license_types = np.append(['All'], unique_license_types)
 
 def update_graph_data(selected_start, selected_end, selected_person, selected_process_type, selected_job_type, selected_license_type):
     df_selected = df.copy(deep=True)
-    selected_months = months[(months >= datetime.strptime(selected_start, "%Y-%m-%d").date()) & (months <= datetime.strptime(selected_end, "%Y-%m-%d %H:%M:%S.%f").date())]
+    selected_months = months[(months >= datetime.strptime(selected_start, "%Y-%m-%d").date()) & (months <= datetime.strptime(selected_end, "%Y-%m-%d").date())]
 
     if selected_person != "All":
         df_selected = df_selected[(df_selected['Person'] == selected_person)]
@@ -65,7 +62,6 @@ def update_graph_data(selected_start, selected_end, selected_person, selected_pr
         if month not in df_selected['Month Year'].values:
             df_missing_month = pd.DataFrame([[month, month.strftime('%b %Y'), 0]], columns=['Month Year', 'DateText', 'Processes Completed'])
             df_selected = df_selected.append(df_missing_month, ignore_index=True)
-    df_selected['Month Year'] = pd.Categorical(df_selected['Month Year'], months)
     return df_selected.sort_values(by='Month Year', ascending=False)
 
 
@@ -117,7 +113,7 @@ layout = html.Div(children=[
                             display_format='MMM Y',
                             id='ind-workloads-date-picker-range',
                             start_date=datetime(2018, 1, 1),
-                            end_date=datetime.now()
+                            end_date=date.today()
                         ),
                     ], className='six columns'),
                     html.Div([
