@@ -117,8 +117,7 @@ layout = html.Div(
                 figure=go.Figure(
                     data=[
                         go.Bar(
-                            x=df_counts[df_counts['JOBTYPE'] == 'Application'][
-                                'TIMESINCESCHEDULEDSTARTDATE'],
+                            x=df_counts[df_counts['JOBTYPE'] == 'Application']['TIMESINCESCHEDULEDSTARTDATE'],
                             y=df_counts[df_counts['JOBTYPE'] == 'Application']['JOBCOUNTS'],
                             name='Application',
                             marker=go.bar.Marker(
@@ -126,8 +125,7 @@ layout = html.Div(
                             )
                         ),
                         go.Bar(
-                            x=df_counts[df_counts['JOBTYPE'] == 'Amendment/Renewal'][
-                                'TIMESINCESCHEDULEDSTARTDATE'],
+                            x=df_counts[df_counts['JOBTYPE'] == 'Amendment/Renewal']['TIMESINCESCHEDULEDSTARTDATE'],
                             y=df_counts[df_counts['JOBTYPE'] == 'Amendment/Renewal']['JOBCOUNTS'],
                             name='Amendment/Renewal',
                             marker=go.bar.Marker(

@@ -31,8 +31,14 @@ with con() as con:
 df_table['JOBTYPE'] = df_table['JOBTYPE'].map(lambda x: x.replace("Business License ", ""))
 df_counts['JOBTYPE'] = df_counts['JOBTYPE'].map(lambda x: x.replace("Business License ", ""))
 
+# Make PROCESSTYPE a Categorical Series and give it a sort order
+process_types = df_counts['PROCESSTYPE'].unique()
+process_types.sort()
+df_counts['PROCESSTYPE'] = pd.Categorical(df_counts['PROCESSTYPE'], process_types)
+df_counts.sort_values(by='PROCESSTYPE', inplace=True)
+
 processtype_options_unsorted = []
-for processtype in df_counts['PROCESSTYPE'].unique():
+for processtype in process_types:
     processtype_options_unsorted.append({'label': str(processtype),'value': processtype})
 processtype_options_sorted = sorted(processtype_options_unsorted, key=lambda k: k['label'])
 
@@ -68,7 +74,15 @@ def update_counts_graph_data(process_type, license_type):
                 df_counts_selected = df_counts_selected[df_counts_selected['PROCESSTYPE'] == process_type[0]]
     if license_type != "All":
         df_counts_selected = df_counts_selected[df_counts_selected['LICENSETYPE'] == license_type]
-    return df_counts_selected
+    df_grouped = (df_counts_selected.groupby(by=['JOBTYPE', 'PROCESSTYPE'])['PROCESSCOUNTS']
+                  .sum()
+                  .reset_index())
+    for process_type in process_types:
+        if process_type not in df_grouped[df_grouped['JOBTYPE'] == 'Application']['PROCESSTYPE'].values:
+            df_missing_process_type = pd.DataFrame([['Application', process_type, 0]], columns=['JOBTYPE', 'PROCESSTYPE', 'PROCESSCOUNTS'])
+            df_grouped = df_grouped.append(df_missing_process_type, ignore_index=True)
+    df_grouped['PROCESSTYPE'] = pd.Categorical(df_grouped['PROCESSTYPE'], process_types)
+    return df_grouped.sort_values(by='PROCESSTYPE')
 
 layout = html.Div([
     html.H1(
@@ -103,16 +117,16 @@ layout = html.Div([
         figure=go.Figure(
             data=[
                 go.Bar(
-                    x=df_counts[df_counts['JOBTYPE'] == 'Application'].groupby(['PROCESSTYPE'])['PROCESSCOUNTS'].agg(np.sum).index,
-                    y=df_counts[df_counts['JOBTYPE'] == 'Application'].groupby(['PROCESSTYPE'])['PROCESSCOUNTS'].agg(np.sum),
+                    x=df_counts[df_counts['JOBTYPE'] == 'Application']['PROCESSTYPE'],
+                    y=df_counts[df_counts['JOBTYPE'] == 'Application']['PROCESSCOUNTS'],
                     name='Applications',
                     marker=go.bar.Marker(
                         color='rgb(55, 83, 109)'
                     )
                 ),
                 go.Bar(
-                    x=df_counts[df_counts['JOBTYPE'] == 'Amendment/Renewal'].groupby(['PROCESSTYPE'])['PROCESSCOUNTS'].agg(np.sum).index,
-                    y=df_counts[df_counts['JOBTYPE'] == 'Amendment/Renewal'].groupby(['PROCESSTYPE'])['PROCESSCOUNTS'].agg(np.sum),
+                    x=df_counts[df_counts['JOBTYPE'] == 'Amendment/Renewal']['PROCESSTYPE'],
+                    y=df_counts[df_counts['JOBTYPE'] == 'Amendment/Renewal']['PROCESSCOUNTS'],
                     name='Renewals/Amendments',
                     marker=go.bar.Marker(
                         color='rgb(26, 118, 255)'
@@ -185,16 +199,16 @@ def update_graph(process_type, license_type):
     return {
         'data': [
             go.Bar(
-                x=df_counts_updated[df_counts_updated['JOBTYPE'] == 'Application'].groupby(['PROCESSTYPE'])['PROCESSCOUNTS'].agg(np.sum).index,
-                y=df_counts_updated[df_counts_updated['JOBTYPE'] == 'Application'].groupby(['PROCESSTYPE'])['PROCESSCOUNTS'].agg(np.sum),
+                x=df_counts_updated[df_counts_updated['JOBTYPE'] == 'Application']['PROCESSTYPE'],
+                y=df_counts_updated[df_counts_updated['JOBTYPE'] == 'Application']['PROCESSCOUNTS'],
                 name='Applications',
                 marker=go.bar.Marker(
                     color='rgb(55, 83, 109)'
                 )
             ),
             go.Bar(
-                x=df_counts_updated[df_counts_updated['JOBTYPE'] == 'Amendment/Renewal'].groupby(['PROCESSTYPE'])['PROCESSCOUNTS'].agg(np.sum).index,
-                y=df_counts_updated[df_counts_updated['JOBTYPE'] == 'Amendment/Renewal'].groupby(['PROCESSTYPE'])['PROCESSCOUNTS'].agg(np.sum),
+                x=df_counts_updated[df_counts_updated['JOBTYPE'] == 'Amendment/Renewal']['PROCESSTYPE'],
+                y=df_counts_updated[df_counts_updated['JOBTYPE'] == 'Amendment/Renewal']['PROCESSCOUNTS'],
                 name='Renewals/Amendments',
                 marker=go.bar.Marker(
                     color='rgb(26, 118, 255)'
