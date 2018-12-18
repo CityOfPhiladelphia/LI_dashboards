@@ -32,9 +32,8 @@ df_table['JOBTYPE'] = df_table['JOBTYPE'].map(lambda x: x.replace("Trade License
 df_counts['JOBTYPE'] = df_counts['JOBTYPE'].map(lambda x: x.replace("Trade License ", ""))
 
 # Make TIMESINCESCHEDULEDSTARTDATE a Categorical Series and give it a sort order
-df_counts['TIMESINCESCHEDULEDSTARTDATE'] = pd.Categorical(df_counts['TIMESINCESCHEDULEDSTARTDATE'],
-                                                           ["0-1 Day", "2-5 Days", "6-10 Days",
-                                                            "11 Days-1 Year", "Over 1 Year"])
+time_categories = ["0-1 Day", "2-5 Days", "6-10 Days", "11 Days-1 Year", "Over 1 Year"]
+df_counts['TIMESINCESCHEDULEDSTARTDATE'] = pd.Categorical(df_counts['TIMESINCESCHEDULEDSTARTDATE'], time_categories)
 df_counts.sort_values(by='TIMESINCESCHEDULEDSTARTDATE')
 
 duration_options = []
@@ -76,6 +75,11 @@ def update_counts_graph_data(duration, license_type):
     df_grouped = (df_counts_selected.groupby(by=['JOBTYPE', 'TIMESINCESCHEDULEDSTARTDATE'])['JOBCOUNTS']
                   .sum()
                   .reset_index())
+    for time_cat in time_categories:
+        if time_cat not in df_grouped[df_grouped['JOBTYPE'] == 'Application']['TIMESINCESCHEDULEDSTARTDATE'].values:
+            df_missing_time_cat = pd.DataFrame([['Application', time_cat, 0]], columns=['JOBTYPE', 'TIMESINCESCHEDULEDSTARTDATE', 'JOBCOUNTS'])
+            df_grouped = df_grouped.append(df_missing_time_cat, ignore_index=True)
+    df_grouped['TIMESINCESCHEDULEDSTARTDATE'] = pd.Categorical(df_grouped['TIMESINCESCHEDULEDSTARTDATE'], time_categories)
     return df_grouped.sort_values(by='TIMESINCESCHEDULEDSTARTDATE')
 
 layout = html.Div([
