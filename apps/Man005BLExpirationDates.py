@@ -27,7 +27,7 @@ df = (df.assign(YearText=lambda x: x['EXPIRATIONDATE'].dt.strftime('%Y'))
 df['Year'] = df['EXPIRATIONDATE'].dt.year
 df['Month Year'] = df['EXPIRATIONDATE'].map(lambda dt: dt.date().replace(day=1))
 df['Week'] = df['EXPIRATIONDATE'].map(lambda dt: dt.week)
-df['Job Created Day'] = df['EXPIRATIONDATE'].dt.date
+df['Expiration Day'] = df['EXPIRATIONDATE'].dt.date
 
 jobtype_options_unsorted = [{'label': 'All', 'value': 'All'}]
 for jobtype in df['JOBTYPE'].unique():
@@ -67,9 +67,9 @@ def update_graph_data(selected_start, selected_end, selected_time_agg, selected_
         df_selected.sort_values(by='Expiration Date', ascending=True, inplace=True)
     if selected_time_agg == "Day":
         df_selected = (df_selected.loc[(df_selected['EXPIRATIONDATE'] >= selected_start) & (df_selected['EXPIRATIONDATE'] <= selected_end)]
-                       .groupby(['Job Created Day', 'DayDateText']).agg({'LICENSENUMBER': 'count'})
+                       .groupby(['Expiration Day', 'DayDateText']).agg({'LICENSENUMBER': 'count'})
                        .reset_index()
-                       .rename(index=str, columns={"Job Created Day": "Expiration Date", "DayDateText": "DateText", "LICENSENUMBER": "Expiring Licenses"})
+                       .rename(index=str, columns={"Expiration Day": "Expiration Date", "DayDateText": "DateText", "LICENSENUMBER": "Expiring Licenses"})
                        .sort_values(by='Expiration Date', ascending=False))
     return df_selected
 
@@ -100,7 +100,7 @@ def get_data_object(selected_start, selected_end, selected_job_type, selected_li
 
     df_selected = df_selected.loc[(df_selected['EXPIRATIONDATE'] >= selected_start) & (df_selected['EXPIRATIONDATE'] <= selected_end)]
     df_selected['EXPIRATIONDATE'] = df_selected['EXPIRATIONDATE'].dt.strftime('%m/%d/%Y')  #change date format to make it consistent with other dates
-    return df_selected.drop(['YearText', 'MonthDateText', 'WeekText', 'DayDateText', 'Year', 'Month Year', 'Week', 'Job Created Day'], axis=1)
+    return df_selected.drop(['YearText', 'MonthDateText', 'WeekText', 'DayDateText', 'Year', 'Month Year', 'Week', 'Expiration Day'], axis=1)
 
 layout = html.Div(
     children=[
