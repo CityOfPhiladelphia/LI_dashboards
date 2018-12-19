@@ -30,12 +30,14 @@ df['Week'] = df['EXPIRATIONDATE'].map(lambda dt: dt.week)
 df['YearWeekText'] = df['YearText'] + '-' + df['WeekText'] + '-0'
 df['Expiration Day'] = df['EXPIRATIONDATE'].dt.date
 
-months = df[df['Month Year'].notnull()]['Month Year'].unique()
+months = df['Month Year'].unique()
 months.sort()
 df['Year Week'] = pd.to_datetime(df['YearWeekText'], format='%Y-%W-%w')
 df['Year Week'] = df['Year Week'].map(lambda t: t.date())
 weeks = df[df['Year Week'].notnull()]['Year Week'].unique()
 weeks.sort()
+days = df['Expiration Day'].unique()
+days.sort()
 
 jobtype_options_unsorted = [{'label': 'All', 'value': 'All'}]
 for jobtype in df['JOBTYPE'].unique():
@@ -59,6 +61,9 @@ def update_graph_data(selected_start, selected_end, selected_time_agg, selected_
     elif selected_time_agg == "Week":
         selected_weeks = weeks[(weeks >= datetime.strptime(selected_start, "%Y-%m-%d").date()) &
                                  (weeks <= datetime.strptime(selected_end, "%Y-%m-%d").date())]
+    elif selected_time_agg == "Day":
+        selected_days = days[(days >= datetime.strptime(selected_start, "%Y-%m-%d").date()) &
+                                 (days <= datetime.strptime(selected_end, "%Y-%m-%d").date())]
 
     if selected_job_type != "All":
         df_selected = df_selected[df_selected['JOBTYPE'] == selected_job_type]
@@ -95,9 +100,13 @@ def update_graph_data(selected_start, selected_end, selected_time_agg, selected_
         df_selected = (df_selected.loc[(df_selected['EXPIRATIONDATE'] >= selected_start) & (df_selected['EXPIRATIONDATE'] <= selected_end)]
                        .groupby(['Expiration Day', 'DayDateText']).agg({'LICENSENUMBER': 'count'})
                        .reset_index()
-                       .rename(index=str, columns={"Expiration Day": "Expiration Date", "DayDateText": "DateText", "LICENSENUMBER": "Expiring Licenses"})
-                       .sort_values(by='Expiration Date', ascending=False))
-    return df_selected
+                       .rename(index=str, columns={"Expiration Day": "Expiration Date", "DayDateText": "DateText", "LICENSENUMBER": "Expiring Licenses"}))
+        for day in selected_days:
+            if day not in df_selected['Expiration Date'].values:
+                df_missing_day = pd.DataFrame([[day, day.strftime('%b %Y'), 0]],
+                                                columns=['Expiration Date', 'DateText', 'Expiring Licenses'])
+                df_selected = df_selected.append(df_missing_day, ignore_index=True)
+        return df_selected.sort_values(by='Expiration Date', ascending=False)
 
 
 def count_jobs(selected_start, selected_end, selected_job_type, selected_license_type):
