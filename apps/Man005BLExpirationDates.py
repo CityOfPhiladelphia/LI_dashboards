@@ -27,7 +27,15 @@ df = (df.assign(YearText=lambda x: x['EXPIRATIONDATE'].dt.strftime('%Y'))
 df['Year'] = df['EXPIRATIONDATE'].dt.year
 df['Month Year'] = df['EXPIRATIONDATE'].map(lambda dt: dt.date().replace(day=1))
 df['Week'] = df['EXPIRATIONDATE'].map(lambda dt: dt.week)
+df['YearWeekText'] = df['YearText'] + '-' + df['WeekText'] + '-0'
 df['Expiration Day'] = df['EXPIRATIONDATE'].dt.date
+
+months = df[df['Month Year'].notnull()]['Month Year'].unique()
+months.sort()
+df['Year Week'] = pd.to_datetime(df['YearWeekText'], format='%Y-%W-%w')
+df['Year Week'] = df['Year Week'].map(lambda t: t.date())
+weeks = df[df['Year Week'].notnull()]['Year Week'].unique()
+weeks.sort()
 
 jobtype_options_unsorted = [{'label': 'All', 'value': 'All'}]
 for jobtype in df['JOBTYPE'].unique():
@@ -45,6 +53,13 @@ licensetype_options_sorted = sorted(licensetype_options_unsorted, key=lambda k: 
 def update_graph_data(selected_start, selected_end, selected_time_agg, selected_job_type, selected_license_type):
     df_selected = df.copy(deep=True)
 
+    if selected_time_agg == "Month":
+        selected_months = months[(months >= datetime.strptime(selected_start, "%Y-%m-%d").date()) &
+                                 (months <= datetime.strptime(selected_end, "%Y-%m-%d").date())]
+    elif selected_time_agg == "Week":
+        selected_weeks = weeks[(weeks >= datetime.strptime(selected_start, "%Y-%m-%d").date()) &
+                                 (weeks <= datetime.strptime(selected_end, "%Y-%m-%d").date())]
+
     if selected_job_type != "All":
         df_selected = df_selected[df_selected['JOBTYPE'] == selected_job_type]
     if selected_license_type != "All":
@@ -54,9 +69,14 @@ def update_graph_data(selected_start, selected_end, selected_time_agg, selected_
         df_selected = (df_selected.loc[(df_selected['EXPIRATIONDATE'] >= selected_start) & (df_selected['EXPIRATIONDATE'] <= selected_end)]
                        .groupby(['Month Year', 'MonthDateText']).agg({'LICENSENUMBER': 'count'})
                        .reset_index()
-                       .rename(index=str, columns={"Month Year": "Expiration Date", "MonthDateText": "DateText", "LICENSENUMBER": "Expiring Licenses"})
-                       .sort_values(by='Expiration Date', ascending=False))
-    if selected_time_agg == "Week":
+                       .rename(index=str, columns={"Month Year": "Expiration Date", "MonthDateText": "DateText", "LICENSENUMBER": "Expiring Licenses"}))
+        for month in selected_months:
+            if month not in df_selected['Expiration Date'].values:
+                df_missing_month = pd.DataFrame([[month, month.strftime('%b %Y'), 0]],
+                                                columns=['Expiration Date', 'DateText', 'Expiring Licenses'])
+                df_selected = df_selected.append(df_missing_month, ignore_index=True)
+        return df_selected.sort_values(by='Expiration Date', ascending=False)
+    elif selected_time_agg == "Week":
         df_selected = (df_selected.loc[(df_selected['EXPIRATIONDATE'] >= selected_start) & (df_selected['EXPIRATIONDATE'] <= selected_end)]
                        .groupby(['Year', 'YearText', 'Week', 'WeekText']).agg({'LICENSENUMBER': 'count'})
                        .reset_index()
@@ -64,8 +84,14 @@ def update_graph_data(selected_start, selected_end, selected_time_agg, selected_
         df_selected['DateText'] = df_selected['YearText'] + ' week ' + df_selected['WeekText']
         df_selected['YearWeekText'] = df_selected['YearText'] + '-' + df_selected['WeekText'] + '-0'
         df_selected['Expiration Date'] = pd.to_datetime(df_selected['YearWeekText'], format='%Y-%W-%w')
-        df_selected.sort_values(by='Expiration Date', ascending=True, inplace=True)
-    if selected_time_agg == "Day":
+        df_selected['Expiration Date'] = df_selected['Expiration Date'].map(lambda t: t.date())
+        for week in selected_weeks:
+            if week not in df_selected['Expiration Date'].values:
+                df_missing_week = pd.DataFrame([[week, week.strftime('%Y %W'), 0]],
+                                                columns=['Expiration Date', 'DateText', 'Expiring Licenses'])
+                df_selected = df_selected.append(df_missing_week, ignore_index=True)
+        return df_selected.sort_values(by='Expiration Date', ascending=False)
+    elif selected_time_agg == "Day":
         df_selected = (df_selected.loc[(df_selected['EXPIRATIONDATE'] >= selected_start) & (df_selected['EXPIRATIONDATE'] <= selected_end)]
                        .groupby(['Expiration Day', 'DayDateText']).agg({'LICENSENUMBER': 'count'})
                        .reset_index()

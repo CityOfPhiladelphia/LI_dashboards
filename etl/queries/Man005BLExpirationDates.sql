@@ -1,6 +1,6 @@
 SELECT lic.licensenumber "LicenseNumber",
   lt.name "LicenseType",
-  lg.expirationdate "ExpirationDate",
+  TO_DATE(lg.expirationdate) "ExpirationDate",
   (
   CASE
     WHEN ap.createdby LIKE '%2%'
@@ -70,10 +70,11 @@ AND lic.mostrecentissuedate BETWEEN ( ap.completeddate - 1 ) AND ( ap.completedd
 AND ap.statusid LIKE '1036493'
 AND ap.externalfilenum LIKE 'BA%'
 AND lic.licensetypeobjectid != 10571
+AND lg.expirationdate IS NOT NULL
 UNION
 SELECT lic.licensenumber "LicenseNumber",
   lt.name "LicenseType",
-  lg.expirationdate "ExpirationDate",
+  TO_DATE(lg.expirationdate) "ExpirationDate",
   (
   CASE
     WHEN ar.createdby LIKE '%2%'
@@ -143,3 +144,4 @@ AND lic.mostrecentissuedate BETWEEN ( ar.completeddate - 1 ) AND ( ar.completedd
 AND ar.statusid LIKE '1036493'
 AND ar.externalfilenum LIKE 'BR%'
 AND lic.licensetypeobjectid != 10571
+AND lg.expirationdate IS NOT NULL
