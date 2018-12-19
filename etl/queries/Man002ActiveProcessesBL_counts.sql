@@ -1,13 +1,25 @@
 SELECT DISTINCT jobtype "JobType",
   processtype "ProcessType",
   licensetype "LicenseType",
+  timesincescheduledstartdate "TimeSinceScheduledStartDate",
   COUNT(DISTINCT processid) "ProcessCounts"
 FROM
   (SELECT DISTINCT 
     jt.description JobType,
     NVL(ap.licensetypesdisplayformat, ar.licensetypesdisplayformat) LicenseType,
     proc.processid ProcessID,
-    pt.description ProcessType
+    pt.description ProcessType,
+    (CASE
+      WHEN ROUND(SYSDATE - proc.scheduledstartdate) <= 1
+      THEN '0-1 Day'
+      WHEN ROUND(SYSDATE - proc.scheduledstartdate) BETWEEN 2 AND 5
+      THEN '2-5 Days'
+      WHEN ROUND(SYSDATE - proc.scheduledstartdate) BETWEEN 6 AND 10
+      THEN '6-10 Days'
+      WHEN ROUND(SYSDATE - proc.scheduledstartdate) BETWEEN 11 AND 365
+      THEN '11 Days-1 Year'
+      ELSE 'Over 1 Year'
+    END) TimeSinceScheduledStartDate
   FROM api.processes PROC,
     api.jobs j,
     api.processtypes pt,
@@ -28,4 +40,5 @@ FROM
   )
 GROUP BY jobtype,
   processtype,
-  licensetype
+  licensetype,
+  timesincescheduledstartdate

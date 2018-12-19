@@ -1,6 +1,7 @@
 SELECT DISTINCT JobType "JobType",
   ProcessType "ProcessType",
   LicenseType "LicenseType",
+  timesincescheduledstartdate "TimeSinceScheduledStartDate",
   COUNT(DISTINCT ProcessID) "ProcessCounts"
 FROM
   (SELECT DISTINCT j.ExternalFileNum JobExtNum,
@@ -32,16 +33,17 @@ FROM
       ELSE NULL
     END) DateCompleted,
     proc.ProcessStatus,
-    (
-    CASE
-      WHEN ROUND(sysdate - proc.ScheduledStartDate) <= 1
+    (CASE
+      WHEN ROUND(SYSDATE - proc.scheduledstartdate) <= 1
       THEN '0-1 Day'
-      WHEN ROUND(sysdate - proc.ScheduledStartDate) BETWEEN 2 AND 5
+      WHEN ROUND(SYSDATE - proc.scheduledstartdate) BETWEEN 2 AND 5
       THEN '2-5 Days'
-      WHEN ROUND(sysdate - proc.ScheduledStartDate) BETWEEN 6 AND 10
+      WHEN ROUND(SYSDATE - proc.scheduledstartdate) BETWEEN 6 AND 10
       THEN '6-10 Days'
-      ELSE '11+ Days'
-    END) Duration
+      WHEN ROUND(SYSDATE - proc.scheduledstartdate) BETWEEN 11 AND 365
+      THEN '11 Days-1 Year'
+      ELSE 'Over 1 Year'
+    END) TimeSinceScheduledStartDate
   FROM api.PROCESSES PROC,
     api.jobs j,
     api.processtypes pt,
@@ -70,4 +72,5 @@ FROM
   )
 GROUP BY JobType,
   ProcessType,
-  LicenseType
+  LicenseType,
+  timesincescheduledstartdate

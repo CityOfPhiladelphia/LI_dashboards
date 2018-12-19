@@ -15,16 +15,17 @@ SELECT DISTINCT j.ExternalFileNum "JobNumber",
   || '/'
   ||extract(YEAR FROM proc.ScheduledStartDate) "ScheduledStartDate",
   proc.ProcessStatus "ProcessStatus",
-  (
-  CASE
-    WHEN ROUND(sysdate - proc.ScheduledStartDate) <= 1
+  (CASE
+    WHEN ROUND(SYSDATE - proc.scheduledstartdate) <= 1
     THEN '0-1 Day'
-    WHEN ROUND(sysdate - proc.ScheduledStartDate) BETWEEN 2 AND 5
+    WHEN ROUND(SYSDATE - proc.scheduledstartdate) BETWEEN 2 AND 5
     THEN '2-5 Days'
-    WHEN ROUND(sysdate - proc.ScheduledStartDate) BETWEEN 6 AND 10
+    WHEN ROUND(SYSDATE - proc.scheduledstartdate) BETWEEN 6 AND 10
     THEN '6-10 Days'
-    ELSE '11+ Days'
-  END) "TimeSinceScheduledStartDate",
+    WHEN ROUND(SYSDATE - proc.scheduledstartdate) BETWEEN 11 AND 365
+    THEN '11 Days-1 Year'
+    ELSE 'Over 1 Year'
+  END) TimeSinceScheduledStartDate,
   (
   CASE
     WHEN jt.Description LIKE 'Business License Application'

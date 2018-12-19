@@ -31,11 +31,14 @@ with con() as con:
 df_table['JOBTYPE'] = df_table['JOBTYPE'].map(lambda x: x.replace("Business License ", ""))
 df_counts['JOBTYPE'] = df_counts['JOBTYPE'].map(lambda x: x.replace("Business License ", ""))
 
-# Make PROCESSTYPE a Categorical Series and give it a sort order
-process_types = df_counts['PROCESSTYPE'].unique()
-process_types.sort()
-df_counts['PROCESSTYPE'] = pd.Categorical(df_counts['PROCESSTYPE'], process_types)
-df_counts.sort_values(by='PROCESSTYPE', inplace=True)
+# Make TIMESINCESCHEDULEDSTARTDATE a Categorical Series and give it a sort order
+time_categories = ["0-1 Day", "2-5 Days", "6-10 Days", "11 Days-1 Year", "Over 1 Year"]
+df_counts['TIMESINCESCHEDULEDSTARTDATE'] = pd.Categorical(df_counts['TIMESINCESCHEDULEDSTARTDATE'], time_categories)
+df_counts.sort_values(by='TIMESINCESCHEDULEDSTARTDATE')
+
+duration_options = []
+for duration in time_categories:
+    duration_options.append({'label': str(duration), 'value': duration})
 
 processtype_options_unsorted = []
 for processtype in process_types:
@@ -49,7 +52,7 @@ for licensetype in df_table['LICENSETYPE'].unique():
 licensetype_options_sorted = sorted(licensetype_options_unsorted, key=lambda k: k['label'])
 
 def get_data_object(process_type, license_type):
-    df_selected = df_table
+    df_selected = df_table.copy(deep=True)
     if process_type is not None:
         if isinstance(process_type, str):
             df_selected = df_selected[df_selected['PROCESSTYPE'] == process_type]
@@ -63,7 +66,7 @@ def get_data_object(process_type, license_type):
     return df_selected
 
 def update_counts_graph_data(process_type, license_type):
-    df_counts_selected = df_counts
+    df_counts_selected = df_counts.copy(deep=True)
     if process_type is not None:
         if isinstance(process_type, str):
             df_counts_selected = df_counts_selected[df_counts_selected['PROCESSTYPE'] == process_type]
@@ -74,15 +77,15 @@ def update_counts_graph_data(process_type, license_type):
                 df_counts_selected = df_counts_selected[df_counts_selected['PROCESSTYPE'] == process_type[0]]
     if license_type != "All":
         df_counts_selected = df_counts_selected[df_counts_selected['LICENSETYPE'] == license_type]
-    df_grouped = (df_counts_selected.groupby(by=['JOBTYPE', 'PROCESSTYPE'])['PROCESSCOUNTS']
+    df_grouped = (df_counts_selected.groupby(by=['JOBTYPE', 'TIMESINCESCHEDULEDSTARTDATE'])['PROCESSCOUNTS']
                   .sum()
                   .reset_index())
-    for process_type in process_types:
-        if process_type not in df_grouped[df_grouped['JOBTYPE'] == 'Application']['PROCESSTYPE'].values:
-            df_missing_process_type = pd.DataFrame([['Application', process_type, 0]], columns=['JOBTYPE', 'PROCESSTYPE', 'PROCESSCOUNTS'])
-            df_grouped = df_grouped.append(df_missing_process_type, ignore_index=True)
-    df_grouped['PROCESSTYPE'] = pd.Categorical(df_grouped['PROCESSTYPE'], process_types)
-    return df_grouped.sort_values(by='PROCESSTYPE')
+    for time_cat in time_categories:
+        if time_cat not in df_grouped[df_grouped['JOBTYPE'] == 'Application']['TIMESINCESCHEDULEDSTARTDATE'].values:
+            df_missing_time_cat = pd.DataFrame([['Application', time_cat, 0]], columns=['JOBTYPE', 'TIMESINCESCHEDULEDSTARTDATE', 'PROCESSCOUNTS'])
+            df_grouped = df_grouped.append(df_missing_time_cat, ignore_index=True)
+    df_grouped['TIMESINCESCHEDULEDSTARTDATE'] = pd.Categorical(df_grouped['TIMESINCESCHEDULEDSTARTDATE'], time_categories)
+    return df_grouped.sort_values(by='TIMESINCESCHEDULEDSTARTDATE')
 
 layout = html.Div([
     html.H1(
@@ -117,7 +120,7 @@ layout = html.Div([
         figure=go.Figure(
             data=[
                 go.Bar(
-                    x=df_counts[df_counts['JOBTYPE'] == 'Application']['PROCESSTYPE'],
+                    x=df_counts[df_counts['JOBTYPE'] == 'Application']['TIMESINCESCHEDULEDSTARTDATE'],
                     y=df_counts[df_counts['JOBTYPE'] == 'Application']['PROCESSCOUNTS'],
                     name='Applications',
                     marker=go.bar.Marker(
@@ -125,7 +128,7 @@ layout = html.Div([
                     )
                 ),
                 go.Bar(
-                    x=df_counts[df_counts['JOBTYPE'] == 'Amendment/Renewal']['PROCESSTYPE'],
+                    x=df_counts[df_counts['JOBTYPE'] == 'Amendment/Renewal']['TIMESINCESCHEDULEDSTARTDATE'],
                     y=df_counts[df_counts['JOBTYPE'] == 'Amendment/Renewal']['PROCESSCOUNTS'],
                     name='Renewals/Amendments',
                     marker=go.bar.Marker(
@@ -199,7 +202,7 @@ def update_graph(process_type, license_type):
     return {
         'data': [
             go.Bar(
-                x=df_counts_updated[df_counts_updated['JOBTYPE'] == 'Application']['PROCESSTYPE'],
+                x=df_counts_updated[df_counts_updated['JOBTYPE'] == 'Application']['TIMESINCESCHEDULEDSTARTDATE'],
                 y=df_counts_updated[df_counts_updated['JOBTYPE'] == 'Application']['PROCESSCOUNTS'],
                 name='Applications',
                 marker=go.bar.Marker(
@@ -207,7 +210,7 @@ def update_graph(process_type, license_type):
                 )
             ),
             go.Bar(
-                x=df_counts_updated[df_counts_updated['JOBTYPE'] == 'Amendment/Renewal']['PROCESSTYPE'],
+                x=df_counts_updated[df_counts_updated['JOBTYPE'] == 'Amendment/Renewal']['TIMESINCESCHEDULEDSTARTDATE'],
                 y=df_counts_updated[df_counts_updated['JOBTYPE'] == 'Amendment/Renewal']['PROCESSCOUNTS'],
                 name='Renewals/Amendments',
                 marker=go.bar.Marker(
