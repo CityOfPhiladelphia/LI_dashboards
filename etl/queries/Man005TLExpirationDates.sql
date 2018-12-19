@@ -1,6 +1,6 @@
 SELECT lic.licensenumber "LicenseNumber",
   lic.licensetype "LicenseType",
-  lic.licenseexpirydate "ExpirationDate",
+  TO_DATE(lic.licenseexpirydate) "ExpirationDate",
   (
   CASE
     WHEN ap.createdby LIKE '%2%'
@@ -62,10 +62,11 @@ AND ap.jobtypeid   = jt.jobtypeid (+)
 AND lic.licenseissuedate BETWEEN ( ap.completeddate - 1 ) AND ( ap.completeddate + 1 )
 AND ap.statusid LIKE '1036493'
 AND ap.externalfilenum LIKE 'TL%'
+AND lic.licenseexpirydate IS NOT NULL
 UNION
 SELECT lic.licensenumber "LicenseNumber",
   lic.licensetype "LicenseType",
-  lic.licenseexpirydate "ExpirationDate",
+  TO_DATE(lic.licenseexpirydate) "ExpirationDate",
   (
   CASE
     WHEN ar.createdby LIKE '%2%'
@@ -129,3 +130,4 @@ AND ar.jobtypeid     = jt.jobtypeid (+)
 AND ar.licenserenewedondate BETWEEN ( ar.completeddate - 1 ) AND ( ar.completeddate + 1 )
 AND ar.statusid LIKE '1036493'
 AND ar.externalfilenum LIKE 'TR%'
+AND lic.licenseexpirydate IS NOT NULL
