@@ -116,6 +116,9 @@ layout = html.Div(
         html.Div([
             dcc.Graph(
                 id='Man001ActiveJobsBL-my-graph',
+                config={
+                    'displayModeBar': False
+                },
                 figure=go.Figure(
                     data=[
                         go.Bar(

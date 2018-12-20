@@ -191,16 +191,20 @@ layout = html.Div(
         ], className='dashrow filters'),
         html.Div([
             html.Div([
-                dcc.Graph(id='expiration-dates-tl-graph',
-                          figure=go.Figure(
-                              data=[],
-                              layout=go.Layout(
-                                  yaxis=dict(
-                                      title='Expiring Licenses'
-                                  )
-                              )
+                dcc.Graph(
+                    id='expiration-dates-tl-graph',
+                    config={
+                        'displayModeBar': False
+                    },
+                    figure=go.Figure(
+                      data=[],
+                      layout=go.Layout(
+                          yaxis=dict(
+                              title='Expiring Licenses'
                           )
-                          )
+                      )
+                    )
+                )
             ], className='twelve columns'),
         ], className='dashrow'),
         html.Div([

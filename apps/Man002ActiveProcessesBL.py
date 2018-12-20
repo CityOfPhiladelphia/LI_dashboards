@@ -120,6 +120,9 @@ layout = html.Div([
     html.Div([
         dcc.Graph(
             id='002BL-graph',
+            config={
+                'displayModeBar': False
+            },
             figure=go.Figure(
                 data=[
                     go.Bar(

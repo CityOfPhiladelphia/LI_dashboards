@@ -156,7 +156,11 @@ layout = html.Div(children=[
                 ], className='dashrow filters'),
                 html.Div([
                     html.Div([
-                        dcc.Graph(id='sla-graph',
+                        dcc.Graph(
+                            id='sla-graph',
+                            config={
+                                'displayModeBar': False
+                            },
                             figure=go.Figure(
                                 data=[],
                                 layout=go.Layout(
