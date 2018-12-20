@@ -75,6 +75,8 @@ def update_counts_graph_data(duration, license_type):
     df_grouped = (df_counts_selected.groupby(by=['JOBTYPE', 'TIMESINCESCHEDULEDSTARTDATE'])['JOBCOUNTS']
                   .sum()
                   .reset_index())
+    df_grouped['JOBTYPE'] = df_grouped['JOBTYPE'].astype(str)
+    df_grouped['TIMESINCESCHEDULEDSTARTDATE'] = pd.Categorical(df_grouped['TIMESINCESCHEDULEDSTARTDATE'], time_categories)
     for time_cat in time_categories:
         if time_cat not in df_grouped[df_grouped['JOBTYPE'] == 'Application']['TIMESINCESCHEDULEDSTARTDATE'].values:
             df_missing_time_cat = pd.DataFrame([['Application', time_cat, 0]], columns=['JOBTYPE', 'TIMESINCESCHEDULEDSTARTDATE', 'JOBCOUNTS'])
