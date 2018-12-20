@@ -152,7 +152,7 @@ layout = html.Div([
             )
         )
     ], style={'margin-left': 'auto', 'margin-right': 'auto', 'float': 'none'},
-        className='eight columns'),
+        className='nine columns'),
     html.P(f"Data last updated {counts_last_ddl_time['LAST_DDL_TIME'].iloc[0]}", className = 'timestamp', style = {
     'text-align': 'center'}),
     html.Div([

@@ -41,7 +41,7 @@ for duration in time_categories:
     duration_options.append({'label': str(duration), 'value': duration})
 
 processtype_options_unsorted = []
-for processtype in process_types:
+for processtype in df_counts['PROCESSTYPE'].unique():
     processtype_options_unsorted.append({'label': str(processtype),'value': processtype})
 processtype_options_sorted = sorted(processtype_options_unsorted, key=lambda k: k['label'])
 
@@ -115,47 +115,50 @@ layout = html.Div([
             ),
         ], className='six columns'),
     ], className='dashrow filters'),
-    dcc.Graph(
-        id='002BL-graph',
-        figure=go.Figure(
-            data=[
-                go.Bar(
-                    x=df_counts[df_counts['JOBTYPE'] == 'Application']['TIMESINCESCHEDULEDSTARTDATE'],
-                    y=df_counts[df_counts['JOBTYPE'] == 'Application']['PROCESSCOUNTS'],
-                    name='Applications',
-                    marker=go.bar.Marker(
-                        color='rgb(55, 83, 109)'
+    html.Div([
+        dcc.Graph(
+            id='002BL-graph',
+            figure=go.Figure(
+                data=[
+                    go.Bar(
+                        x=df_counts[df_counts['JOBTYPE'] == 'Application']['TIMESINCESCHEDULEDSTARTDATE'],
+                        y=df_counts[df_counts['JOBTYPE'] == 'Application']['PROCESSCOUNTS'],
+                        name='Applications',
+                        marker=go.bar.Marker(
+                            color='rgb(55, 83, 109)'
+                        )
+                    ),
+                    go.Bar(
+                        x=df_counts[df_counts['JOBTYPE'] == 'Amendment/Renewal']['TIMESINCESCHEDULEDSTARTDATE'],
+                        y=df_counts[df_counts['JOBTYPE'] == 'Amendment/Renewal']['PROCESSCOUNTS'],
+                        name='Renewals/Amendments',
+                        marker=go.bar.Marker(
+                            color='rgb(26, 118, 255)'
+                        )
                     )
-                ),
-                go.Bar(
-                    x=df_counts[df_counts['JOBTYPE'] == 'Amendment/Renewal']['TIMESINCESCHEDULEDSTARTDATE'],
-                    y=df_counts[df_counts['JOBTYPE'] == 'Amendment/Renewal']['PROCESSCOUNTS'],
-                    name='Renewals/Amendments',
-                    marker=go.bar.Marker(
-                        color='rgb(26, 118, 255)'
-                    )
+                ],
+                layout=go.Layout(
+                    showlegend=True,
+                    legend=go.layout.Legend(
+                        x=.75,
+                        y=1,
+                    ),
+                    xaxis=dict(
+                        autorange=True,
+                        tickangle=30,
+                        tickfont=dict(
+                            size=11
+                        )
+                    ),
+                    yaxis=dict(
+                        title='Active Processes'
+                    ),
+                    margin=go.layout.Margin(l=40, r=0, t=40, b=100)
                 )
-            ],
-            layout=go.Layout(
-                showlegend=True,
-                legend=go.layout.Legend(
-                    x=.75,
-                    y=1,
-                ),
-                xaxis=dict(
-                    autorange=True,
-                    tickangle=30,
-                    tickfont=dict(
-                        size=11
-                    )
-                ),
-                yaxis=dict(
-                    title='Active Processes'
-                ),
-                margin=go.layout.Margin(l=40, r=0, t=40, b=100)
             )
         )
-    ),
+    ], style={'margin-left': 'auto', 'margin-right': 'auto', 'float': 'none'},
+        className='nine columns'),
     html.P(f"Data last updated {counts_last_ddl_time['LAST_DDL_TIME'].iloc[0]}", className = 'timestamp', style = {
     'text-align': 'center'}),
     html.Div([
