@@ -78,7 +78,7 @@ def display_page(pathname):
     elif pathname == '/ActiveJobsBL':
         return Man001ActiveJobsBL.layout()
     elif pathname == '/ActiveProcessesBL':
-        return Man002ActiveProcessesBL.layout
+        return Man002ActiveProcessesBL.layout()
     elif pathname == '/ActiveProcessesTL':
         return Man002ActiveProcessesTL.layout
     elif pathname == '/JobVolumesBySubmissionTypeBL':
