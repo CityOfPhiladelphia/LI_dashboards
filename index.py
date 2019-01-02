@@ -17,7 +17,8 @@ from apps import (Man001ActiveJobsBL, Man001ActiveJobsTL, Man002ActiveProcessesB
 
 time = datetime.strftime(datetime.now(), '%I:%M %p %m/%d/%y')
 
-app.layout = html.Div([
+def serve_layout():
+    return html.Div([
                 html.Nav([
                     html.P('City of Philadelphia | LI Dashboards'),
                     html.Div([
@@ -66,6 +67,8 @@ app.layout = html.Div([
                 ], className='footer-navbar')
             ])
 
+app.layout = serve_layout
+
 @app.callback(Output('page-content', 'children'),
               [Input('url', 'pathname')])
 def display_page(pathname):
@@ -73,7 +76,7 @@ def display_page(pathname):
     if pathname == '/ActiveJobsTL':
         return Man001ActiveJobsTL.layout
     elif pathname == '/ActiveJobsBL':
-        return Man001ActiveJobsBL.layout
+        return Man001ActiveJobsBL.layout()
     elif pathname == '/ActiveProcessesBL':
         return Man002ActiveProcessesBL.layout
     elif pathname == '/ActiveProcessesTL':
