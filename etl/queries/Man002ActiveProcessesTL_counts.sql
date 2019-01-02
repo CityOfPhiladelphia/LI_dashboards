@@ -6,7 +6,7 @@ SELECT DISTINCT JobType "JobType",
 FROM
   (SELECT DISTINCT j.ExternalFileNum JobExtNum,
     j.StatusId,
-    jt.Description JobType,
+    REPLACE(jt.Description, 'Trade License ', '') JobType,
     NVL(lt.description, lt2.description) LicenseType,
     stat.Description JobStatus,
     pt.ProcessTypeId,

@@ -1,5 +1,5 @@
 SELECT DISTINCT j.ExternalFileNum "JobNumber",
-  jt.Description "JobType",
+  REPLACE(jt.Description, 'Business License ', '') "JobType",
   NVL(lt.Name, lt2.Name) "LicenseType",
   stat.Description "JobStatus",
   proc.ProcessId "ProcessID",

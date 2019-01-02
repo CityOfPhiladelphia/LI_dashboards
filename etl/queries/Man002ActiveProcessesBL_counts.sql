@@ -5,7 +5,7 @@ SELECT DISTINCT jobtype "JobType",
   COUNT(DISTINCT processid) "ProcessCounts"
 FROM
   (SELECT DISTINCT 
-    jt.description JobType,
+    REPLACE(jt.description, 'Business License ', '') JobType,
     NVL(ap.licensetypesdisplayformat, ar.licensetypesdisplayformat) LicenseType,
     proc.processid ProcessID,
     pt.description ProcessType,

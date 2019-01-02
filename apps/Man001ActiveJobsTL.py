@@ -27,10 +27,6 @@ with con() as con:
     sql = "SELECT from_tz(cast(last_ddl_time as timestamp), 'GMT') at TIME zone 'US/Eastern' as LAST_DDL_TIME FROM user_objects WHERE object_name = 'LI_DASH_ACTIVEJOBS_TL_COUNTS'"
     counts_last_ddl_time = pd.read_sql_query(sql=sql, con=con)
 
-# Remove the words "Trade License" just to make it easier for user to read
-df_table['JOBTYPE'] = df_table['JOBTYPE'].map(lambda x: x.replace("Trade License ", ""))
-df_counts['JOBTYPE'] = df_counts['JOBTYPE'].map(lambda x: x.replace("Trade License ", ""))
-
 # Make TIMESINCESCHEDULEDSTARTDATE a Categorical Series and give it a sort order
 time_categories = ["0-1 Day", "2-5 Days", "6-10 Days", "11 Days-1 Year", "Over 1 Year"]
 df_counts['TIMESINCESCHEDULEDSTARTDATE'] = pd.Categorical(df_counts['TIMESINCESCHEDULEDSTARTDATE'], time_categories)

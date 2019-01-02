@@ -9,7 +9,7 @@ FROM
     NVL(ap.licensetypesdisplayformat, ar.licensetypesdisplayformat) LicenseType,
     j.statusid,
     j.jobstatus,
-    stat.description "JobStatus",
+    stat.description "JobStatus", 
     pt.processtypeid,
     pt.description,
     Extract(MONTH FROM proc.datecompleted)

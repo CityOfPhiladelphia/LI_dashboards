@@ -6,7 +6,7 @@ SELECT DISTINCT timesincescheduledstartdate "TimeSinceScheduledStartDate",
 FROM
   (SELECT DISTINCT j.externalfilenum JobNumber,
     NVL(lt.title, lt2.title) LicenseType,
-    jt.description JobType,
+    REPLACE(jt.description, 'Trade License ', '') JobType,
     j.statusid,
     j.jobstatus,
     stat.description "JobStatus",
