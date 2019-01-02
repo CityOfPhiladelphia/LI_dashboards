@@ -5,7 +5,7 @@ SELECT DISTINCT timesincescheduledstartdate "TimeSinceScheduledStartDate",
   AVG(TIME) AvgTime
 FROM
   (SELECT DISTINCT j.externalfilenum JobNumber,
-    jt.description JobType,
+    REPLACE(jt.description, 'Business License ', '') JobType,
     NVL(ap.licensetypesdisplayformat, ar.licensetypesdisplayformat) LicenseType,
     j.statusid,
     j.jobstatus,
