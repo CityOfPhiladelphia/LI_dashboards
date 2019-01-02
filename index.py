@@ -84,7 +84,7 @@ def display_page(pathname):
     elif pathname == '/JobVolumesBySubmissionTypeBL':
         return Man004BLJobVolumesBySubmissionType.layout()
     elif pathname == '/JobVolumesBySubmissionTypeTL':
-        return Man004TLJobVolumesBySubmissionType.layout
+        return Man004TLJobVolumesBySubmissionType.layout()
     elif pathname == '/ExpirationDatesBL':
         return Man005BLExpirationDates.layout
     elif pathname == '/ExpirationDatesTL':
