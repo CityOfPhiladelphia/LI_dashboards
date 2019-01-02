@@ -14,6 +14,11 @@ The dashboards are as follows:
 - (MAN-008) REFUNDS DUE TO DOUBLE PAYMENT	10
 - (MAN-010) INSPECTION FAILURE RATES BY REASON	11
 
+## Overview
+- Data is ETL'd from Hansen / Eclipse into AWS RDS nightly for each dashboard
+- Data is cached in Redis
+- Dashboards are served by Dash / Flask
+
 ## Requirements
 - Python 3.6+
 - Pip
