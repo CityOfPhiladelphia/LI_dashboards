@@ -30,11 +30,5 @@ cache = Cache(app.server, config={
 })
 now = datetime.datetime.now()
 print('App initialized: ' + str(now))
-
-#Set cache timeout to however long it is between now and tomorrow at 5am
-today = datetime.date.today()
-tomorrow = today + datetime.timedelta(days=1)
-tomorrow_midnight = datetime.datetime.combine(tomorrow, datetime.datetime.min.time())
-refresh_day_and_time = tomorrow_midnight.replace(hour=5, minute=0)
-TIMEOUT = (refresh_day_and_time - now).total_seconds()
+TIMEOUT = 60
 print('Cache timeout: ' + str(TIMEOUT))
