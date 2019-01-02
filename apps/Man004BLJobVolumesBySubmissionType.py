@@ -1,3 +1,7 @@
+import os
+import urllib.parse
+from datetime import datetime
+
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_table_experiments as dt
@@ -5,29 +9,128 @@ import plotly.graph_objs as go
 import pandas as pd
 from dash.dependencies import Input, Output
 from datetime import datetime
-import urllib.parse
 
-from app import app, con
+from app import app, cache, cache_timeout
 
+APP_NAME = os.path.basename(__file__)
 
-print("Man004BLJobVolumesBySubmissionType.py")
+print(APP_NAME)
 
-with con() as con:
-    sql = 'SELECT * FROM li_dash_jobvolsbysubtype_bl'
-    df_table = pd.read_sql_query(sql=sql, con=con)
-    df_table['JOBCREATEDDATEFIELD'] = pd.to_datetime(df_table['JOBCREATEDDATEFIELD'])
-    sql = "SELECT from_tz(cast(last_ddl_time as timestamp), 'GMT') at TIME zone 'US/Eastern' as LAST_DDL_TIME FROM user_objects WHERE object_name = 'LI_DASH_JOBVOLSBYSUBTYPE_BL'"
-    last_ddl_time = pd.read_sql_query(sql=sql, con=con)
+@cache_timeout
+@cache.memoize()
+def query_data(dataset):
+    from app import con
+    with con() as con:
+        if dataset == 'df_ind':
+            sql = 'SELECT * FROM li_dash_jobvolsbysubtype_bl'
+            df = pd.read_sql_query(sql=sql, con=con, parse_dates=['JOBCREATEDDATEFIELD'])
+        elif dataset == 'last_ddl_time':
+            sql = "SELECT from_tz(cast(last_ddl_time as timestamp), 'GMT') at TIME zone 'US/Eastern' as LAST_DDL_TIME FROM user_objects WHERE object_name = 'LI_DASH_JOBVOLSBYSUBTYPE_BL'"
+            df = pd.read_sql_query(sql=sql, con=con)
+    return df.to_json(date_format='iso', orient='split')
 
-username_options_unsorted = []
-df_staff = df_table[df_table['CREATEDBYTYPE'] == 'Staff']
-for username in df_staff['CREATEDBYUSERNAME'].unique():
-    username_options_unsorted.append({'label': str(username), 'value': username})
-username_options_sorted = sorted(username_options_unsorted, key=lambda k: k['label'])
+def dataframe(dataset):
+    return pd.read_json(query_data(dataset), orient='split')
 
+def update_layout():
+    df = dataframe('df_ind')
+    last_ddl_time = dataframe('last_ddl_time')
+
+    username_options_unsorted = []
+    df_staff = df[df['CREATEDBYTYPE'] == 'Staff']
+    for username in df_staff['CREATEDBYUSERNAME'].unique():
+        username_options_unsorted.append({'label': str(username), 'value': username})
+    username_options_sorted = sorted(username_options_unsorted, key=lambda k: k['label'])
+
+    return html.Div(
+        children=[
+            html.H1(
+                'Job Volumes by Submission Type',
+                style={'margin-top': '10px'}
+            ),
+            html.H1(
+                '(Business Licenses)',
+                style={'margin-bottom': '50px'}
+            ),
+            html.P(f"Data last updated {last_ddl_time['LAST_DDL_TIME'].iloc[0]}", style = {'text-align': 'center'}),
+            html.Div([
+                html.Div([
+                    html.P('Please Select Date Range (Job Created Date)'),
+                    dcc.DatePickerRange(
+                        id='my-date-picker-range',
+                        start_date=datetime(2018, 1, 1),
+                        end_date=datetime.now()
+                    ),
+                ], className='four columns'),
+                html.Div([
+                    html.P('Filter by Username (Staff only)'),
+                    dcc.Dropdown(
+                        id='username-dropdown',
+                        options=username_options_sorted,
+                        multi=True
+                    ),
+                ], className='five columns')
+            ], className='dashrow filters'),
+            html.Div([
+                html.Div([
+                    html.Div([
+                        dt.DataTable(
+                            rows=[{}],
+                            sortable=True,
+                            editable=False,
+                            selected_row_indices=[],
+                            id='Man004BL-counttable'
+                        ),
+                    ], id='Man004BL-counttable-div')
+                ], style={'margin-top': '70px', 'margin-bottom': '50px',
+                          'margin-left': 'auto', 'margin-right': 'auto', 'float': 'none'},
+                    className='nine columns')
+            ], className='dashrow'),
+            html.Div([
+                html.Div([
+                    html.Div([
+                        dt.DataTable(
+                            rows=[{}],
+                            filterable=True,
+                            sortable=True,
+                            editable=False,
+                            selected_row_indices=[],
+                            id='Man004BL-table'
+                        )
+                    ]),
+                    html.Div([
+                        html.A(
+                            'Download Data',
+                            id='Man004BL-download-link',
+                            download='Man004BL.csv',
+                            href='',
+                            target='_blank',
+                        )
+                    ], style={'text-align': 'right'})
+                ], style={'margin-top': '70px', 'margin-bottom': '50px'})
+            ], className='dashrow'),
+            html.Details([
+                html.Summary('Query Description'),
+                html.Div([
+                    html.P('All approved business license amend/renew and application jobs, how they were submitted (online, '
+                           'revenue, or staff), and who they were submitted by.'),
+                    html.P(
+                        'We determine how a job was submitted (online, revenue, or staff) based on the username who created it:'),
+                    html.Ul(children=[
+                        html.Li('Online: If the username contains a number or equals "PPG User"'),
+                        html.Li('Revenue: If the username equals "POSSE system power user"'),
+                        html.Li('Staff: If the username doesn\'t meet one of the other two conditions')
+                    ])
+                ])
+            ])
+        ])
+
+layout = update_layout
 
 def get_data_object(selected_start, selected_end, username):
-    df_selected = df_table[(df_table['JOBCREATEDDATEFIELD'] >= selected_start) & (df_table['JOBCREATEDDATEFIELD'] <= selected_end)]
+    df_selected = dataframe('df_ind')
+
+    df_selected = df_selected[(df_selected['JOBCREATEDDATEFIELD'] >= selected_start) & (df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
     if username is not None:
         if isinstance(username, str):
             df_selected = df_selected[df_selected['CREATEDBYUSERNAME'] == username]
@@ -40,7 +143,9 @@ def get_data_object(selected_start, selected_end, username):
 
 
 def count_jobs(selected_start, selected_end, username):
-    df_count_selected = df_table[(df_table['JOBCREATEDDATEFIELD'] >= selected_start) & (df_table['JOBCREATEDDATEFIELD'] <= selected_end)]
+    df_selected = dataframe('df_ind')
+
+    df_count_selected = df_selected[(df_selected['JOBCREATEDDATEFIELD'] >= selected_start) & (df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
     if username is not None:
         if isinstance(username, str):
             df_count_selected = df_count_selected[df_count_selected['CREATEDBYUSERNAME'] == username]
@@ -56,90 +161,6 @@ def count_jobs(selected_start, selected_end, username):
     return df_counter
 
 #TODO why is this not including high date?
-
-layout = html.Div(
-    children=[
-        html.H1(
-            'Job Volumes by Submission Type',
-            style={'margin-top': '10px'}
-        ),
-        html.H1(
-            '(Business Licenses)',
-            style={'margin-bottom': '50px'}
-        ),
-        html.P(f"Data last updated {last_ddl_time['LAST_DDL_TIME'].iloc[0]}", style = {'text-align': 'center'}),
-        html.Div([
-            html.Div([
-                html.P('Please Select Date Range (Job Created Date)'),
-                dcc.DatePickerRange(
-                    id='my-date-picker-range',
-                    start_date=datetime(2018, 1, 1),
-                    end_date=datetime.now()
-                ),
-            ], className='four columns'),
-            html.Div([
-                html.P('Filter by Username (Staff only)'),
-                dcc.Dropdown(
-                    id='username-dropdown',
-                    options=username_options_sorted,
-                    multi=True
-                ),
-            ], className='five columns')
-        ], className='dashrow filters'),
-        html.Div([
-            html.Div([
-                html.Div([
-                    dt.DataTable(
-                        rows=[{}],
-                        sortable=True,
-                        editable=False,
-                        selected_row_indices=[],
-                        id='Man004BL-counttable'
-                    ),
-                ], id='Man004BL-counttable-div')
-            ], style={'margin-top': '70px', 'margin-bottom': '50px',
-                      'margin-left': 'auto', 'margin-right': 'auto', 'float': 'none'},
-               className='nine columns')
-        ], className='dashrow'),
-        html.Div([
-            html.Div([
-                html.Div([
-                    dt.DataTable(
-                        rows=[{}],
-                        filterable=True,
-                        sortable=True,
-                        editable=False,
-                        selected_row_indices=[],
-                        id='Man004BL-table'
-                    )
-                ]),
-                html.Div([
-                    html.A(
-                        'Download Data',
-                        id='Man004BL-download-link',
-                        download='Man004BL.csv',
-                        href='',
-                        target='_blank',
-                    )
-                ], style={'text-align': 'right'})
-            ], style={'margin-top': '70px', 'margin-bottom': '50px'})
-        ], className='dashrow'),
-        html.Details([
-            html.Summary('Query Description'),
-            html.Div([
-                html.P('All approved business license amend/renew and application jobs, how they were submitted (online, '
-                       'revenue, or staff), and who they were submitted by.'),
-                html.P('We determine how a job was submitted (online, revenue, or staff) based on the username who created it:'),
-                html.Ul(children=[
-                    html.Li('Online: If the username contains a number or equals "PPG User"'),
-                    html.Li('Revenue: If the username equals "POSSE system power user"'),
-                    html.Li('Staff: If the username doesn\'t meet one of the other two conditions')
-                ])
-            ])
-        ])
-    ]
-)
-
 
 @app.callback(
     Output('Man004BL-counttable', 'rows'),
