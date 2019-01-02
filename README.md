@@ -14,22 +14,17 @@ The dashboards are as follows:
 - (MAN-008) REFUNDS DUE TO DOUBLE PAYMENT	10
 - (MAN-010) INSPECTION FAILURE RATES BY REASON	11
 
-## Dependencies (need to be updated)
-- dash==0.22.0
-- plotly==3.1.0
-- dash_core_components==0.26.0
-- dash_html_components==0.11.0
-- pandas==0.22.0
-- dash_table_experiments==0.6.0
-- dash_auth==1.0.2
-- cx_Oracle==6.4.1
-- gevent==1.3.5
-- phila_mail
-- li_dbs
+## Requirements
+- Python 3.6+
+- Pip
+- [Redis](https://github.com/rgl/redis/downloads)
 
 ## Usage
-- Install dependencies and grab phila_mail and li_dbs from G:/PythonModules and paste into the  ..\Lib\site-packages folder of your Python installation.
+- `pip install -r requirements.txt`
 - Get the config.py file from one of us containing usernames and password logins and put it in your LI_dashboards folder.
+- [Install Redis](https://github.com/rgl/redis/downloads)
+- Launch Redis
+`C:\Program Files\Redis\redis-server`
 - `python index.py` to launch the application
 - `python etl/etl.py` to run the etl process for all queries
 - `python etl/etl_cli.py -n dashboard_table_name` to run the etl process for one dashboard

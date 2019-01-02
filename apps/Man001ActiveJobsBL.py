@@ -1,24 +1,29 @@
+import os
+import urllib.parse
+from datetime import datetime
+
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_table_experiments as dt
 import plotly.graph_objs as go
 import pandas as pd
-from datetime import datetime
 from dash.dependencies import Input, Output
-import urllib.parse
 
-from app import app, cache, TIMEOUT
+from app import app, cache, cache_timeout
 
 # Definitions: Job Type BL Application and BL Amendment/Renewal
 # Completeness Check Completed, Job incomplete
 # Not in Status: More Information Required, Payment Pending, Application Incomplete, Draft
 # time calculated as time between completion of completeness check to today
 
-print("Man001ActiveJobsBL.py")
+APP_NAME = os.path.basename(__file__)
+
+print(APP_NAME)
 
 time_categories = ["0-1 Day", "2-5 Days", "6-10 Days", "11 Days-1 Year", "Over 1 Year"]
 
-@cache.memoize(TIMEOUT)
+@cache_timeout
+@cache.memoize()
 def query_data(dataset):
     from app import con
     with con() as con:
@@ -34,7 +39,7 @@ def query_data(dataset):
         if dataset == 'df_counts':
             # Make TIMESINCESCHEDULEDSTARTDATE a Categorical Series and give it a sort order
             df['TIMESINCESCHEDULEDSTARTDATE'] = pd.Categorical(df['TIMESINCESCHEDULEDSTARTDATE'], time_categories)
-            df.sort_values(by='TIMESINCESCHEDULEDSTARTDATE')
+            df.sort_values(by='TIMESINCESCHEDULEDSTARTDATE', inplace=True)
     return df.to_json(date_format='iso', orient='split')
 
 def dataframe(dataset):
@@ -163,7 +168,6 @@ def update_layout():
         ])
 
 layout = update_layout
-
 
 def get_data_object(duration, license_type):
     df_selected = dataframe('df_ind')

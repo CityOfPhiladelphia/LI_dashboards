@@ -9,10 +9,11 @@ from datetime import datetime
 from app import app, server
 from send_email import send_email
 #from log_visitors import log_visitor
-from apps import (Man001ActiveJobsBL, Man001ActiveJobsTL, Man002ActiveProcessesBL, Man002ActiveProcessesTL,
-                  Man004BLJobVolumesBySubmissionType, Man004TLJobVolumesBySubmissionType,
-                  Man005BLExpirationDates, Man005TLExpirationDates, Man006OverdueBLInspections, IndividualWorkloadsBL,
-                  SLA_BL, ExpiringLicensesTaxIssues, LicensesWithCompletenessChecksButNoCompletedInspections)
+# from apps import (Man001ActiveJobsBL, Man001ActiveJobsTL, Man002ActiveProcessesBL, Man002ActiveProcessesTL,
+#                   Man004BLJobVolumesBySubmissionType, Man004TLJobVolumesBySubmissionType,
+#                   Man005BLExpirationDates, Man005TLExpirationDates, Man006OverdueBLInspections, IndividualWorkloadsBL,
+#                   SLA_BL, ExpiringLicensesTaxIssues, LicensesWithCompletenessChecksButNoCompletedInspections)
+from apps import Man001ActiveJobsBL, Man001ActiveJobsTL
 
 
 time = datetime.strftime(datetime.now(), '%I:%M %p %m/%d/%y')
@@ -74,33 +75,33 @@ app.layout = serve_layout
 def display_page(pathname):
     #    log_visitor()
     if pathname == '/ActiveJobsTL':
-        return Man001ActiveJobsTL.layout
+        return Man001ActiveJobsTL.layout()
     elif pathname == '/ActiveJobsBL':
         return Man001ActiveJobsBL.layout()
-    elif pathname == '/ActiveProcessesBL':
-        return Man002ActiveProcessesBL.layout
-    elif pathname == '/ActiveProcessesTL':
-        return Man002ActiveProcessesTL.layout
-    elif pathname == '/JobVolumesBySubmissionTypeBL':
-        return Man004BLJobVolumesBySubmissionType.layout
-    elif pathname == '/JobVolumesBySubmissionTypeTL':
-        return Man004TLJobVolumesBySubmissionType.layout
-    elif pathname == '/ExpirationDatesBL':
-        return Man005BLExpirationDates.layout
-    elif pathname == '/ExpirationDatesTL':
-        return Man005TLExpirationDates.layout
-    elif pathname == '/OverdueInspectionsBL':
-        return Man006OverdueBLInspections.layout
-    elif pathname == '/IndividualWorkloadsBL':
-        return IndividualWorkloadsBL.layout
-    elif pathname == '/SLA_BL':
-        return SLA_BL.layout
-    elif pathname == '/ExpiringLicensesTaxIssues':
-        return ExpiringLicensesTaxIssues.layout
-    elif pathname == '/LicensesWithCompletenessChecksButNoCompletedInspections':
-        return LicensesWithCompletenessChecksButNoCompletedInspections.layout
+    # elif pathname == '/ActiveProcessesBL':
+    #     return Man002ActiveProcessesBL.layout
+    # elif pathname == '/ActiveProcessesTL':
+    #     return Man002ActiveProcessesTL.layout
+    # elif pathname == '/JobVolumesBySubmissionTypeBL':
+    #     return Man004BLJobVolumesBySubmissionType.layout
+    # elif pathname == '/JobVolumesBySubmissionTypeTL':
+    #     return Man004TLJobVolumesBySubmissionType.layout
+    # elif pathname == '/ExpirationDatesBL':
+    #     return Man005BLExpirationDates.layout
+    # elif pathname == '/ExpirationDatesTL':
+    #     return Man005TLExpirationDates.layout
+    # elif pathname == '/OverdueInspectionsBL':
+    #     return Man006OverdueBLInspections.layout
+    # elif pathname == '/IndividualWorkloadsBL':
+    #     return IndividualWorkloadsBL.layout
+    # elif pathname == '/SLA_BL':
+    #     return SLA_BL.layout
+    # elif pathname == '/ExpiringLicensesTaxIssues':
+    #     return ExpiringLicensesTaxIssues.layout
+    # elif pathname == '/LicensesWithCompletenessChecksButNoCompletedInspections':
+    #     return LicensesWithCompletenessChecksButNoCompletedInspections.layout
     else:
-        return Man001ActiveJobsBL.layout
+        return Man001ActiveJobsBL.layout()
 
 if __name__ == '__main__':
     # app.run_server(host='127.0.0.1', port=5001)
