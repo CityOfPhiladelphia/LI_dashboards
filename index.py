@@ -94,7 +94,7 @@ def display_page(pathname):
     elif pathname == '/IndividualWorkloadsBL':
         return IndividualWorkloadsBL.layout()
     elif pathname == '/SLA_BL':
-        return SLA_BL.layout
+        return SLA_BL.layout()
     elif pathname == '/ExpiringLicensesTaxIssues':
         return ExpiringLicensesTaxIssues.layout
     elif pathname == '/LicensesWithCompletenessChecksButNoCompletedInspections':
