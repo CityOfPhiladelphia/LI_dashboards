@@ -43,7 +43,7 @@ def serve_layout():
                             html.A('Active Processes', href='/ActiveProcessesBL'),
                             html.A('Job Volumes by Submission Type', href='/JobVolumesBySubmissionTypeBL'),
                             html.A('Expiration Dates', href='/ExpirationDatesBL'),
-                            html.A('Inspections Past their Scheduled Completion Date', href='/OverdueInspectionsBL'),
+                            html.A('Overdue Inspections', href='/OverdueInspectionsBL'),
                             html.A('Individual Workloads', href='/IndividualWorkloadsBL'),
                             html.A('SLA License Issuance', href='/SLA_BL'),
                             html.A('Licenses with Completed Completeness Checks but no Completed Inspections', href='/LicensesWithCompletenessChecksButNoCompletedInspections')
