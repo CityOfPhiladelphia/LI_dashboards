@@ -98,7 +98,7 @@ def display_page(pathname):
     elif pathname == '/ExpiringLicensesTaxIssues':
         return ExpiringLicensesTaxIssues.layout
     elif pathname == '/LicensesWithCompletenessChecksButNoCompletedInspections':
-        return LicensesWithCompletenessChecksButNoCompletedInspections.layout
+        return LicensesWithCompletenessChecksButNoCompletedInspections.layout()
     else:
         return Man001ActiveJobsBL.layout()
 
