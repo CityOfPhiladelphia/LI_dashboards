@@ -1,108 +1,68 @@
+import os
+import urllib.parse
+from datetime import datetime, date
+
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_table_experiments as table
 import plotly.graph_objs as go
 import pandas as pd
 from dash.dependencies import Input, Output
-from datetime import datetime, date
 import numpy as np
-import urllib.parse
 
-from app import app, con
+from app import app, cache, cache_timeout
 
+APP_NAME = os.path.basename(__file__)
 
-print('IndividualWorkloadsBL.py')
+print(APP_NAME)
 
-with con() as con:
-    sql = 'SELECT * FROM li_dash_indworkloads_bl'
-    df = pd.read_sql_query(sql=sql, con=con, parse_dates=['DATECOMPLETEDFIELD'])
-    sql = "SELECT from_tz(cast(last_ddl_time as timestamp), 'GMT') at TIME zone 'US/Eastern' as LAST_DDL_TIME FROM user_objects WHERE object_name = 'LI_DASH_INDWORKLOADS_BL'"
-    last_ddl_time = pd.read_sql_query(sql=sql, con=con)
+@cache_timeout
+@cache.memoize()
+def query_data(dataset):
+    from app import con
+    with con() as con:
+        if dataset == 'df_ind':
+            sql = 'SELECT * FROM li_dash_indworkloads_bl'
+            df = pd.read_sql_query(sql=sql, con=con, parse_dates=['DATECOMPLETEDFIELD'])
+            # Rename the columns to be more readable
+            df = (df.rename(columns={'PROCESSID': 'Process ID', 'PROCESSTYPE': 'Process Type', 'JOBTYPE': 'Job Type',
+                                     'LICENSETYPE': 'License Type', 'NAME': 'Person',
+                                     'SCHEDULEDSTARTDATE': 'Scheduled Start Date', 'DATECOMPLETED': 'Date Completed',
+                                     'DURATION': 'Duration (days)'})
+                  .assign(DateText=lambda x: x['DATECOMPLETEDFIELD'].dt.strftime('%b %Y')))
+            df['Month Year'] = df['DATECOMPLETEDFIELD'].map(lambda dt: dt.date().replace(day=1))
+        elif dataset == 'last_ddl_time':
+            sql = "SELECT from_tz(cast(last_ddl_time as timestamp), 'GMT') at TIME zone 'US/Eastern' as LAST_DDL_TIME FROM user_objects WHERE object_name = 'LI_DASH_INDWORKLOADS_BL'"
+            df = pd.read_sql_query(sql=sql, con=con)
+    return df.to_json(date_format='iso', orient='split')
 
-# Rename the columns to be more readable
-df = (df.rename(columns={'PROCESSID': 'Process ID', 'PROCESSTYPE': 'Process Type', 'JOBTYPE': 'Job Type', 'LICENSETYPE': 'License Type', 'NAME': 'Person',
-                         'SCHEDULEDSTARTDATE': 'Scheduled Start Date', 'DATECOMPLETED': 'Date Completed', 'DURATION': 'Duration (days)'})
-      .assign(DateText=lambda x: x['DATECOMPLETEDFIELD'].dt.strftime('%b %Y')))
+@cache_timeout
+@cache.memoize()
+def dataframe(dataset):
+    if dataset == 'df_ind':
+        df = pd.read_json(query_data(dataset), orient='split', convert_dates=['DATECOMPLETEDFIELD', 'Month Year'])
+        df['Month Year'] = df['Month Year'].dt.date
+    elif dataset == 'last_ddl_time':
+        df = pd.read_json(query_data(dataset), orient='split')
+    return df
 
-df['Month Year'] = df['DATECOMPLETEDFIELD'].map(lambda dt: dt.date().replace(day=1))
+def update_layout():
+    df = dataframe('df_ind')
+    last_ddl_time = dataframe('last_ddl_time')
 
-months = df['Month Year'].unique()
-months.sort()
+    unique_persons = df['Person'].unique()
+    unique_persons = np.append(['All'], unique_persons)
 
-unique_persons = df['Person'].unique()
-unique_persons = np.append(['All'], unique_persons)
+    unique_process_types = df['Process Type'].unique()
+    unique_process_types = np.append(['All'], unique_process_types)
 
-unique_process_types = df['Process Type'].unique()
-unique_process_types = np.append(['All'], unique_process_types)
+    unique_job_types = df['Job Type'].unique()
+    unique_job_types = np.append(['All'], unique_job_types)
 
-unique_job_types = df['Job Type'].unique()
-unique_job_types = np.append(['All'], unique_job_types)
+    unique_license_types = df['License Type'].unique()
+    unique_license_types = np.append(['All'], unique_license_types)
 
-unique_license_types = df['License Type'].unique()
-unique_license_types = np.append(['All'], unique_license_types)
-
-def update_graph_data(selected_start, selected_end, selected_person, selected_process_type, selected_job_type, selected_license_type):
-    df_selected = df.copy(deep=True)
-    selected_months = months[(months >= datetime.strptime(selected_start, "%Y-%m-%d").date()) & (months <= datetime.strptime(selected_end, "%Y-%m-%d").date())]
-
-    if selected_person != "All":
-        df_selected = df_selected[(df_selected['Person'] == selected_person)]
-    if selected_process_type != "All":
-        df_selected = df_selected[(df_selected['Process Type'] == selected_process_type)]
-    if selected_job_type != "All":
-        df_selected = df_selected[(df_selected['Job Type'] == selected_job_type)]
-    if selected_license_type != "All":
-        df_selected = df_selected[(df_selected['License Type'] == selected_license_type)]
-
-    df_selected = (df_selected.loc[(df_selected['DATECOMPLETEDFIELD'] >= selected_start) & (df_selected['DATECOMPLETEDFIELD'] <= selected_end)]
-                   .groupby(['Month Year', 'DateText']).agg({'Process ID': 'count'})
-                   .reset_index()
-                   .rename(columns={'Process ID': 'Processes Completed'}))
-    for month in selected_months:
-        if month not in df_selected['Month Year'].values:
-            df_missing_month = pd.DataFrame([[month, month.strftime('%b %Y'), 0]], columns=['Month Year', 'DateText', 'Processes Completed'])
-            df_selected = df_selected.append(df_missing_month, ignore_index=True)
-    return df_selected.sort_values(by='Month Year', ascending=False)
-
-
-def update_counts_table_data(selected_start, selected_end, selected_person, selected_process_type, selected_job_type, selected_license_type):
-    df_selected = df.copy(deep=True)
-
-    if selected_person != "All":
-        df_selected = df_selected[(df_selected['Person'] == selected_person)]
-    if selected_process_type != "All":
-        df_selected = df_selected[(df_selected['Process Type'] == selected_process_type)]
-    if selected_job_type != "All":
-        df_selected = df_selected[(df_selected['Job Type'] == selected_job_type)]
-    if selected_license_type != "All":
-        df_selected = df_selected[(df_selected['License Type'] == selected_license_type)]
-
-    df_selected = (df_selected.loc[(df_selected['DATECOMPLETEDFIELD'] >= selected_start) & (df_selected['DATECOMPLETEDFIELD'] <= selected_end)]
-                   .groupby(['Person', 'Process Type']).agg({'Process ID': 'count', 'Duration (days)': 'sum'})
-                   .reset_index()
-                   .rename(columns={'Process ID': 'Processes Completed'})
-                   .sort_values(by=['Person', 'Process Type']))
-    df_selected['Avg. Duration (days)'] = (df_selected['Duration (days)'] / df_selected['Processes Completed']).round(0)
-    return df_selected[['Person', 'Process Type', 'Processes Completed', 'Avg. Duration (days)']]
-
-def update_ind_records_table_data(selected_start, selected_end, selected_person, selected_process_type, selected_job_type, selected_license_type):
-    df_selected = df.copy(deep=True)
-
-    if selected_person != "All":
-        df_selected = df_selected[(df_selected['Person'] == selected_person)]
-    if selected_process_type != "All":
-        df_selected = df_selected[(df_selected['Process Type'] == selected_process_type)]
-    if selected_job_type != "All":
-        df_selected = df_selected[(df_selected['Job Type'] == selected_job_type)]
-    if selected_license_type != "All":
-        df_selected = df_selected[(df_selected['License Type'] == selected_license_type)]
-
-    df_selected = (df_selected.loc[(df_selected['DATECOMPLETEDFIELD'] >= selected_start) & (df_selected['DATECOMPLETEDFIELD'] <= selected_end)]
-                   .sort_values(by='DATECOMPLETEDFIELD'))
-    df_selected['Duration (days)'] = df_selected['Duration (days)'].round(2).map('{:,.2f}'.format)
-    return df_selected.drop(['DATECOMPLETEDFIELD', 'Month Year', 'DateText'], axis=1)
-
-layout = html.Div(children=[
+    return html.Div(children=[
                 html.H1('Individual Workloads', style={'text-align': 'center'}),
                 html.H1('(Business Licenses)', style={'text-align': 'center'}),
                 html.P(f"Data last updated {last_ddl_time['LAST_DDL_TIME'].iloc[0]}", style = {'text-align': 'center'}),
@@ -228,6 +188,74 @@ layout = html.Div(children=[
                     ])
                 ])
             ])
+
+layout = update_layout
+
+def update_graph_data(selected_start, selected_end, selected_person, selected_process_type, selected_job_type, selected_license_type):
+    df_selected = dataframe('df_ind')
+
+    months = df_selected['Month Year'].unique()
+    months.sort()
+
+    selected_months = months[(months >= datetime.strptime(selected_start, "%Y-%m-%d").date()) & (months <= datetime.strptime(selected_end, "%Y-%m-%d").date())]
+
+    if selected_person != "All":
+        df_selected = df_selected[(df_selected['Person'] == selected_person)]
+    if selected_process_type != "All":
+        df_selected = df_selected[(df_selected['Process Type'] == selected_process_type)]
+    if selected_job_type != "All":
+        df_selected = df_selected[(df_selected['Job Type'] == selected_job_type)]
+    if selected_license_type != "All":
+        df_selected = df_selected[(df_selected['License Type'] == selected_license_type)]
+
+    df_selected = (df_selected.loc[(df_selected['DATECOMPLETEDFIELD'] >= selected_start) & (df_selected['DATECOMPLETEDFIELD'] <= selected_end)]
+                   .groupby(['Month Year', 'DateText']).agg({'Process ID': 'count'})
+                   .reset_index()
+                   .rename(columns={'Process ID': 'Processes Completed'}))
+    for month in selected_months:
+        if month not in df_selected['Month Year'].values:
+            df_missing_month = pd.DataFrame([[month, month.strftime('%b %Y'), 0]], columns=['Month Year', 'DateText', 'Processes Completed'])
+            df_selected = df_selected.append(df_missing_month, ignore_index=True)
+    return df_selected.sort_values(by='Month Year', ascending=False)
+
+
+def update_counts_table_data(selected_start, selected_end, selected_person, selected_process_type, selected_job_type, selected_license_type):
+    df_selected = dataframe('df_ind')
+
+    if selected_person != "All":
+        df_selected = df_selected[(df_selected['Person'] == selected_person)]
+    if selected_process_type != "All":
+        df_selected = df_selected[(df_selected['Process Type'] == selected_process_type)]
+    if selected_job_type != "All":
+        df_selected = df_selected[(df_selected['Job Type'] == selected_job_type)]
+    if selected_license_type != "All":
+        df_selected = df_selected[(df_selected['License Type'] == selected_license_type)]
+
+    df_selected = (df_selected.loc[(df_selected['DATECOMPLETEDFIELD'] >= selected_start) & (df_selected['DATECOMPLETEDFIELD'] <= selected_end)]
+                   .groupby(['Person', 'Process Type']).agg({'Process ID': 'count', 'Duration (days)': 'sum'})
+                   .reset_index()
+                   .rename(columns={'Process ID': 'Processes Completed'})
+                   .sort_values(by=['Person', 'Process Type']))
+    df_selected['Avg. Duration (days)'] = (df_selected['Duration (days)'] / df_selected['Processes Completed']).round(0)
+    return df_selected[['Person', 'Process Type', 'Processes Completed', 'Avg. Duration (days)']]
+
+def update_ind_records_table_data(selected_start, selected_end, selected_person, selected_process_type, selected_job_type, selected_license_type):
+    df_selected = dataframe('df_ind')
+
+    if selected_person != "All":
+        df_selected = df_selected[(df_selected['Person'] == selected_person)]
+    if selected_process_type != "All":
+        df_selected = df_selected[(df_selected['Process Type'] == selected_process_type)]
+    if selected_job_type != "All":
+        df_selected = df_selected[(df_selected['Job Type'] == selected_job_type)]
+    if selected_license_type != "All":
+        df_selected = df_selected[(df_selected['License Type'] == selected_license_type)]
+
+    df_selected = (df_selected.loc[(df_selected['DATECOMPLETEDFIELD'] >= selected_start) & (df_selected['DATECOMPLETEDFIELD'] <= selected_end)]
+                   .sort_values(by='DATECOMPLETEDFIELD'))
+    df_selected['Duration (days)'] = df_selected['Duration (days)'].round(2).map('{:,.2f}'.format)
+    return df_selected.drop(['DATECOMPLETEDFIELD', 'Month Year', 'DateText'], axis=1)
+
 
 @app.callback(
     Output('ind-workloads-graph', 'figure'),

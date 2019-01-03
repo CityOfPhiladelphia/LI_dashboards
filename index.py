@@ -92,7 +92,7 @@ def display_page(pathname):
     elif pathname == '/OverdueInspectionsBL':
         return Man006OverdueBLInspections.layout()
     elif pathname == '/IndividualWorkloadsBL':
-        return IndividualWorkloadsBL.layout
+        return IndividualWorkloadsBL.layout()
     elif pathname == '/SLA_BL':
         return SLA_BL.layout
     elif pathname == '/ExpiringLicensesTaxIssues':
