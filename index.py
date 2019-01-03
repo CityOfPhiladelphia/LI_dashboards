@@ -88,7 +88,7 @@ def display_page(pathname):
     elif pathname == '/ExpirationDatesBL':
         return Man005BLExpirationDates.layout()
     elif pathname == '/ExpirationDatesTL':
-        return Man005TLExpirationDates.layout
+        return Man005TLExpirationDates.layout()
     elif pathname == '/OverdueInspectionsBL':
         return Man006OverdueBLInspections.layout
     elif pathname == '/IndividualWorkloadsBL':
