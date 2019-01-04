@@ -28,14 +28,14 @@ def query_data():
         df = pd.read_sql_query(sql=sql, con=con, parse_dates=['EXPIRATIONDATE'])
     # Rename the columns to be more readable
     df = (df.rename(columns={'LEGALNAME': 'Legal Name',
-                                 'BUSINESS_NAME': 'Business Name',
-                                 'LICENSETYPE': 'License Type',
-                                 'EXPIRATIONDATE': 'Expiration Date',
-                                 'OWNEROCCUPIED': 'Owner Occupied',
-                                 'MESSAGE': 'Message',
-                                 'BUSINESSID': 'Business ID',
-                                 'LICENSENUMBER': 'License Number',
-                                 'LINK': 'Link'}))
+                             'BUSINESS_NAME': 'Business Name',
+                             'LICENSETYPE': 'License Type',
+                             'EXPIRATIONDATE': 'Expiration Date',
+                             'OWNEROCCUPIED': 'Owner Occupied',
+                             'MESSAGE': 'Message',
+                             'BUSINESSID': 'Business ID',
+                             'LICENSENUMBER': 'License Number',
+                             'LINK': 'Link'}))
     return df.to_json(date_format='iso', orient='split')
 
 @cache_timeout
@@ -149,7 +149,7 @@ def update_layout():
 layout = update_layout
 
 def update_data(selected_start, selected_end, selected_message, selected_license_type):
-    df_selected = dataframe('df_ind')
+    df_selected = dataframe()
 
     if selected_message != "All":
         df_selected = df_selected[(df_selected['Message'] == selected_message)]
