@@ -22,16 +22,12 @@ def query_data(dataset):
     if dataset == 'df_ind':
         with con() as con:
             sql = 'SELECT * FROM li_dash_sla_bl'
-            df_ind = pd.read_sql_query(sql=sql, con=con, parse_dates=['JOBCREATEDDATEFIELD', 'JOBCOMPLETEDDATEFIELD',
-                                                                  'PROCESSSCHEDULEDSTARTDATEFIELD',
-                                                                  'PROCESSDATECOMPLETEDFIELD'])
+            df_ind = pd.read_sql_query(sql=sql, con=con, parse_dates=['JOBCREATEDDATEFIELD', 'PROCESSDATECOMPLETEDFIELD'])
             sql_bd17 = 'SELECT * FROM business_days_since_2017'
             df_bd17 = pd.read_sql_query(sql=sql_bd17, con=con, parse_dates=['DATEOFYEAR'])
 
         # Rename columns to be more readable
-        df_ind = (df_ind.rename(columns={'JOBID': 'Job ID', 'PROCESSID': 'Process ID', 'JOBTYPE': 'Job Type',
-                                 'JOBCREATEDDATE': 'Job Created Date',
-                                 'PROCESSDATECOMPLETED': 'Process Completed Date'})
+        df_ind = (df_ind.rename(columns={'JOBID': 'Job ID', 'PROCESSID': 'Process ID', 'JOBTYPE': 'Job Type'})
               .assign(MonthDateText=lambda x: x['JOBCREATEDDATEFIELD'].dt.strftime('%b %Y'))
               .assign(DayDateText=lambda x: x['JOBCREATEDDATEFIELD'].dt.strftime('%b %d %Y')))
 
