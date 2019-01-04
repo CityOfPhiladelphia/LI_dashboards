@@ -51,12 +51,11 @@ FROM lmscorral.bl_licensetype lt,
     objectid,
     mostrecentissuedate
   FROM lmscorral.bl_license
-  WHERE mostrecentissuedate >= '01-JAN-2015'
   ) lic,
   (SELECT expirationdate,
     objectid
   FROM lmscorral.bl_licensegroup
-  WHERE expirationdate >= '01-JAN-2015'
+  WHERE expirationdate >= add_months(TRUNC(SYSDATE, 'MM'),-13)
   ) lg,
   query.r_bl_application_license apl,
   query.j_bl_application ap,
@@ -125,12 +124,11 @@ FROM lmscorral.bl_licensetype lt,
     objectid,
     mostrecentissuedate
   FROM lmscorral.bl_license
-  WHERE mostrecentissuedate >= '01-JAN-2015'
   ) lic,
   (SELECT expirationdate,
     objectid
   FROM lmscorral.bl_licensegroup
-  WHERE expirationdate >= '01-JAN-2015'
+  WHERE expirationdate >= add_months(TRUNC(SYSDATE, 'MM'),-13)
   ) lg,
   query.r_bl_amendrenew_license arl,
   query.j_bl_amendrenew ar,

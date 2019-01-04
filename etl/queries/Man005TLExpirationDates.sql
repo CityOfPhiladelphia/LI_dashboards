@@ -53,7 +53,7 @@ FROM
     objectid,
     licenseissuedate
   FROM lmscorral.tl_tradelicenses
-  WHERE licenseexpirydate >= '01-JAN-2015'
+  WHERE licenseexpirydate >= add_months(TRUNC(SYSDATE, 'MM'),-13)
   ) lic,
   query.j_tl_application ap,
   query.o_jobtypes jt
@@ -119,7 +119,7 @@ FROM
     objectid,
     licenseissuedate
   FROM lmscorral.tl_tradelicenses
-  WHERE licenseexpirydate >= '01-JAN-2015'
+  WHERE licenseexpirydate >= add_months(TRUNC(SYSDATE, 'MM'),-13)
   ) lic,
   query.r_tl_amendrenew_license arl,
   query.j_tl_amendrenew ar,
