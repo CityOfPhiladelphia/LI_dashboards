@@ -32,14 +32,10 @@ def query_data(dataset):
         df_ind = (df_ind.rename(columns={'JOBID': 'Job ID', 'PROCESSID': 'Process ID', 'JOBTYPE': 'Job Type',
                                  'JOBCREATEDDATE': 'Job Created Date',
                                  'PROCESSDATECOMPLETED': 'Process Completed Date'})
-              .assign(YearText=lambda x: x['JOBCREATEDDATEFIELD'].dt.strftime('%Y'))
               .assign(MonthDateText=lambda x: x['JOBCREATEDDATEFIELD'].dt.strftime('%b %Y'))
-              .assign(WeekText=lambda x: x['JOBCREATEDDATEFIELD'].dt.strftime('%W'))
               .assign(DayDateText=lambda x: x['JOBCREATEDDATEFIELD'].dt.strftime('%b %d %Y')))
 
-        df_ind['Year'] = df_ind['JOBCREATEDDATEFIELD'].dt.year
         df_ind['Month Year'] = df_ind['JOBCREATEDDATEFIELD'].map(lambda dt: dt.date().replace(day=1))
-        df_ind['Week'] = df_ind['JOBCREATEDDATEFIELD'].map(lambda dt: dt.week)
         df_ind['Job Created Day'] = df_ind['JOBCREATEDDATEFIELD'].dt.date
         df_ind['Process Completed Day'] = df_ind['PROCESSDATECOMPLETEDFIELD'].dt.date
         df_bd17['DATEOFYEARDATEONLY'] = df_bd17['DATEOFYEAR'].dt.date
@@ -98,7 +94,6 @@ def update_layout():
                             id='sla-time-agg-dropdown',
                             options=[
                                 {'label': 'Month', 'value': 'Month'},
-                                {'label': 'Week', 'value': 'Week'},
                                 {'label': 'Day', 'value': 'Day'}
                             ],
                             value='Month'
@@ -202,17 +197,6 @@ def update_graph_data(selected_start, selected_end, selected_job_type, selected_
                        .rename(columns={'Month Year': 'Date Created', 'MonthDateText': 'DateText', 'Job ID': 'Jobs Created',
                                         'Process Completed Date': 'Completeness Checks Completed', 'W/in SLA': '# w/in SLA'})
                        .sort_values(by='Date Created', ascending=False))
-    if selected_time_agg == "Week":
-        df_selected = (df_selected.loc[(df_selected['JOBCREATEDDATEFIELD'] >= selected_start) & (df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
-                       .groupby(['Year', 'YearText', 'Week', 'WeekText']).agg({'Job ID': 'count', 'Process Completed Date': 'count',
-                                                                        'W/in SLA': 'sum'})
-                       .reset_index()
-                       .rename(columns={'Job ID': 'Jobs Created',
-                                        'Process Completed Date': 'Completeness Checks Completed', 'W/in SLA': '# w/in SLA'}))
-        df_selected['DateText'] = df_selected['YearText'] + ' week ' + df_selected['WeekText']
-        df_selected['YearWeekText'] = df_selected['YearText'] + '-' + df_selected['WeekText'] + '-0'
-        df_selected['Date Created'] = pd.to_datetime(df_selected['YearWeekText'], format='%Y-%W-%w')
-        df_selected.sort_values(by='Date Created', ascending=True, inplace=True)
     if selected_time_agg == "Day":
         df_selected = (df_selected.loc[(df_selected['JOBCREATEDDATEFIELD'] >= selected_start) & (df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
                        .groupby(['Job Created Day', 'DayDateText']).agg({'Job ID': 'count', 'Process Completed Date': 'count',
