@@ -22,7 +22,7 @@ AND lrl.licensetypeobjectid = lt.objectid (+)
 AND proc.processtypeid      = pt.processtypeid
 AND j.jobtypeid             = jt.jobtypeid
 AND proc.completedbyuserid  = u.userid
-AND proc.datecompleted      > '01-JAN-2018'
+AND proc.datecompleted      > add_months(TRUNC(SYSDATE, 'MM'),-13)
 AND proc.datecompleted     <= SYSDATE
 AND regexp_like(u.name, '[A-Za-z\s]+$')
 AND u.name <> 'PPG User'
@@ -54,7 +54,7 @@ AND lrl.licensetypeobjectid = lt.objectid (+)
 AND proc.processtypeid      = pt.processtypeid
 AND j.jobtypeid             = jt.jobtypeid
 AND proc.completedbyuserid  = u.userid
-AND proc.datecompleted      > '01-JAN-2018'
+AND proc.datecompleted      > add_months(TRUNC(SYSDATE, 'MM'),-13)
 AND proc.datecompleted     <= SYSDATE
 AND regexp_like(u.name, '[A-Za-z\s]+$')
 AND u.name <> 'PPG User'

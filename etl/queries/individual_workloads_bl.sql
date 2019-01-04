@@ -18,7 +18,7 @@ AND j.jobid                = ap.jobid
 AND proc.processtypeid     = pt.processtypeid
 AND j.jobtypeid            = jt.jobtypeid
 AND proc.completedbyuserid = u.userid
-AND proc.datecompleted     > '01-JAN-2017'
+AND proc.datecompleted     > add_months(TRUNC(SYSDATE, 'MM'),-13)
 AND proc.datecompleted    <= SYSDATE
 AND regexp_like(u.name, '[A-Za-z\s]+$')
 AND u.name <> 'PPG User'
@@ -44,7 +44,7 @@ AND j.jobid                = ar.jobid
 AND proc.processtypeid     = pt.processtypeid
 AND j.jobtypeid            = jt.jobtypeid
 AND proc.completedbyuserid = u.userid
-AND proc.datecompleted     > '01-JAN-2017'
+AND proc.datecompleted     > add_months(TRUNC(SYSDATE, 'MM'),-13)
 AND proc.datecompleted    <= SYSDATE
 AND regexp_like(u.name, '[A-Za-z\s]+$')
 AND u.name <> 'PPG User'
