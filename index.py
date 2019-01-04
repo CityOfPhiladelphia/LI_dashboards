@@ -96,7 +96,7 @@ def display_page(pathname):
     elif pathname == '/SLA_BL':
         return SLA_BL.layout()
     elif pathname == '/ExpiringLicensesTaxIssues':
-        return ExpiringLicensesTaxIssues.layout
+        return ExpiringLicensesTaxIssues.layout()
     elif pathname == '/LicensesWithCompletenessChecksButNoCompletedInspections':
         return LicensesWithCompletenessChecksButNoCompletedInspections.layout()
     else:

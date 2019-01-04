@@ -1,77 +1,74 @@
+import os
+import urllib.parse
+
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_table_experiments as table
 import plotly.graph_objs as go
 import pandas as pd
 from dash.dependencies import Input, Output
-from datetime import datetime
 import numpy as np
-import urllib.parse
 
-from app import app, con
+from app import app, cache, cache_timeout
 
-print('ExpiringLicensesTaxIssues.py')
+APP_NAME = os.path.basename(__file__)
 
-with con() as con:
-    sql = 'SELECT DISTINCT * FROM expiring_licenses'
-    df = pd.read_sql_query(sql=sql, con=con, parse_dates=['EXPIRATIONDATE'])
+print(APP_NAME)
 
-# Rename the columns to be more readable
-df = (df.rename(columns={'LEGALNAME': 'Legal Name', 
-                         'BUSINESS_NAME': 'Business Name',
-                         'LICENSETYPE': 'License Type',
-                         'EXPIRATIONDATE': 'Expiration Date',
-                         'OWNEROCCUPIED': 'Owner Occupied',
-                         'MESSAGE': 'Message',
-                         'BUSINESSID': 'Business ID',
-                         'LICENSENUMBER': 'License Number',
-                         'LINK': 'Link'}))
-
-message_values_with_issues = ['ACCOUNT AND ENTITY NOT RELATED', 
+message_values_with_issues = ['ACCOUNT AND ENTITY NOT RELATED',
                               'EIN, SSN OR ACCOUNT ID MUST BE FILLED IN',
                               'ENTITY/ACCOUNT NOT FOUND']
 
-summary_table = (df.copy(deep=True)
+@cache_timeout
+@cache.memoize()
+def query_data():
+    from app import con
+    with con() as con:
+        sql = 'SELECT DISTINCT * FROM expiring_licenses'
+        df = pd.read_sql_query(sql=sql, con=con, parse_dates=['EXPIRATIONDATE'])
+    # Rename the columns to be more readable
+    df = (df.rename(columns={'LEGALNAME': 'Legal Name',
+                                 'BUSINESS_NAME': 'Business Name',
+                                 'LICENSETYPE': 'License Type',
+                                 'EXPIRATIONDATE': 'Expiration Date',
+                                 'OWNEROCCUPIED': 'Owner Occupied',
+                                 'MESSAGE': 'Message',
+                                 'BUSINESSID': 'Business ID',
+                                 'LICENSENUMBER': 'License Number',
+                                 'LINK': 'Link'}))
+    return df.to_json(date_format='iso', orient='split')
+
+@cache_timeout
+@cache.memoize()
+def dataframe():
+    return pd.read_json(query_data(), orient='split', convert_dates=['Expiration Date'])
+
+def update_layout():
+    df = dataframe()
+
+    summary_table = (df.copy(deep=True)
                    .groupby(['Message'])['License Number'].count()
                    .reset_index()
                    .rename(columns={'Message': 'Message Category',
                                     'License Number': 'Count'}))
 
-total_with_issues = summary_table[summary_table['Message Category'].isin(message_values_with_issues)]['Count'].sum()
-total = summary_table['Count'].sum()
+    total_with_issues = summary_table[summary_table['Message Category'].isin(message_values_with_issues)]['Count'].sum()
+    total = summary_table['Count'].sum()
                                                                     
-summary_table = (summary_table.append({'Message Category': 'Total With Issues',
+    summary_table = (summary_table.append({'Message Category': 'Total With Issues',
                                       'Count': total_with_issues}, ignore_index=True)
                               .append({'Message Category': 'Total',
                                        'Count': total}, ignore_index=True))
 
-summary_table['Count'] = summary_table.apply(lambda x: "{:,}".format(x['Count']), axis=1)
+    summary_table['Count'] = summary_table.apply(lambda x: "{:,}".format(x['Count']), axis=1)
 
-unique_messages = message_values_with_issues
-unique_messages = np.append(['All'], unique_messages)
+    unique_messages = message_values_with_issues
+    unique_messages = np.append(['All'], unique_messages)
 
-unique_license_types = df['License Type'].unique()
-unique_license_types = np.append(['All'], unique_license_types)
+    unique_license_types = df['License Type'].unique()
+    unique_license_types = np.append(['All'], unique_license_types)
 
-def update_data(selected_start, selected_end, selected_message, selected_license_type):
-    df_selected = df.copy(deep=True)
-
-    if selected_message != "All":
-        df_selected = df_selected[(df_selected['Message'] == selected_message)]
-    if selected_license_type != "All":
-        df_selected = df_selected[(df_selected['License Type'] == selected_license_type)]
-
-    df_selected = (df_selected.loc[(df_selected['Expiration Date'] >= selected_start) & (df_selected['Expiration Date'] <= selected_end)]
-                              .sort_values(by='Expiration Date'))
-
-    return df_selected
-
-
-def update_table_data(selected_start, selected_end, selected_message, selected_license_type):
-    df_selected = update_data(selected_start, selected_end, selected_message, selected_license_type)
-    return df_selected[df_selected['Message'].isin(message_values_with_issues)]
-
-layout = html.Div(children=[
+    return html.Div(children=[
                 html.H1('Expiring Licenses with Tax Issues', style={'text-align': 'center'}),
                 html.P('This dashboard is used for data clean up only.', style={'text-align': 'center'}),
                 html.P(f'Data last updated {df["Expiration Date"].min().date()}.', style={'text-align': 'center'}),
@@ -148,6 +145,27 @@ layout = html.Div(children=[
                     ], style={'width': '55%', 'margin-left': 'auto', 'margin-right': 'auto','margin-top': '50px', 'margin-bottom': '50px'})
                 ], className='dashrow'),
             ])
+
+layout = update_layout
+
+def update_data(selected_start, selected_end, selected_message, selected_license_type):
+    df_selected = dataframe('df_ind')
+
+    if selected_message != "All":
+        df_selected = df_selected[(df_selected['Message'] == selected_message)]
+    if selected_license_type != "All":
+        df_selected = df_selected[(df_selected['License Type'] == selected_license_type)]
+
+    df_selected = (df_selected.loc[(df_selected['Expiration Date'] >= selected_start) & (df_selected['Expiration Date'] <= selected_end)]
+                              .sort_values(by='Expiration Date'))
+
+    return df_selected
+
+
+def update_table_data(selected_start, selected_end, selected_message, selected_license_type):
+    df_selected = update_data(selected_start, selected_end, selected_message, selected_license_type)
+    return df_selected[df_selected['Message'].isin(message_values_with_issues)]
+
 
 @app.callback(
     Output('expiring-licenses-table', 'rows'),
