@@ -6,8 +6,7 @@ def main():
     etl_process(queries)
 
 if __name__ == '__main__':
-    main()
-    # try:
-    #     main()
-    # except:
-    #     send_email()
+    try:
+        main()
+    except:
+        send_email()
