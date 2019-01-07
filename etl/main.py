@@ -1,13 +1,14 @@
 from etl import etl_process
 from sql_queries import queries
 
+from send_email import send_email
+
 def main():
     global queries
     etl_process(queries)
 
 if __name__ == '__main__':
-    main()
-    # try:
-    #     main()
-    # except:
-    #     send_email()
+    try:
+        main()
+    except:
+        send_email()
