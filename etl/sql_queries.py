@@ -29,14 +29,9 @@ class SqlQuery():
                        VALUES ({", ".join(":" + str(num + 1) for num in range(len(self.columns)))})'''
         return insert_q
 
-IndividualWorkloadsBL = SqlQuery(
-    extract_query_file = 'individual_workloads_bl.sql',
-    target_table = 'li_dash_indworkloads_bl' 
-)
-
-IndividualWorkloadsTL = SqlQuery(
-    extract_query_file = 'individual_workloads_tl.sql',
-    target_table = 'li_dash_indworkloads_tl' 
+IndividualWorkloads = SqlQuery(
+    extract_query_file = 'individual_workloads.sql',
+    target_table = 'li_dash_indworkloads'
 )
 
 Man001ActiveJobsBLInd = SqlQuery(
@@ -115,8 +110,7 @@ LicensesWithCompletenessChecksButNoCompletedInspections = SqlQuery(
 )
 
 queries = [
-    IndividualWorkloadsBL,
-    IndividualWorkloadsTL,
+    IndividualWorkloads,
     LicensesWithCompletenessChecksButNoCompletedInspections,
     Man001ActiveJobsBLInd,
     Man001ActiveJobsBLCount,

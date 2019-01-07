@@ -22,17 +22,17 @@ def query_data(dataset):
     from app import con
     with con() as con:
         if dataset == 'df_ind':
-            sql = 'SELECT * FROM li_dash_indworkloads_bl'
+            sql = 'SELECT * FROM li_dash_indworkloads'
             df = pd.read_sql_query(sql=sql, con=con, parse_dates=['DATECOMPLETEDFIELD'])
             # Rename the columns to be more readable
             df = (df.rename(columns={'PROCESSID': 'Process ID', 'PROCESSTYPE': 'Process Type', 'JOBTYPE': 'Job Type',
-                                     'LICENSETYPE': 'License Type', 'NAME': 'Person',
+                                     'LICENSEKIND': 'Kind of License', 'LICENSETYPE': 'License Type', 'PERSON': 'Person',
                                      'SCHEDULEDSTARTDATE': 'Scheduled Start Date', 'DATECOMPLETED': 'Date Completed',
                                      'DURATION': 'Duration (days)'})
                   .assign(DateText=lambda x: x['DATECOMPLETEDFIELD'].dt.strftime('%b %Y')))
             df['Month Year'] = df['DATECOMPLETEDFIELD'].map(lambda dt: dt.date().replace(day=1))
         elif dataset == 'last_ddl_time':
-            sql = "SELECT from_tz(cast(last_ddl_time as timestamp), 'GMT') at TIME zone 'US/Eastern' as LAST_DDL_TIME FROM user_objects WHERE object_name = 'LI_DASH_INDWORKLOADS_BL'"
+            sql = "SELECT from_tz(cast(last_ddl_time as timestamp), 'GMT') at TIME zone 'US/Eastern' as LAST_DDL_TIME FROM user_objects WHERE object_name = 'LI_DASH_INDWORKLOADS'"
             df = pd.read_sql_query(sql=sql, con=con)
     return df.to_json(date_format='iso', orient='split')
 
@@ -65,6 +65,11 @@ def update_layout():
         job_type_options_unsorted.append({'label': str(jt), 'value': jt})
     job_type_options_sorted = sorted(job_type_options_unsorted, key=lambda k: k['label'])
 
+    license_kind_options_unsorted = [{'label': 'All', 'value': 'All'}]
+    for lt in df['Kind of License'].unique():
+        license_kind_options_unsorted.append({'label': str(lt), 'value': lt})
+    license_kind_options_sorted = sorted(license_kind_options_unsorted, key=lambda k: k['label'])
+
     license_type_options_unsorted = [{'label': 'All', 'value': 'All'}]
     for lt in df['License Type'].unique():
         license_type_options_unsorted.append({'label': str(lt), 'value': lt})
@@ -72,11 +77,10 @@ def update_layout():
 
     return html.Div(children=[
                 html.H1('Individual Workloads', style={'text-align': 'center'}),
-                html.H1('(Business Licenses)', style={'text-align': 'center'}),
                 html.P(f"Data last updated {last_ddl_time['LAST_DDL_TIME'].iloc[0]}", style = {'text-align': 'center'}),
                 html.Div([
                     html.Div([
-                        html.P('Filter by Process Completion Date'),
+                        html.P('Process Completion Date'),
                         dcc.DatePickerRange(
                             display_format='MMM Y',
                             id='ind-workloads-date-picker-range',
@@ -85,40 +89,49 @@ def update_layout():
                         ),
                     ], className='four columns'),
                     html.Div([
-                        html.P('Filter by Person'),
+                        html.P('Person'),
                         dcc.Dropdown(
                                 id='ind-workloads-person-dropdown',
                                 options=person_options_sorted,
                                 value='All'
                         ),
+                    ], className='four columns')
+                ], className='dashrow filters'),
+                html.Div([
+                    html.Div([
+                        html.P('Kind of License'),
+                        dcc.Dropdown(
+                            id='ind-workloads-license-kind-dropdown',
+                            options=license_kind_options_sorted,
+                            value='All'
+                        ),
                     ], className='four columns'),
                     html.Div([
-                        html.P('Filter by Job Type'),
+                        html.P('License Type'),
+                        dcc.Dropdown(
+                            id='ind-workloads-license-type-dropdown',
+                            options=license_type_options_sorted,
+                            value='All'
+                        ),
+                    ], className='eight columns')
+                ], className='dashrow filters'),
+                html.Div([
+                    html.Div([
+                        html.P('Job Type'),
                         dcc.Dropdown(
                             id='ind-workloads-job-type-dropdown',
                             options=job_type_options_sorted,
                             value='All'
                         ),
                     ], className='four columns'),
-                ], className='dashrow filters'),
-                html.Div([
                     html.Div([
-                        html.P('Filter by Process Type'),
+                        html.P('Process Type'),
                         dcc.Dropdown(
                             id='ind-workloads-process-type-dropdown',
                             options=process_type_options_sorted,
                             value='All'
                         ),
-                    ], className='four columns'),
-
-                    html.Div([
-                        html.P('Filter by License Type'),
-                        dcc.Dropdown(
-                            id='ind-workloads-license-type-dropdown',
-                            options=license_type_options_sorted,
-                            value='All'
-                        ),
-                    ], className='eight columns'),
+                    ], className='four columns')
                 ], className='dashrow filters'),
                 html.Div([
                     html.Div([
@@ -193,14 +206,14 @@ def update_layout():
                     html.Summary('Query Description'),
                     html.Div([
                         html.P(
-                            'Business license processes completed by staff members since 1/1/2017.')
+                            'Processes completed by staff members in the last 13 months.')
                     ])
                 ])
             ])
 
 layout = update_layout
 
-def update_graph_data(selected_start, selected_end, selected_person, selected_process_type, selected_job_type, selected_license_type):
+def update_graph_data(selected_start, selected_end, selected_person, selected_process_type, selected_job_type, selected_license_kind, selected_license_type):
     df_selected = dataframe('df_ind')
 
     months = df_selected['Month Year'].unique()
@@ -214,6 +227,8 @@ def update_graph_data(selected_start, selected_end, selected_person, selected_pr
         df_selected = df_selected[(df_selected['Process Type'] == selected_process_type)]
     if selected_job_type != "All":
         df_selected = df_selected[(df_selected['Job Type'] == selected_job_type)]
+    if selected_license_kind != "All":
+        df_selected = df_selected[(df_selected['Kind of License'] == selected_license_kind)]
     if selected_license_type != "All":
         df_selected = df_selected[(df_selected['License Type'] == selected_license_type)]
 
@@ -228,7 +243,7 @@ def update_graph_data(selected_start, selected_end, selected_person, selected_pr
     return df_selected.sort_values(by='Month Year', ascending=False)
 
 
-def update_counts_table_data(selected_start, selected_end, selected_person, selected_process_type, selected_job_type, selected_license_type):
+def update_counts_table_data(selected_start, selected_end, selected_person, selected_process_type, selected_job_type, selected_license_kind, selected_license_type):
     df_selected = dataframe('df_ind')
 
     if selected_person != "All":
@@ -237,6 +252,8 @@ def update_counts_table_data(selected_start, selected_end, selected_person, sele
         df_selected = df_selected[(df_selected['Process Type'] == selected_process_type)]
     if selected_job_type != "All":
         df_selected = df_selected[(df_selected['Job Type'] == selected_job_type)]
+    if selected_license_kind != "All":
+        df_selected = df_selected[(df_selected['Kind of License'] == selected_license_kind)]
     if selected_license_type != "All":
         df_selected = df_selected[(df_selected['License Type'] == selected_license_type)]
 
@@ -248,7 +265,7 @@ def update_counts_table_data(selected_start, selected_end, selected_person, sele
     df_selected['Avg. Duration (days)'] = (df_selected['Duration (days)'] / df_selected['Processes Completed']).round(0)
     return df_selected[['Person', 'Process Type', 'Processes Completed', 'Avg. Duration (days)']]
 
-def update_ind_records_table_data(selected_start, selected_end, selected_person, selected_process_type, selected_job_type, selected_license_type):
+def update_ind_records_table_data(selected_start, selected_end, selected_person, selected_process_type, selected_job_type, selected_license_kind, selected_license_type):
     df_selected = dataframe('df_ind')
 
     if selected_person != "All":
@@ -257,6 +274,8 @@ def update_ind_records_table_data(selected_start, selected_end, selected_person,
         df_selected = df_selected[(df_selected['Process Type'] == selected_process_type)]
     if selected_job_type != "All":
         df_selected = df_selected[(df_selected['Job Type'] == selected_job_type)]
+    if selected_license_kind != "All":
+        df_selected = df_selected[(df_selected['Kind of License'] == selected_license_kind)]
     if selected_license_type != "All":
         df_selected = df_selected[(df_selected['License Type'] == selected_license_type)]
 
@@ -273,9 +292,10 @@ def update_ind_records_table_data(selected_start, selected_end, selected_person,
      Input('ind-workloads-person-dropdown', 'value'),
      Input('ind-workloads-process-type-dropdown', 'value'),
      Input('ind-workloads-job-type-dropdown', 'value'),
+     Input('ind-workloads-license-kind-dropdown', 'value'),
      Input('ind-workloads-license-type-dropdown', 'value')])
-def update_graph(start_date, end_date, person, process_type, job_type, license_type):
-    df_results = update_graph_data(start_date, end_date, person, process_type, job_type, license_type)
+def update_graph(start_date, end_date, person, process_type, job_type, license_kind, license_type):
+    df_results = update_graph_data(start_date, end_date, person, process_type, job_type, license_kind, license_type)
     return {
         'data': [
             go.Scatter(
@@ -308,9 +328,10 @@ def update_graph(start_date, end_date, person, process_type, job_type, license_t
      Input('ind-workloads-person-dropdown', 'value'),
      Input('ind-workloads-process-type-dropdown', 'value'),
      Input('ind-workloads-job-type-dropdown', 'value'),
+     Input('ind-workloads-license-kind-dropdown', 'value'),
      Input('ind-workloads-license-type-dropdown', 'value')])
-def update_count_table(start_date, end_date, person, process_type, job_type, license_type):
-    df_results = update_counts_table_data(start_date, end_date, person, process_type, job_type, license_type)
+def update_count_table(start_date, end_date, person, process_type, job_type, license_kind, license_type):
+    df_results = update_counts_table_data(start_date, end_date, person, process_type, job_type, license_kind, license_type)
     return df_results.to_dict('records')
 
 
@@ -321,9 +342,10 @@ def update_count_table(start_date, end_date, person, process_type, job_type, lic
      Input('ind-workloads-person-dropdown', 'value'),
      Input('ind-workloads-process-type-dropdown', 'value'),
      Input('ind-workloads-job-type-dropdown', 'value'),
+     Input('ind-workloads-license-kind-dropdown', 'value'),
      Input('ind-workloads-license-type-dropdown', 'value')])
-def update_count_table_download_link(start_date, end_date, person, process_type, job_type, license_type):
-    df_results = update_counts_table_data(start_date, end_date, person, process_type, job_type, license_type)
+def update_count_table_download_link(start_date, end_date, person, process_type, job_type, license_kind, license_type):
+    df_results = update_counts_table_data(start_date, end_date, person, process_type, job_type, license_kind, license_type)
     csv_string = df_results.to_csv(index=False, encoding='utf-8')
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
     return csv_string
@@ -336,9 +358,10 @@ def update_count_table_download_link(start_date, end_date, person, process_type,
      Input('ind-workloads-person-dropdown', 'value'),
      Input('ind-workloads-process-type-dropdown', 'value'),
      Input('ind-workloads-job-type-dropdown', 'value'),
+     Input('ind-workloads-license-kind-dropdown', 'value'),
      Input('ind-workloads-license-type-dropdown', 'value')])
-def update_ind_records_table(start_date, end_date, person, process_type, job_type, license_type):
-    df_results = update_ind_records_table_data(start_date, end_date, person, process_type, job_type, license_type)
+def update_ind_records_table(start_date, end_date, person, process_type, job_type, license_kind, license_type):
+    df_results = update_ind_records_table_data(start_date, end_date, person, process_type, job_type, license_kind, license_type)
     return df_results.to_dict('records')
 
 @app.callback(
@@ -348,9 +371,10 @@ def update_ind_records_table(start_date, end_date, person, process_type, job_typ
      Input('ind-workloads-person-dropdown', 'value'),
      Input('ind-workloads-process-type-dropdown', 'value'),
      Input('ind-workloads-job-type-dropdown', 'value'),
+     Input('ind-workloads-license-kind-dropdown', 'value'),
      Input('ind-workloads-license-type-dropdown', 'value')])
-def update_ind_records_table_download_link(start_date, end_date, person, process_type, job_type, license_type):
-    df_results = update_ind_records_table_data(start_date, end_date, person, process_type, job_type, license_type)
+def update_ind_records_table_download_link(start_date, end_date, person, process_type, job_type, license_kind, license_type):
+    df_results = update_ind_records_table_data(start_date, end_date, person, process_type, job_type, license_kind, license_type)
     csv_string = df_results.to_csv(index=False, encoding='utf-8')
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
     return csv_string
