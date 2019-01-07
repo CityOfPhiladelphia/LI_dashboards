@@ -184,22 +184,23 @@ def update_graph_data(selected_start, selected_end, selected_job_type, selected_
     df_selected = dataframe('df_ind')
 
     if selected_job_type != "All":
-        df_selected = df_selected[(df_selected['Job Type'] == selected_job_type)]
+        df_selected = df_selected[(df_selected['Job '
+                                               'Type'] == selected_job_type)]
     if selected_time_agg == "Month":
         df_selected = (df_selected.loc[(df_selected['JOBCREATEDDATEFIELD'] >= selected_start) & (df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
-                       .groupby(['Month Year', 'MonthDateText']).agg({'Job ID': 'count', 'Process Completed Date': 'count',
+                       .groupby(['Month Year', 'MonthDateText']).agg({'Job ID': 'count', 'Process Completed Day': 'count',
                                                                       'W/in SLA': 'sum'})
                        .reset_index()
                        .rename(columns={'Month Year': 'Date Created', 'MonthDateText': 'DateText', 'Job ID': 'Jobs Created',
-                                        'Process Completed Date': 'Completeness Checks Completed', 'W/in SLA': '# w/in SLA'})
+                                        'Process Completed Day': 'Completeness Checks Completed', 'W/in SLA': '# w/in SLA'})
                        .sort_values(by='Date Created', ascending=False))
     if selected_time_agg == "Day":
         df_selected = (df_selected.loc[(df_selected['JOBCREATEDDATEFIELD'] >= selected_start) & (df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
-                       .groupby(['Job Created Day', 'DayDateText']).agg({'Job ID': 'count', 'Process Completed Date': 'count',
+                       .groupby(['Job Created Day', 'DayDateText']).agg({'Job ID': 'count', 'Process Completed Day': 'count',
                                                                         'W/in SLA': 'sum'})
                        .reset_index()
                        .rename(columns={'Job Created Day': 'Date Created', 'DayDateText': 'DateText', 'Job ID': 'Jobs Created',
-                                        'Process Completed Date': 'Completeness Checks Completed', 'W/in SLA': '# w/in SLA'})
+                                        'Process Completed Day': 'Completeness Checks Completed', 'W/in SLA': '# w/in SLA'})
                        .sort_values(by='Date Created', ascending=False))
     df_selected['% Completed'] = df_selected['Completeness Checks Completed'] / df_selected['Jobs Created'] * 100
     df_selected['% Completed'] = df_selected['% Completed'].round(0)
