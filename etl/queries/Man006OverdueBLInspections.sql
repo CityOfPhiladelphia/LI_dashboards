@@ -6,7 +6,6 @@ SELECT biz.address "Business Address",
     WHEN jt.name LIKE 'j_BL_Inspection'
     THEN ins.externalfilenum
   END) "Job Number",
-  jt.Description "Job Type",
   (
   CASE
     WHEN jt.name LIKE 'j_BL_Inspection'
@@ -54,7 +53,6 @@ SELECT biz.address "Business Address",
     WHEN jt.name LIKE 'j_BL_Application'
     THEN ap.externalfilenum
   END ) "Job Number",
-  jt.Description "Job Type",
   (
   CASE
     WHEN jt.name LIKE 'j_BL_Inspection'
@@ -106,7 +104,6 @@ SELECT biz.address "Business Address",
     WHEN jt.name LIKE 'j_BL_AmendRenew'
     THEN ar.externalfilenum
   END ) "Job Number",
-  jt.Description "Job Type",
   (
   CASE
     WHEN jt.name LIKE 'j_BL_Inspection'
