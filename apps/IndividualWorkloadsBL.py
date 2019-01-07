@@ -50,17 +50,25 @@ def update_layout():
     df = dataframe('df_ind')
     last_ddl_time = dataframe('last_ddl_time')
 
-    unique_persons = df['Person'].unique()
-    unique_persons = np.append(['All'], unique_persons)
+    person_options_unsorted = [{'label': 'All', 'value': 'All'}]
+    for person in df['Person'].unique():
+        person_options_unsorted.append({'label': str(person), 'value': person})
+    person_options_sorted = sorted(person_options_unsorted, key=lambda k: k['label'])
 
-    unique_process_types = df['Process Type'].unique()
-    unique_process_types = np.append(['All'], unique_process_types)
+    process_type_options_unsorted = [{'label': 'All', 'value': 'All'}]
+    for pt in df['Process Type'].unique():
+        process_type_options_unsorted.append({'label': str(pt), 'value': pt})
+    process_type_options_sorted = sorted(process_type_options_unsorted, key=lambda k: k['label'])
 
-    unique_job_types = df['Job Type'].unique()
-    unique_job_types = np.append(['All'], unique_job_types)
+    job_type_options_unsorted = [{'label': 'All', 'value': 'All'}]
+    for jt in df['Job Type'].unique():
+        job_type_options_unsorted.append({'label': str(jt), 'value': jt})
+    job_type_options_sorted = sorted(job_type_options_unsorted, key=lambda k: k['label'])
 
-    unique_license_types = df['License Type'].unique()
-    unique_license_types = np.append(['All'], unique_license_types)
+    license_type_options_unsorted = [{'label': 'All', 'value': 'All'}]
+    for lt in df['License Type'].unique():
+        license_type_options_unsorted.append({'label': str(lt), 'value': lt})
+    license_type_options_sorted = sorted(license_type_options_unsorted, key=lambda k: k['label'])
 
     return html.Div(children=[
                 html.H1('Individual Workloads', style={'text-align': 'center'}),
@@ -75,41 +83,42 @@ def update_layout():
                             start_date=datetime(2018, 1, 1),
                             end_date=date.today()
                         ),
-                    ], className='six columns'),
+                    ], className='four columns'),
                     html.Div([
                         html.P('Filter by Person'),
                         dcc.Dropdown(
                                 id='ind-workloads-person-dropdown',
-                                options=[{'label': k, 'value': k} for k in unique_persons],
+                                options=person_options_sorted,
                                 value='All'
-                        ),
-                    ], className='six columns'),
-                ], className='dashrow filters'),
-                html.Div([
-                    html.Div([
-                        html.P('Filter by Process Type'),
-                        dcc.Dropdown(
-                            id='ind-workloads-process-type-dropdown',
-                            options=[{'label': k, 'value': k} for k in unique_process_types],
-                            value='All'
                         ),
                     ], className='four columns'),
                     html.Div([
                         html.P('Filter by Job Type'),
                         dcc.Dropdown(
                             id='ind-workloads-job-type-dropdown',
-                            options=[{'label': k, 'value': k} for k in unique_job_types],
+                            options=job_type_options_sorted,
                             value='All'
                         ),
                     ], className='four columns'),
+                ], className='dashrow filters'),
+                html.Div([
+                    html.Div([
+                        html.P('Filter by Process Type'),
+                        dcc.Dropdown(
+                            id='ind-workloads-process-type-dropdown',
+                            options=process_type_options_sorted,
+                            value='All'
+                        ),
+                    ], className='four columns'),
+
                     html.Div([
                         html.P('Filter by License Type'),
                         dcc.Dropdown(
                             id='ind-workloads-license-type-dropdown',
-                            options=[{'label': k, 'value': k} for k in unique_license_types],
+                            options=license_type_options_sorted,
                             value='All'
                         ),
-                    ], className='four columns'),
+                    ], className='eight columns'),
                 ], className='dashrow filters'),
                 html.Div([
                     html.Div([
