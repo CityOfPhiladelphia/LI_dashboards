@@ -1,6 +1,8 @@
 from etl import etl_process
 from sql_queries import queries
 
+from send_email import send_email
+
 def main():
     global queries
     etl_process(queries)
