@@ -284,6 +284,27 @@ def update_ind_records_table_data(selected_start, selected_end, selected_person,
     df_selected['Duration (days)'] = df_selected['Duration (days)'].round(2).map('{:,.2f}'.format)
     return df_selected.drop(['DATECOMPLETEDFIELD', 'Month Year', 'DateText'], axis=1)
 
+def update_license_type_dropdown(selected_license_kind):
+    df_selected = dataframe('df_ind')
+
+    if selected_license_kind != "All":
+        df_selected = df_selected[(df_selected['Kind of License'] == selected_license_kind)]
+    license_type_options_unsorted = [{'label': 'All', 'value': 'All'}]
+    for lt in df_selected['License Type'].unique():
+        license_type_options_unsorted.append({'label': str(lt), 'value': lt})
+    return sorted(license_type_options_unsorted, key=lambda k: k['label'])
+
+def update_process_type_dropdown(selected_license_kind):
+    df_selected = dataframe('df_ind')
+
+    if selected_license_kind != "All":
+        df_selected = df_selected[(df_selected['Kind of License'] == selected_license_kind)]
+    process_type_options_unsorted = [{'label': 'All', 'value': 'All'}]
+    for lt in df_selected['Process Type'].unique():
+        process_type_options_unsorted.append({'label': str(lt), 'value': lt})
+    return sorted(process_type_options_unsorted, key=lambda k: k['label'])
+
+
 
 @app.callback(
     Output('ind-workloads-graph', 'figure'),
@@ -378,3 +399,15 @@ def update_ind_records_table_download_link(start_date, end_date, person, process
     csv_string = df_results.to_csv(index=False, encoding='utf-8')
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
     return csv_string
+
+@app.callback(
+    Output('ind-workloads-license-type-dropdown', 'options'),
+    [Input('ind-workloads-license-kind-dropdown', 'value')])
+def update_licensetype_dropdown(license_kind):
+    return update_license_type_dropdown(license_kind)
+
+@app.callback(
+    Output('ind-workloads-process-type-dropdown', 'options'),
+    [Input('ind-workloads-license-kind-dropdown', 'value')])
+def update_processtype_dropdown(license_kind):
+    return update_process_type_dropdown(license_kind)
