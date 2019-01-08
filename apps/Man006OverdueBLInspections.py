@@ -41,11 +41,11 @@ def update_layout():
             licensetype_options_unsorted.append({'label': str(licensetype), 'value': licensetype})
     licensetype_options_sorted = sorted(licensetype_options_unsorted, key=lambda k: k['label'])
 
-    jobtype_options_unsorted = []
-    for jobtype in df['JOBTYPE'].unique():
-        if str(jobtype) != "nan":
-            jobtype_options_unsorted.append({'label': str(jobtype), 'value': jobtype})
-    jobtype_options_sorted = sorted(jobtype_options_unsorted, key=lambda k: k['label'])
+    inspectionon_options_unsorted = []
+    for inspectionon in df['INSPECTIONON'].unique():
+        if str(inspectionon) != "nan":
+            inspectionon_options_unsorted.append({'label': str(inspectionon), 'value': inspectionon})
+    inspectionon_options_sorted = sorted(inspectionon_options_unsorted, key=lambda k: k['label'])
 
     inspector_options_unsorted = []
     for inspector in df['INSPECTOR'].unique():
@@ -92,10 +92,10 @@ def update_layout():
                     ),
                 ], className='five columns'),
                 html.Div([
-                    html.P('Job Type'),
+                    html.P('Inspection On'),
                     dcc.Dropdown(
-                        id='jobtype-dropdown',
-                        options=jobtype_options_sorted,
+                        id='inspectionon-dropdown',
+                        options=inspectionon_options_sorted,
                         multi=True
                     ),
                 ], className='five columns'),
@@ -156,7 +156,7 @@ def update_layout():
 layout = update_layout
 
 
-def get_data_object(selected_start, selected_end, license_type, job_type, inspector):
+def get_data_object(selected_start, selected_end, license_type, inspection_on, inspector):
     df_selected = dataframe('df_ind')
     df_selected = df_selected[(df_selected['SCHEDULEDINSPECTIONDATEFIELD'] >= selected_start) & (df_selected['SCHEDULEDINSPECTIONDATEFIELD'] <= selected_end)]
     if license_type is not None:
@@ -167,14 +167,14 @@ def get_data_object(selected_start, selected_end, license_type, job_type, inspec
                 df_selected = df_selected[df_selected['LICENSETYPE'].isin(license_type)]
             elif len(license_type) == 1:
                 df_selected = df_selected[df_selected['LICENSETYPE'] == license_type[0]]
-    if job_type is not None:
-        if isinstance(job_type, str):
-            df_selected = df_selected[df_selected['JOBTYPE'] == job_type]
-        elif isinstance(job_type, list):
-            if len(job_type) > 1:
-                df_selected = df_selected[df_selected['JOBTYPE'].isin(job_type)]
-            elif len(job_type) == 1:
-                df_selected = df_selected[df_selected['JOBTYPE'] == job_type[0]]
+    if inspection_on is not None:
+        if isinstance(inspection_on, str):
+            df_selected = df_selected[df_selected['INSPECTIONON'] == inspection_on]
+        elif isinstance(inspection_on, list):
+            if len(inspection_on) > 1:
+                df_selected = df_selected[df_selected['INSPECTIONON'].isin(inspection_on)]
+            elif len(inspection_on) == 1:
+                df_selected = df_selected[df_selected['INSPECTIONON'] == inspection_on[0]]
     if inspector is not None:
         if isinstance(inspector, str):
             df_selected = df_selected[df_selected['INSPECTOR'] == inspector]
@@ -187,7 +187,7 @@ def get_data_object(selected_start, selected_end, license_type, job_type, inspec
         df_selected['DAYSSINCEINSPECTIONCREATED'] = df_selected.apply(lambda x: "{:,}".format(x['DAYSSINCEINSPECTIONCREATED']), axis=1)
     return df_selected.drop('SCHEDULEDINSPECTIONDATEFIELD', axis=1)
 
-def count_jobs(selected_start, selected_end, license_type, job_type, inspector):
+def count_jobs(selected_start, selected_end, license_type, inspection_on, inspector):
     df_selected = dataframe('df_ind')
     df_selected = df_selected[(df_selected['SCHEDULEDINSPECTIONDATEFIELD'] >= selected_start) & (df_selected['SCHEDULEDINSPECTIONDATEFIELD'] <= selected_end)]
     if license_type is not None:
@@ -198,14 +198,14 @@ def count_jobs(selected_start, selected_end, license_type, job_type, inspector):
                 df_selected = df_selected[df_selected['LICENSETYPE'].isin(license_type)]
             elif len(license_type) == 1:
                 df_selected = df_selected[df_selected['LICENSETYPE'] == license_type[0]]
-    if job_type is not None:
-        if isinstance(job_type, str):
-            df_selected = df_selected[df_selected['JOBTYPE'] == job_type]
-        elif isinstance(job_type, list):
-            if len(job_type) > 1:
-                df_selected = df_selected[df_selected['JOBTYPE'].isin(job_type)]
-            elif len(job_type) == 1:
-                df_selected = df_selected[df_selected['JOBTYPE'] == job_type[0]]
+    if inspection_on is not None:
+        if isinstance(inspection_on, str):
+            df_selected = df_selected[df_selected['INSPECTIONON'] == inspection_on]
+        elif isinstance(inspection_on, list):
+            if len(inspection_on) > 1:
+                df_selected = df_selected[df_selected['INSPECTIONON'].isin(inspection_on)]
+            elif len(inspection_on) == 1:
+                df_selected = df_selected[df_selected['INSPECTIONON'] == inspection_on[0]]
     if inspector is not None:
         if isinstance(inspector, str):
             df_selected = df_selected[df_selected['INSPECTOR'] == inspector]
@@ -215,9 +215,9 @@ def count_jobs(selected_start, selected_end, license_type, job_type, inspector):
             elif len(inspector) == 1:
                 df_selected = df_selected[df_selected['INSPECTOR'] == inspector[0]]
     df_counts = df_selected.groupby(by=['LICENSETYPE', 'INSPECTIONON'], as_index=False).agg({'INSPECTIONOBJECTID': pd.Series.nunique})
-    df_counts = df_counts.rename(columns={'LICENSETYPE': "License Type", 'INSPECTIONON': 'Inspection On', 'INSPECTIONOBJECTID': 'Count of Overdue Inspections'})
-    if len(df_counts['Count of Overdue Inspections']) > 0:
-        df_counts['Count of Overdue Inspections'] = df_counts.apply(lambda x: "{:,}".format(x['Count of Overdue Inspections']), axis=1)
+    df_counts = df_counts.rename(columns={'LICENSETYPE': "License Type", 'INSPECTIONON': 'Inspection On', 'INSPECTIONOBJECTID': 'Overdue Inspections'})
+    if len(df_counts['Overdue Inspections']) > 0:
+        df_counts['Overdue Inspections'] = df_counts.apply(lambda x: "{:,}".format(x['Overdue Inspections']), axis=1)
     return df_counts
 
 #TODO why is this not including high date?
@@ -227,10 +227,10 @@ def count_jobs(selected_start, selected_end, license_type, job_type, inspector):
               [Input('Man006BL-my-date-picker-range', 'start_date'),
                Input('Man006BL-my-date-picker-range', 'end_date'),
                Input('licensetype-dropdown', 'value'),
-               Input('jobtype-dropdown', 'value'),
+               Input('inspectionon-dropdown', 'value'),
                Input('inspector-dropdown', 'value')])
-def updatecount_table(start_date, end_date, license_type_val, job_type_val, inspector_val):
-    df_counts = count_jobs(start_date, end_date, license_type_val, job_type_val, inspector_val)
+def updatecount_table(start_date, end_date, license_type_val, inspection_on_val, inspector_val):
+    df_counts = count_jobs(start_date, end_date, license_type_val, inspection_on_val, inspector_val)
     return df_counts.to_dict('records')
 
 @app.callback(
@@ -238,10 +238,10 @@ def updatecount_table(start_date, end_date, license_type_val, job_type_val, insp
             [Input('Man006BL-my-date-picker-range', 'start_date'),
              Input('Man006BL-my-date-picker-range', 'end_date'),
              Input('licensetype-dropdown', 'lt_value'),
-             Input('jobtype-dropdown', 'jt_value'),
+             Input('inspectionon-dropdown', 'jt_value'),
              Input('inspector-dropdown', 'inspector_value')])
-def update_count_table_download_link(start_date, end_date, license_type_val, job_type_val, inspector_val):
-    df_for_csv = count_jobs(start_date, end_date, license_type_val, job_type_val, inspector_val)
+def update_count_table_download_link(start_date, end_date, license_type_val, inspection_on_val, inspector_val):
+    df_for_csv = count_jobs(start_date, end_date, license_type_val, inspection_on_val, inspector_val)
     csv_string = df_for_csv.to_csv(index=False, encoding='utf-8')
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
     return csv_string
@@ -250,10 +250,10 @@ def update_count_table_download_link(start_date, end_date, license_type_val, job
             [Input('Man006BL-my-date-picker-range', 'start_date'),
              Input('Man006BL-my-date-picker-range', 'end_date'),
              Input('licensetype-dropdown', 'value'),
-             Input('jobtype-dropdown', 'value'),
+             Input('inspectionon-dropdown', 'value'),
              Input('inspector-dropdown', 'value')])
-def update_table(start_date, end_date, license_type_val, job_type_val, inspector_val):
-    df_ind = get_data_object(start_date, end_date, license_type_val, job_type_val, inspector_val)
+def update_table(start_date, end_date, license_type_val, inspection_on_val, inspector_val):
+    df_ind = get_data_object(start_date, end_date, license_type_val, inspection_on_val, inspector_val)
     return df_ind.to_dict('records')
 
 @app.callback(
@@ -261,10 +261,10 @@ def update_table(start_date, end_date, license_type_val, job_type_val, inspector
             [Input('Man006BL-my-date-picker-range', 'start_date'),
              Input('Man006BL-my-date-picker-range', 'end_date'),
              Input('licensetype-dropdown', 'value'),
-             Input('jobtype-dropdown', 'value'),
+             Input('inspectionon-dropdown', 'value'),
              Input('inspector-dropdown', 'value')])
-def update_table_download_link(start_date, end_date, license_type_val, job_type_val, inspector_val):
-    df_for_csv = get_data_object(start_date, end_date, license_type_val, job_type_val, inspector_val)
+def update_table_download_link(start_date, end_date, license_type_val, inspection_on_val, inspector_val):
+    df_for_csv = get_data_object(start_date, end_date, license_type_val, inspection_on_val, inspector_val)
     csv_string = df_for_csv.to_csv(index=False, encoding='utf-8')
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
     return csv_string

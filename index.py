@@ -11,7 +11,7 @@ from send_email import send_email
 from log_visitors import log_visitor
 from apps import (Man001ActiveJobsBL, Man001ActiveJobsTL, Man002ActiveProcessesBL, Man002ActiveProcessesTL,
                   Man004BLJobVolumesBySubmissionType, Man004TLJobVolumesBySubmissionType,
-                  Man005BLExpirationDates, Man005TLExpirationDates, Man006OverdueBLInspections, IndividualWorkloadsBL,
+                  Man005BLExpirationDates, Man005TLExpirationDates, Man006OverdueBLInspections, IndividualWorkloads,
                   SLA_BL, ExpiringLicensesTaxIssues, LicensesWithCompletenessChecksButNoCompletedInspections)
                   
 
@@ -34,6 +34,7 @@ def serve_layout():
                             html.A('Active Processes', href='/ActiveProcessesTL'),
                             html.A('Job Volumes by Submission Type', href='/JobVolumesBySubmissionTypeTL'),
                             html.A('Expiration Dates', href='/ExpirationDatesTL'),
+                            html.A('Individual Workloads', href='/IndividualWorkloads')
                         ], className='dropdown-content')
                     ], className='dropdown'),
                     html.Div([
@@ -44,7 +45,7 @@ def serve_layout():
                             html.A('Job Volumes by Submission Type', href='/JobVolumesBySubmissionTypeBL'),
                             html.A('Expiration Dates', href='/ExpirationDatesBL'),
                             html.A('Overdue Inspections', href='/OverdueInspectionsBL'),
-                            html.A('Individual Workloads', href='/IndividualWorkloadsBL'),
+                            html.A('Individual Workloads', href='/IndividualWorkloads'),
                             html.A('SLA License Issuance', href='/SLA_BL'),
                             html.A('Licenses with Completed Completeness Checks but no Completed Inspections', href='/LicensesWithCompletenessChecksButNoCompletedInspections')
                         ], className='dropdown-content')
@@ -91,8 +92,8 @@ def display_page(pathname):
         return Man005TLExpirationDates.layout()
     elif pathname == '/OverdueInspectionsBL':
         return Man006OverdueBLInspections.layout()
-    elif pathname == '/IndividualWorkloadsBL':
-        return IndividualWorkloadsBL.layout()
+    elif pathname == '/IndividualWorkloads':
+        return IndividualWorkloads.layout()
     elif pathname == '/SLA_BL':
         return SLA_BL.layout()
     elif pathname == '/ExpiringLicensesTaxIssues':
