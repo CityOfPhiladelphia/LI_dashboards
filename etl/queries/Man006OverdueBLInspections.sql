@@ -22,23 +22,22 @@ SELECT biz.address "Business Address",
   ||Extract(DAY FROM ins.createddate)
   || '/'
   || Extract(YEAR FROM ins.createddate) "Inspection Created Date",
-  ROUND(SYSDATE - ins.createddate) "Days Since Insp Created",
-  (
-  CASE
-    WHEN ROUND(SYSDATE - ins.createddate) < 7
-    THEN 'Less than a week'
-    WHEN ROUND(SYSDATE - ins.createddate) BETWEEN 7 AND 30
-    THEN '7-30 days'
-    WHEN ROUND(SYSDATE - ins.createddate) BETWEEN 31 AND 365
-    THEN '31 - 365 days'
-    ELSE 'More than a year'
-  END) "Time Since Insp Created",
   Extract(MONTH FROM ins.scheduledinspectiondate)
   || '/'
   ||Extract(DAY FROM ins.scheduledinspectiondate)
   || '/'
   || Extract(YEAR FROM ins.scheduledinspectiondate) "Scheduled Inspection Date",
   ins.scheduledinspectiondate "ScheduledInspectionDateField",
+  ROUND(SYSDATE - ins.scheduledinspectiondate) "Days Overdue",
+  (CASE
+    WHEN ROUND(SYSDATE - ins.scheduledinspectiondate) < 7
+    THEN 'Less than a week'
+    WHEN ROUND(SYSDATE - ins.scheduledinspectiondate) BETWEEN 7 AND 30
+    THEN '7-30 days'
+    WHEN ROUND(SYSDATE - ins.scheduledinspectiondate) BETWEEN 31 AND 365
+    THEN '31 - 365 days'
+    ELSE 'More than a year'
+  END) "Time Overdue",
   ins.inspectorname "Inspector",
   'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1244842&objectHandle=' || ins.objectid || '&processHandle=' "Link"
 FROM query.j_bl_inspection ins,
@@ -79,23 +78,22 @@ SELECT biz.address "Business Address",
   ||Extract(DAY FROM ins.createddate)
   || '/'
   || Extract(YEAR FROM ins.createddate) "Inspection Created Date",
-  ROUND(SYSDATE - ins.createddate) "Days Since Insp Created",
-  (
-  CASE
-    WHEN ROUND(SYSDATE - ins.createddate) < 7
-    THEN 'Less than a week'
-    WHEN ROUND(SYSDATE - ins.createddate) BETWEEN 7 AND 30
-    THEN '7-30 days'
-    WHEN ROUND(SYSDATE - ins.createddate) BETWEEN 31 AND 365
-    THEN '31 - 365 days'
-    ELSE 'More than a year'
-  END) "Time Since Insp Created",
   Extract(MONTH FROM ins.scheduledinspectiondate)
   || '/'
   ||Extract(DAY FROM ins.scheduledinspectiondate)
   || '/'
   || Extract(YEAR FROM ins.scheduledinspectiondate) "Scheduled Inspection Date",
   ins.scheduledinspectiondate "ScheduledInspectionDateField",
+  ROUND(SYSDATE - ins.scheduledinspectiondate) "Days Overdue",
+  (CASE
+    WHEN ROUND(SYSDATE - ins.scheduledinspectiondate) < 7
+    THEN 'Less than a week'
+    WHEN ROUND(SYSDATE - ins.scheduledinspectiondate) BETWEEN 7 AND 30
+    THEN '7-30 days'
+    WHEN ROUND(SYSDATE - ins.scheduledinspectiondate) BETWEEN 31 AND 365
+    THEN '31 - 365 days'
+    ELSE 'More than a year'
+  END) "Time Overdue",
   ins.inspectorname "Inspector",
   'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1244842&objectHandle=' || ins.objectid || '&processHandle=' "Link"
 FROM query.j_bl_inspection ins,
@@ -140,23 +138,22 @@ SELECT biz.address "Business Address",
   ||Extract(DAY FROM ins.createddate)
   || '/'
   || Extract(YEAR FROM ins.createddate) "Inspection Created Date",
-  ROUND(SYSDATE - ins.createddate) "Days Since Insp Created",
-  (
-  CASE
-    WHEN ROUND(SYSDATE - ins.createddate) < 7
-    THEN 'Less than a week'
-    WHEN ROUND(SYSDATE - ins.createddate) BETWEEN 7 AND 30
-    THEN '7-30 days'
-    WHEN ROUND(SYSDATE - ins.createddate) BETWEEN 31 AND 365
-    THEN '31 - 365 days'
-    ELSE 'More than a year'
-  END) "Time Since Insp Created",
   Extract(MONTH FROM ins.scheduledinspectiondate)
   || '/'
   ||Extract(DAY FROM ins.scheduledinspectiondate)
   || '/'
   || Extract(YEAR FROM ins.scheduledinspectiondate) "Scheduled Inspection Date",
   ins.scheduledinspectiondate "ScheduledInspectionDateField",
+  ROUND(SYSDATE - ins.scheduledinspectiondate) "Days Overdue",
+  (CASE
+    WHEN ROUND(SYSDATE - ins.scheduledinspectiondate) < 7
+    THEN 'Less than a week'
+    WHEN ROUND(SYSDATE - ins.scheduledinspectiondate) BETWEEN 7 AND 30
+    THEN '7-30 days'
+    WHEN ROUND(SYSDATE - ins.scheduledinspectiondate) BETWEEN 31 AND 365
+    THEN '31 - 365 days'
+    ELSE 'More than a year'
+  END) "Time Overdue",
   ins.inspectorname "Inspector",
   'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1244842&objectHandle=' || ins.objectid || '&processHandle=' "Link"
 FROM query.j_bl_inspection ins,

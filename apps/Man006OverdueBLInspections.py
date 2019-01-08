@@ -34,9 +34,7 @@ def dataframe(dataset):
     return pd.read_json(query_data(dataset), orient='split')
 
 def get_df_time_since(df):
-    df_time_since = df.groupby(['TIMESINCEINSPECTIONCREATED']).agg({'INSPECTIONOBJECTID': 'count'})
-    print(df_time_since.info())
-    print(df_time_since.head())
+    df_time_since = df.groupby(['TIMEOVERDUE']).agg({'INSPECTIONOBJECTID': 'count'})
     return df_time_since
 
 def update_layout():
@@ -151,7 +149,7 @@ def update_layout():
                                   textfont=dict(color='#FFFFFF')
                               )
                           ],
-                          layout=go.Layout(title=('Overdue Inspections by How Long It\'s Been Since They Were Created'))
+                          layout=go.Layout(title=('Overdue Inspections by How Long They\'ve Been Overdue'))
                         )
                     )
                 ], className='twelve columns'),
@@ -215,8 +213,8 @@ def get_data_object(selected_start, selected_end, license_type, inspection_on, i
                 df_selected = df_selected[df_selected['INSPECTOR'].isin(inspector)]
             elif len(inspector) == 1:
                 df_selected = df_selected[df_selected['INSPECTOR'] == inspector[0]]
-    if len(df_selected['DAYSSINCEINSPECTIONCREATED']) > 0:
-        df_selected['DAYSSINCEINSPECTIONCREATED'] = df_selected.apply(lambda x: "{:,}".format(x['DAYSSINCEINSPECTIONCREATED']), axis=1)
+    if len(df_selected['DAYSOVERDUE']) > 0:
+        df_selected['DAYSOVERDUE'] = df_selected.apply(lambda x: "{:,}".format(x['DAYSOVERDUE']), axis=1)
     return df_selected.drop('SCHEDULEDINSPECTIONDATEFIELD', axis=1)
 
 def count_jobs(selected_start, selected_end, license_type, inspection_on, inspector):
