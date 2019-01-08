@@ -277,14 +277,37 @@ def update_count_table_download_link(start_date, end_date, license_type_val, ins
     return csv_string
 
 @app.callback(Output('Man006BL-table', 'rows'),
+              [Input('Man006BL-my-date-picker-range', 'start_date'),
+               Input('Man006BL-my-date-picker-range', 'end_date'),
+               Input('licensetype-dropdown', 'value'),
+               Input('inspectionon-dropdown', 'value'),
+               Input('inspector-dropdown', 'value')])
+def update_table(start_date, end_date, license_type_val, inspection_on_val, inspector_val):
+    df_ind = get_data_object(start_date, end_date, license_type_val, inspection_on_val, inspector_val)
+    return df_ind.to_dict('records')
+
+
+
+@app.callback(Output('time-since-piechart', 'figure'),
             [Input('Man006BL-my-date-picker-range', 'start_date'),
              Input('Man006BL-my-date-picker-range', 'end_date'),
              Input('licensetype-dropdown', 'value'),
              Input('inspectionon-dropdown', 'value'),
              Input('inspector-dropdown', 'value')])
-def update_table(start_date, end_date, license_type_val, inspection_on_val, inspector_val):
-    df_ind = get_data_object(start_date, end_date, license_type_val, inspection_on_val, inspector_val)
-    return df_ind.to_dict('records')
+def update_pie_chart(start_date, end_date, license_type_val, inspection_on_val, inspector_val):
+    df_results = get_data_object(start_date, end_date, license_type_val, inspection_on_val, inspector_val)
+    df_time_since_results = get_df_time_since(df_results)
+    return {
+        'data': [
+            go.Pie(
+                labels=df_time_since_results.index,
+                values=df_time_since_results['INSPECTIONOBJECTID'],
+                hoverinfo='label+value+percent',
+                hole=0.4,
+                textfont=dict(color='#FFFFFF')
+            )
+        ]
+    }
 
 @app.callback(
             Output('Man006BL-download-link', 'href'),
