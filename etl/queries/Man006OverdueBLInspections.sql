@@ -23,6 +23,16 @@ SELECT biz.address "Business Address",
   || '/'
   || Extract(YEAR FROM ins.createddate) "Inspection Created Date",
   ROUND(SYSDATE - ins.createddate) "Days Since Insp Created",
+  (
+  CASE
+    WHEN ROUND(SYSDATE - ins.createddate) < 7
+    THEN 'Less than a week'
+    WHEN ROUND(SYSDATE - ins.createddate) BETWEEN 7 AND 30
+    THEN '7-30 days'
+    WHEN ROUND(SYSDATE - ins.createddate) BETWEEN 31 AND 365
+    THEN '31 - 365 days'
+    ELSE 'More than a year'
+  END) "Time Since Insp Created",
   Extract(MONTH FROM ins.scheduledinspectiondate)
   || '/'
   ||Extract(DAY FROM ins.scheduledinspectiondate)
@@ -70,6 +80,16 @@ SELECT biz.address "Business Address",
   || '/'
   || Extract(YEAR FROM ins.createddate) "Inspection Created Date",
   ROUND(SYSDATE - ins.createddate) "Days Since Insp Created",
+  (
+  CASE
+    WHEN ROUND(SYSDATE - ins.createddate) < 7
+    THEN 'Less than a week'
+    WHEN ROUND(SYSDATE - ins.createddate) BETWEEN 7 AND 30
+    THEN '7-30 days'
+    WHEN ROUND(SYSDATE - ins.createddate) BETWEEN 31 AND 365
+    THEN '31 - 365 days'
+    ELSE 'More than a year'
+  END) "Time Since Insp Created",
   Extract(MONTH FROM ins.scheduledinspectiondate)
   || '/'
   ||Extract(DAY FROM ins.scheduledinspectiondate)
@@ -121,6 +141,16 @@ SELECT biz.address "Business Address",
   || '/'
   || Extract(YEAR FROM ins.createddate) "Inspection Created Date",
   ROUND(SYSDATE - ins.createddate) "Days Since Insp Created",
+  (
+  CASE
+    WHEN ROUND(SYSDATE - ins.createddate) < 7
+    THEN 'Less than a week'
+    WHEN ROUND(SYSDATE - ins.createddate) BETWEEN 7 AND 30
+    THEN '7-30 days'
+    WHEN ROUND(SYSDATE - ins.createddate) BETWEEN 31 AND 365
+    THEN '31 - 365 days'
+    ELSE 'More than a year'
+  END) "Time Since Insp Created",
   Extract(MONTH FROM ins.scheduledinspectiondate)
   || '/'
   ||Extract(DAY FROM ins.scheduledinspectiondate)

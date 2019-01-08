@@ -7,7 +7,7 @@ from flask import request
 from datetime import datetime
 
 from app import app, server
-from send_email import send_email
+from etl.send_email import send_email
 from log_visitors import log_visitor
 from apps import (Man001ActiveJobsBL, Man001ActiveJobsTL, Man002ActiveProcessesBL, Man002ActiveProcessesTL,
                   Man004BLJobVolumesBySubmissionType, Man004TLJobVolumesBySubmissionType,

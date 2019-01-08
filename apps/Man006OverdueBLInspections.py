@@ -28,12 +28,22 @@ def query_data(dataset):
             df = pd.read_sql_query(sql=sql, con=con)
     return df.to_json(date_format='iso', orient='split')
 
+@cache_timeout
+@cache.memoize()
 def dataframe(dataset):
     return pd.read_json(query_data(dataset), orient='split')
+
+def get_df_time_since(df):
+    df_time_since = df.groupby(['TIMESINCEINSPECTIONCREATED']).agg({'INSPECTIONOBJECTID': 'count'})
+    print(df_time_since.info())
+    print(df_time_since.head())
+    return df_time_since
 
 def update_layout():
     df = dataframe('df_ind')
     last_ddl_time = dataframe('last_ddl_time')
+
+    df_time_since = get_df_time_since(df)
 
     licensetype_options_unsorted = []
     for licensetype in df['LICENSETYPE'].unique():
@@ -123,6 +133,28 @@ def update_layout():
                 ], style={'margin-top': '70px', 'margin-bottom': '50px',
                           'margin-left': 'auto', 'margin-right': 'auto', 'float': 'none'},
                    className='ten columns')
+            ], className='dashrow'),
+            html.Div([
+                html.Div([
+                    dcc.Graph(
+                        id='time-since-piechart',
+                        config={
+                            'displayModeBar': False
+                        },
+                        figure=go.Figure(
+                          data=[
+                              go.Pie(
+                                  labels=df_time_since.index,
+                                  values=df_time_since['INSPECTIONOBJECTID'],
+                                  hoverinfo='label+value+percent',
+                                  hole=0.4,
+                                  textfont=dict(color='#FFFFFF')
+                              )
+                          ],
+                          layout=go.Layout(title=('Overdue Inspections by How Long It\'s Been Since They Were Created'))
+                        )
+                    )
+                ], className='twelve columns'),
             ], className='dashrow'),
             html.Div([
                 dt.DataTable(
