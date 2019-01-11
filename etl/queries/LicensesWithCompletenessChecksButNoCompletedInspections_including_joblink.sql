@@ -1,6 +1,7 @@
 SELECT DISTINCT cc.licensenumber,
   lt.name LicenseType,
-  (CASE
+  (
+  CASE
     WHEN cc.mostrecentissuedate IS NOT NULL
     THEN Extract(MONTH FROM cc.mostrecentissuedate)
       || '/'
@@ -10,7 +11,8 @@ SELECT DISTINCT cc.licensenumber,
     WHEN cc.mostrecentissuedate IS NULL
     THEN NULL
   END) mostrecentissuedate,
-  (CASE
+  (
+  CASE
     WHEN cc.MostRecentCompletenessCheck IS NOT NULL
     THEN Extract(MONTH FROM cc.MostRecentCompletenessCheck)
       || '/'
@@ -21,7 +23,8 @@ SELECT DISTINCT cc.licensenumber,
     THEN NULL
   END) MostRecentCompletenessCheck,
   cc.MostRecentCompletenessCheck MostRecentCCField,
-  (CASE
+  (
+  CASE
     WHEN lg.expirationdate IS NOT NULL
     THEN Extract(MONTH FROM lg.expirationdate)
       || '/'
@@ -31,7 +34,8 @@ SELECT DISTINCT cc.licensenumber,
     WHEN lg.expirationdate IS NULL
     THEN NULL
   END) expirationdate,
-  (CASE
+  (
+  CASE
     WHEN inspe.InspectionCreatedDate IS NOT NULL
     THEN Extract(MONTH FROM inspe.InspectionCreatedDate)
       || '/'
@@ -41,7 +45,8 @@ SELECT DISTINCT cc.licensenumber,
     WHEN inspe.InspectionCreatedDate IS NULL
     THEN NULL
   END) InspectionCreatedDate,
-  (CASE
+  (
+  CASE
     WHEN inspe.ScheduledInspectionDate IS NOT NULL
     THEN Extract(MONTH FROM inspe.ScheduledInspectionDate)
       || '/'
@@ -51,7 +56,8 @@ SELECT DISTINCT cc.licensenumber,
     WHEN inspe.ScheduledInspectionDate IS NULL
     THEN NULL
   END) ScheduledInspectionDate,
-  (CASE
+  (
+  CASE
     WHEN inspe.InspectionCompletedDate IS NOT NULL
     THEN Extract(MONTH FROM inspe.InspectionCompletedDate)
       || '/'
@@ -60,13 +66,29 @@ SELECT DISTINCT cc.licensenumber,
       || Extract(YEAR FROM inspe.InspectionCompletedDate)
     WHEN inspe.InspectionCompletedDate IS NULL
     THEN NULL
-  END) InspectionCompletedDate
+  END) InspectionCompletedDate,
+  cc.jobid,
+  jt.description,
+  (
+  CASE
+    WHEN jt.description LIKE 'Business License Application'
+    THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1239699&objectHandle='
+      ||cc.jobid
+      ||'&processHandle=&paneId=1239699_151'
+    WHEN jt.description LIKE 'Amendment/Renewal'
+    THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1243107&objectHandle='
+      ||cc.jobid
+      ||'&processHandle=&paneId=1243107_175'
+  END ) JobLink
 FROM lmscorral.bl_licensetype lt,
   lmscorral.bl_licensegroup lg,
+  api.jobs j,
+  api.jobtypes jt,
   (SELECT l.licensenumber,
     l.LICENSETYPEOBJECTID,
     l.LICENSEGROUPOBJECTID,
     l.MOSTRECENTISSUEDATE,
+    x.jobid,
     MAX(p.datecompleted) MostRecentCompletenessCheck
   FROM lmscorral.bl_license l,
     lmscorral.bl_joblicensexref x,
@@ -80,7 +102,8 @@ FROM lmscorral.bl_licensetype lt,
   GROUP BY l.licensenumber,
     l.LICENSETYPEOBJECTID,
     l.LICENSEGROUPOBJECTID,
-    l.MOSTRECENTISSUEDATE
+    l.MOSTRECENTISSUEDATE,
+    x.jobid
   ) cc,
   (SELECT DISTINCT insp.LicenseNumber,
     insp.createddate InspectionCreatedDate,
@@ -132,39 +155,5 @@ FROM lmscorral.bl_licensetype lt,
 WHERE cc.licensenumber      = inspe.LicenseNumber (+)
 AND cc.licensetypeobjectid  = lt.objectid (+)
 AND cc.licensegroupobjectid = lg.objectid (+)
-AND lt.name NOT IN ('Activity',
- 'Outdoor Advertising Sign',
- 'Overhead Wire',
- 'Pawn Shop',
- 'Precious Metal Dealer',
- 'Promoter Registration',
- 'Public Garage / Parking Lot',
- 'Rental',
- 'Scales and Scanners',
- 'Sidewalk Cafe',
- 'Small Games Of Chance',
- 'Special Permit',
- 'Tow Company',
- 'Vacant Commercial Property',
- 'Vacant Residential Property / Lot',
- 'Vendor - Center City Vendor',
- 'Vendor - Motor Vehicle Sales',
- 'Vendor - Neighborhood Vending District',
- 'Vendor - On Foot',
- 'Vendor - Pushcart',
- 'Vendor - Sidewalk Sales',
- 'Honor Box',
- 'Limited Occasion',
- 'Vendor - Special Vending',
- 'Handbill Distribution',
- 'Amusement',
- 'Carnival',
- 'Food Preparing and Serving',
- 'Food Manufacturer / Wholesaler',
- 'Dumpster License - Construction',
- 'Food Establishment, Retail Perm Location (Large)',
- 'Food Establishment, Outdoor',
- 'Food Estab, Retail Non-Permanent Location (Event)',
- 'Bingo',
- 'Food Caterer',
- 'Annual Pole')
+AND cc.jobid                = j.jobid (+)
+AND j.jobtypeid             = jt.jobtypeid (+)
