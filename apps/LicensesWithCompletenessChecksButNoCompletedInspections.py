@@ -114,8 +114,46 @@ def update_layout():
             html.Details([
                 html.Summary('Query Description'),
                 html.Div([
-                    html.P(
-                        'Business licenses with completed completeness checks, but no completed inspections.')
+                    html.P("Business licenses with completed completeness checks, but no completed inspections."),
+                    html.P("Excluding license types that have never had an inspection created:"),
+                    html.Ul(children=[
+                        html.Li('Activity'),
+                        html.Li('Amusement'),
+                        html.Li('Annual Pole'),
+                        html.Li('Bingo'),
+                        html.Li('Carnival'),
+                        html.Li('Dumpster License - Construction'),
+                        html.Li('Food Caterer'),
+                        html.Li('Food Estab Retail Non-Permanent Location (Event)'),
+                        html.Li('Food Establishment Outdoor'),
+                        html.Li('Food Establishment Retail Perm Location (Large)'),
+                        html.Li('Food Manufacturer / Wholesaler'),
+                        html.Li('Food Preparing and Serving'),
+                        html.Li('Handbill Distribution'),
+                        html.Li('Honor Box'),
+                        html.Li('Limited Occasion'),
+                        html.Li('Outdoor Advertising Sign'),
+                        html.Li('Overhead Wire'),
+                        html.Li('Pawn Shop'),
+                        html.Li('Precious Metal Dealer'),
+                        html.Li('Promoter Registration'),
+                        html.Li('Public Garage / Parking Lot'),
+                        html.Li('Rental'),
+                        html.Li('Scales and Scanners'),
+                        html.Li('Sidewalk Cafe'),
+                        html.Li('Small Games Of Chance'),
+                        html.Li('Special Permit'),
+                        html.Li('Tow Company'),
+                        html.Li('Vacant Commercial Property'),
+                        html.Li('Vacant Residential Property / Lot'),
+                        html.Li('Vendor - Center City Vendor'),
+                        html.Li('Vendor - Motor Vehicle Sales'),
+                        html.Li('Vendor - Neighborhood Vending District'),
+                        html.Li('Vendor - On Foot'),
+                        html.Li('Vendor - Pushcart'),
+                        html.Li('Vendor - Sidewalk Sales'),
+                        html.Li('Vendor - Special Vending')
+                    ])
                 ])
             ])
         ])
