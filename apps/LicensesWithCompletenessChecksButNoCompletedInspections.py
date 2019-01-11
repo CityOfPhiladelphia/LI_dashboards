@@ -136,7 +136,7 @@ def get_summary_data(selected_start, selected_end, selected_license_type):
                                     'SCHEDULEDINSPECTIONDATE': 'Inspections Scheduled',
                                     'INSPECTIONCOMPLETEDDATE': 'Inspections Completed'})
                    .sort_values(by=['Licenses'], ascending=False))
-    return df_selected.drop(['MOSTRECENTISSUEDATE', 'MOSTRECENTCOMPLETENESSCHECK', 'MOSTRECENTCCFIELD', 'EXPIRATIONDATE'], axis=1)
+    return df_selected.drop(['MOSTRECENTISSUEDATE', 'MOSTRECENTCOMPLETENESSCHECK', 'MOSTRECENTCCFIELD', 'EXPIRATIONDATE', 'JOBLINK'], axis=1)
 
 
 def get_ind_records_data(selected_start, selected_end, selected_license_type):
@@ -152,7 +152,8 @@ def get_ind_records_data(selected_start, selected_end, selected_license_type):
                                     'EXPIRATIONDATE': 'Expiration Date',
                                     'INSPECTIONCREATEDDATE': 'Inspection Created Date',
                                     'SCHEDULEDINSPECTIONDATE': 'Inspection Scheduled Date',
-                                    'INSPECTIONCOMPLETEDDATE': 'Inspection Completed Date'})
+                                    'INSPECTIONCOMPLETEDDATE': 'Inspection Completed Date',
+                                    'JOBLINK': 'Job Link'})
                    .sort_values(by=['MOSTRECENTCCFIELD']))
     return df_selected.drop(['MOSTRECENTCCFIELD'], axis=1)
 
