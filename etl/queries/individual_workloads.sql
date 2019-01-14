@@ -1,6 +1,6 @@
 SELECT proc.processid,
   pt.description ProcessType,
-  j.jobid,  
+  j.ExternalFileNum JobNumber,  
   REPLACE(jt.description, 'Business License ', '') JobType,
   'Business' LicenseKind,
   ap.licensetypesdisplayformat LicenseType,
@@ -36,7 +36,7 @@ AND u.name <> 'POSSE system power user'
 UNION
 SELECT proc.processid,
   pt.description ProcessType,
-  j.jobid,
+  j.ExternalFileNum JobNumber,  
   REPLACE(REPLACE(jt.description, 'Business License ', ''), 'Amendment/Renewal', 'Amend/Renew') JobType,
   'Business' LicenseKind,
   ar.licensetypesdisplayformat LicenseType,
@@ -73,7 +73,7 @@ AND u.name <> 'POSSE system power user'
 UNION
 SELECT proc.processid,
   pt.description ProcessType,
-  j.jobid,  
+  j.ExternalFileNum JobNumber,  
   REPLACE(jt.description, 'Trade License ', '') JobType,
   'Trade' LicenseKind,
   lt.title LicenseType,
@@ -113,7 +113,7 @@ AND u.name <> 'POSSE system power user'
 UNION
 SELECT proc.processid,
   pt.description ProcessType,
-  j.jobid,  
+  j.ExternalFileNum JobNumber,  
   REPLACE(jt.description, 'Trade License ', '') JobType,
   'Trade' LicenseKind,
   lt.title LicenseType,

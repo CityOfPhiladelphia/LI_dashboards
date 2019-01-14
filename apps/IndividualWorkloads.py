@@ -25,7 +25,7 @@ def query_data(dataset):
             sql = 'SELECT * FROM li_dash_indworkloads'
             df = pd.read_sql_query(sql=sql, con=con, parse_dates=['DATECOMPLETEDFIELD'])
             # Rename the columns to be more readable
-            df = (df.rename(columns={'PROCESSID': 'Process ID', 'PROCESSTYPE': 'Process Type', 'JOBID': 'Job ID',
+            df = (df.rename(columns={'PROCESSID': 'Process ID', 'PROCESSTYPE': 'Process Type', 'JOBNUMBER': 'Job Number',
                                      'JOBTYPE': 'Job Type', 'LICENSEKIND': 'Kind of License',
                                      'LICENSETYPE': 'License Type', 'PERSON': 'Person',
                                      'SCHEDULEDSTARTDATE': 'Scheduled Start Date', 'DATECOMPLETED': 'Date Completed',
