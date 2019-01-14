@@ -1,5 +1,4 @@
-SELECT 
-  proc.processid,
+SELECT proc.processid,
   pt.description ProcessType,
   j.jobid,  
   REPLACE(jt.description, 'Business License ', '') JobType,

@@ -283,7 +283,7 @@ def update_ind_records_table_data(selected_start, selected_end, selected_person,
     df_selected = (df_selected.loc[(df_selected['DATECOMPLETEDFIELD'] >= selected_start) & (df_selected['DATECOMPLETEDFIELD'] <= selected_end)]
                    .sort_values(by='DATECOMPLETEDFIELD'))
     df_selected['Duration (days)'] = df_selected['Duration (days)'].round(2).map('{:,.2f}'.format)
-    return df_selected.drop(['DATECOMPLETEDFIELD', 'Month Year', 'DateText'], axis=1)
+    return df_selected.drop(['Process ID', 'DATECOMPLETEDFIELD', 'Month Year', 'DateText'], axis=1)
 
 def update_license_type_dropdown(selected_license_kind):
     df_selected = dataframe('df_ind')
