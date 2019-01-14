@@ -25,10 +25,11 @@ def query_data(dataset):
             sql = 'SELECT * FROM li_dash_indworkloads'
             df = pd.read_sql_query(sql=sql, con=con, parse_dates=['DATECOMPLETEDFIELD'])
             # Rename the columns to be more readable
-            df = (df.rename(columns={'PROCESSID': 'Process ID', 'PROCESSTYPE': 'Process Type', 'JOBTYPE': 'Job Type',
-                                     'LICENSEKIND': 'Kind of License', 'LICENSETYPE': 'License Type', 'PERSON': 'Person',
+            df = (df.rename(columns={'PROCESSID': 'Process ID', 'PROCESSTYPE': 'Process Type', 'JOBID': 'Job ID',
+                                     'JOBTYPE': 'Job Type', 'LICENSEKIND': 'Kind of License',
+                                     'LICENSETYPE': 'License Type', 'PERSON': 'Person',
                                      'SCHEDULEDSTARTDATE': 'Scheduled Start Date', 'DATECOMPLETED': 'Date Completed',
-                                     'DURATION': 'Duration (days)'})
+                                     'DURATION': 'Duration (days)', 'JOBLINK': 'Job Link'})
                   .assign(DateText=lambda x: x['DATECOMPLETEDFIELD'].dt.strftime('%b %Y')))
             df['Month Year'] = df['DATECOMPLETEDFIELD'].map(lambda dt: dt.date().replace(day=1))
         elif dataset == 'last_ddl_time':

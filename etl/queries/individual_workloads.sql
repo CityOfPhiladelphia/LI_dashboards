@@ -1,13 +1,23 @@
-SELECT proc.processid,
+SELECT 
+  proc.processid,
   pt.description ProcessType,
-  REPLACE(REPLACE(jt.description, 'Business License ', ''), 'Amendment/Renewal', 'Amend/Renew') JobType,
+  j.jobid,  
+  REPLACE(jt.description, 'Business License ', '') JobType,
   'Business' LicenseKind,
   ap.licensetypesdisplayformat LicenseType,
   INITCAP(u.name) name,
   Extract(month FROM proc.scheduledstartdate) || '/' ||Extract(day FROM proc.scheduledstartdate) || '/' || Extract(year FROM proc.scheduledstartdate) ScheduledStartDate,
   Extract(month FROM proc.datecompleted) || '/' ||Extract(day FROM proc.datecompleted) || '/' || Extract(year FROM proc.datecompleted) DateCompleted,
   proc.datecompleted DateCompletedField,
-  proc.datecompleted - proc.scheduledstartdate AS duration
+  proc.datecompleted - proc.scheduledstartdate AS duration,
+ (CASE
+    WHEN jt.description LIKE 'Business License Application'
+    THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1239699&objectHandle='
+      ||j.jobid
+      ||'&processHandle='
+      ||proc.processid
+      ||'&paneId=1239699_151'
+  END ) JobLink
 FROM api.processes PROC,
   api.processtypes pt,
   api.jobs j,
@@ -27,6 +37,7 @@ AND u.name <> 'POSSE system power user'
 UNION
 SELECT proc.processid,
   pt.description ProcessType,
+  j.jobid,
   REPLACE(REPLACE(jt.description, 'Business License ', ''), 'Amendment/Renewal', 'Amend/Renew') JobType,
   'Business' LicenseKind,
   ar.licensetypesdisplayformat LicenseType,
@@ -34,7 +45,16 @@ SELECT proc.processid,
   Extract(month FROM proc.scheduledstartdate) || '/' ||Extract(day FROM proc.scheduledstartdate) || '/' || Extract(year FROM proc.scheduledstartdate) ScheduledStartDate,
   Extract(month FROM proc.datecompleted) || '/' ||Extract(day FROM proc.datecompleted) || '/' || Extract(year FROM proc.datecompleted) DateCompleted,
   proc.datecompleted DateCompletedField,
-  proc.datecompleted - proc.scheduledstartdate AS duration
+  proc.datecompleted - proc.scheduledstartdate AS duration,
+    (
+  CASE
+    WHEN jt.description LIKE 'Amendment/Renewal'
+    THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1243107&objectHandle='
+      ||j.jobid
+      ||'&processHandle='
+      ||proc.processid
+      ||'&paneId=1243107_175'
+  END ) JobLink
 FROM api.processes PROC,
   api.processtypes pt,
   api.jobs j,
@@ -54,6 +74,7 @@ AND u.name <> 'POSSE system power user'
 UNION
 SELECT proc.processid,
   pt.description ProcessType,
+  j.jobid,  
   REPLACE(jt.description, 'Trade License ', '') JobType,
   'Trade' LicenseKind,
   lt.title LicenseType,
@@ -61,7 +82,15 @@ SELECT proc.processid,
   Extract(month FROM proc.scheduledstartdate) || '/' ||Extract(day FROM proc.scheduledstartdate) || '/' || Extract(year FROM proc.scheduledstartdate) ScheduledStartDate,
   Extract(month FROM proc.datecompleted) || '/' ||Extract(day FROM proc.datecompleted) || '/' || Extract(year FROM proc.datecompleted) DateCompleted,
   proc.datecompleted DateCompletedField,
-  proc.datecompleted - proc.scheduledstartdate AS duration
+  proc.datecompleted - proc.scheduledstartdate AS duration,
+  (CASE
+    WHEN jt.description LIKE 'Trade License Application'
+    THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=2854033&objectHandle='
+      ||j.jobid
+      ||'&processHandle='
+      ||proc.processid
+      ||'&paneId=2854033_116'
+  END ) JobLink
 FROM api.processes PROC,
   api.processtypes pt,
   api.jobs j,
@@ -85,6 +114,7 @@ AND u.name <> 'POSSE system power user'
 UNION
 SELECT proc.processid,
   pt.description ProcessType,
+  j.jobid,  
   REPLACE(jt.description, 'Trade License ', '') JobType,
   'Trade' LicenseKind,
   lt.title LicenseType,
@@ -92,7 +122,15 @@ SELECT proc.processid,
   Extract(month FROM proc.scheduledstartdate) || '/' ||Extract(day FROM proc.scheduledstartdate) || '/' || Extract(year FROM proc.scheduledstartdate) ScheduledStartDate,
   Extract(month FROM proc.datecompleted) || '/' ||Extract(day FROM proc.datecompleted) || '/' || Extract(year FROM proc.datecompleted) DateCompleted,
   proc.datecompleted DateCompletedField,
-  proc.datecompleted - proc.scheduledstartdate AS duration
+  proc.datecompleted - proc.scheduledstartdate AS duration,
+  (CASE
+    WHEN jt.description LIKE 'Trade License Amend/Renew'
+    THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=2857688&objectHandle='
+      ||j.jobid      
+      ||'&processHandle='
+      ||proc.processid
+      ||'&paneId=2857688_87'
+  END ) JobLink
 FROM api.processes PROC,
   api.processtypes pt,
   api.jobs j,
