@@ -181,7 +181,7 @@ def get_data_object(duration, license_type):
                 df_selected = df_selected[df_selected['TIMESINCESCHEDULEDSTARTDATE'] == duration[0]]
     if license_type != "All":
         df_selected = df_selected[df_selected['LICENSETYPE'] == license_type]
-    return df_selected
+    return df_selected.drop(['PROCESSID'], axis=1)
 
 def update_counts_graph_data(duration, license_type):
     df_counts_selected = dataframe('df_counts')

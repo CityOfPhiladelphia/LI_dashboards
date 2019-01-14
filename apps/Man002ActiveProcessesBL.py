@@ -192,7 +192,7 @@ def get_data_object(process_type, license_type):
                 df_selected = df_selected[df_selected['PROCESSTYPE'] == process_type[0]]
     if license_type != "All":
         df_selected = df_selected[df_selected['LICENSETYPE'] == license_type]
-    return df_selected
+    return df_selected.drop(['PROCESSID'], axis=1)
 
 def update_counts_graph_data(process_type, license_type):
     df_counts_selected = dataframe('df_counts')
