@@ -17,6 +17,7 @@ SELECT proc.processid,
   END ) NUMASSIGNEDSTAFF,
   Extract(month FROM proc.scheduledstartdate) || '/' ||Extract(day FROM proc.scheduledstartdate) || '/' || Extract(year FROM proc.scheduledstartdate) ScheduledStartDate,
   proc.scheduledstartdate ScheduledStartDateField,
+  SYSDATE - proc.scheduledstartdate TimeSinceScheduledStartDate,
   (CASE
     WHEN jt.description LIKE 'Trade License Application'
     THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=2854033&objectHandle='
@@ -59,6 +60,7 @@ SELECT proc.processid,
   END ) NUMASSIGNEDSTAFF,
   Extract(month FROM proc.scheduledstartdate) || '/' ||Extract(day FROM proc.scheduledstartdate) || '/' || Extract(year FROM proc.scheduledstartdate) ScheduledStartDate,
   proc.scheduledstartdate ScheduledStartDateField,
+  SYSDATE - proc.scheduledstartdate TimeSinceScheduledStartDate,
   (CASE
     WHEN jt.description LIKE 'Trade License Amend/Renew'
     THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=2857688&objectHandle='

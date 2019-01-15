@@ -29,7 +29,8 @@ def query_data(dataset):
                                      'JOBTYPE': 'Job Type', 'LICENSETYPE': 'License Type',
                                      'ASSIGNEDSTAFF': 'Assigned Staff',
                                      'NUMASSIGNEDSTAFF': 'Num of Assigned Staff',
-                                     'SCHEDULEDSTARTDATE': 'Scheduled Start Date', 'JOBLINK': 'Job Link'})
+                                     'SCHEDULEDSTARTDATE': 'Scheduled Start Date', 'TIMESINCESCHEDULEDSTARTDATE': 'Days Open',
+                                     'JOBLINK': 'Job Link'})
                   .assign(DateText=lambda x: x['SCHEDULEDSTARTDATEFIELD'].dt.strftime('%b %Y')))
             df['Month Year'] = df['SCHEDULEDSTARTDATEFIELD'].map(lambda dt: dt.date().replace(day=1))
         elif dataset == 'last_ddl_time':
@@ -242,10 +243,11 @@ def update_counts_table_data(selected_start, selected_end, selected_staff, selec
         df_selected = df_selected[(df_selected['License Type'] == selected_license_type)]
 
     df_selected = (df_selected.loc[(df_selected['SCHEDULEDSTARTDATEFIELD'] >= selected_start) & (df_selected['SCHEDULEDSTARTDATEFIELD'] <= selected_end)]
-                   .groupby(['Assigned Staff', 'Process Type']).agg({'Process ID': 'count'})
+                   .groupby(['Assigned Staff', 'Process Type']).agg({'Process ID': 'count', 'Days Open': 'sum'})
                    .reset_index()
                    .rename(columns={'Process ID': 'Incomplete Processes'})
                    .sort_values(by=['Assigned Staff', 'Process Type']))
+    df_selected['Avg. Days Open'] = (df_selected['Days Open'] / df_selected['Incomplete Processes']).round(0)
     return df_selected[['Assigned Staff', 'Process Type', 'Incomplete Processes']]
 
 def update_ind_records_table_data(selected_start, selected_end, selected_staff, selected_process_type, selected_job_type, selected_license_type):
@@ -262,6 +264,7 @@ def update_ind_records_table_data(selected_start, selected_end, selected_staff, 
 
     df_selected = (df_selected.loc[(df_selected['SCHEDULEDSTARTDATEFIELD'] >= selected_start) & (df_selected['SCHEDULEDSTARTDATEFIELD'] <= selected_end)]
                    .sort_values(by='SCHEDULEDSTARTDATEFIELD'))
+    df_selected['Days Open'] = df_selected['Days Open'].round(1).map('{:,.1f}'.format)
     return df_selected.drop(['Process ID', 'SCHEDULEDSTARTDATEFIELD', 'Month Year', 'DateText'], axis=1)
 
 
