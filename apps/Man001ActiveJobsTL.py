@@ -164,7 +164,7 @@ def update_layout():
                 ' "Issue License", "Renew License", "Amend License", "Generate License", "Completeness Check", '
                 '"Review Application", or "Amendment or Renewal"; but haven\'t been completed and don\'t have a status of '
                 '"More Information Required", "Payment Pending", "Application Incomplete", or "Draft" (i.e. have a status '
-                'of "Distribute", "In Adjudication", or "Submitted").')
+                'of "Distribute", "In Adjudication", "In Review", or "Submitted").')
         ])
     ])
 

@@ -168,8 +168,9 @@ def update_layout():
             html.Summary('Query Description'),
             html.Div(
                 'Incomplete processes (excluding "Pay Fees", "Provide More Information for Renewal", and "Amend License" '
-                'processes) associated with trade license application or amend/renew jobs that have statuses of "Approved", '
-                '"Draft", "Withdrawn", "More Information Required", or "Denied" (i.e. not "In Review", "Payment Pending", '
+                'processes) associated with trade license application or amend/renew jobs that dont\'t have statuses of "Approved", '
+                '"Deleted", "Draft", "Withdrawn", "More Information Required", or '
+                '"Denied" (i.e. have statuses of "In Review", "Payment Pending", '
                 '"Submitted",  "Distribute", "Cancelled")')
         ])
     ])

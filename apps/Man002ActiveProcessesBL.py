@@ -171,8 +171,9 @@ def update_layout():
             html.Summary('Query Description'),
             html.Div(
                 'Incomplete processes (excluding "Pay Fees", "Provide More Information for Renewal", and "Amend License" processes) '
-                'associated with business license application or amend/renew jobs that have statuses of "Approved", "Draft", '
-                '"Withdrawn", or "More Information Required" (i.e. not "Application Incomplete", "Distribute", '
+                'associated with business license application or amend/renew jobs that dont\'t have statuses of "Approved", '
+                '"Deleted", "Draft", '
+                '"Withdrawn", or "More Information Required" (i.e. have statuses of "Application Incomplete", "Distribute", '
                 '"In Adjudication", "Payment Pending", "Rejected", or "Submitted")')
         ])
     ])
