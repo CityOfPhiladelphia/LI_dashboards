@@ -12,7 +12,8 @@ from log_visitors import log_visitor
 from apps import (Man001ActiveJobsBL, Man001ActiveJobsTL, Man002ActiveProcessesBL, Man002ActiveProcessesTL,
                   Man004BLJobVolumesBySubmissionType, Man004TLJobVolumesBySubmissionType,
                   Man005BLExpirationDates, Man005TLExpirationDates, Man006OverdueBLInspections, IndividualWorkloads,
-                  SLA_BL, ExpiringLicensesTaxIssues, LicensesWithCompletenessChecksButNoCompletedInspections)
+                  IncompleteProcessesBL, IncompleteProcessesTL, SLA_BL, ExpiringLicensesTaxIssues,
+                  LicensesWithCompletenessChecksButNoCompletedInspections)
                   
 
 time = datetime.strftime(datetime.now(), '%I:%M %p %m/%d/%y')
@@ -34,7 +35,8 @@ def serve_layout():
                             html.A('Active Processes', href='/ActiveProcessesTL'),
                             html.A('Job Volumes by Submission Type', href='/JobVolumesBySubmissionTypeTL'),
                             html.A('Expiration Dates', href='/ExpirationDatesTL'),
-                            html.A('Individual Workloads', href='/IndividualWorkloads')
+                            html.A('Individual Workloads', href='/IndividualWorkloads'),
+                            html.A('Incomplete Processes', href='/IncompleteProcessesTL')
                         ], className='dropdown-content')
                     ], className='dropdown'),
                     html.Div([
@@ -46,6 +48,7 @@ def serve_layout():
                             html.A('Expiration Dates', href='/ExpirationDatesBL'),
                             html.A('Overdue Inspections', href='/OverdueInspectionsBL'),
                             html.A('Individual Workloads', href='/IndividualWorkloads'),
+                            html.A('Incomplete Processes', href='/IncompleteProcessesBL'),
                             html.A('SLA License Issuance', href='/SLA_BL'),
                             html.A('Licenses with Completed Completeness Checks but no Completed Inspections', href='/LicensesWithCompletenessChecksButNoCompletedInspections')
                         ], className='dropdown-content')
@@ -94,6 +97,10 @@ def display_page(pathname):
         return Man006OverdueBLInspections.layout()
     elif pathname == '/IndividualWorkloads':
         return IndividualWorkloads.layout()
+    elif pathname == '/IncompleteProcessesBL':
+        return IncompleteProcessesBL.layout()
+    elif pathname == '/IncompleteProcessesTL':
+        return IncompleteProcessesTL.layout()
     elif pathname == '/SLA_BL':
         return SLA_BL.layout()
     elif pathname == '/ExpiringLicensesTaxIssues':

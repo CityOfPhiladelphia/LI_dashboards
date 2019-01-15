@@ -34,6 +34,16 @@ IndividualWorkloads = SqlQuery(
     target_table = 'li_dash_indworkloads'
 )
 
+IncompleteProcessesBL = SqlQuery(
+    extract_query_file = 'incomplete_processes_bl.sql',
+    target_table = 'li_dash_incompleteprocesses_bl'
+)
+
+IncompleteProcessesTL = SqlQuery(
+    extract_query_file = 'incomplete_processes_tl.sql',
+    target_table = 'li_dash_incompleteprocesses_tl'
+)
+
 Man001ActiveJobsBLInd = SqlQuery(
     extract_query_file = 'Man001ActiveJobsBL_ind_records.sql',
     target_table = 'li_dash_activejobs_bl_ind'
@@ -111,6 +121,8 @@ LicensesWithCompletenessChecksButNoCompletedInspections = SqlQuery(
 
 queries = [
     IndividualWorkloads,
+    IncompleteProcessesBL,
+    IncompleteProcessesTL,
     LicensesWithCompletenessChecksButNoCompletedInspections,
     Man001ActiveJobsBLInd,
     Man001ActiveJobsBLCount,
