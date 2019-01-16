@@ -7,7 +7,7 @@ FROM
   (SELECT DISTINCT j.ExternalFileNum JobExtNum,
     j.StatusId,
     REPLACE(jt.Description, 'Trade License ', '') JobType,
-    NVL(lt.description, lt2.description) LicenseType,
+    NVL(lt.description, apl.licensetype) LicenseType,
     stat.Description JobStatus,
     pt.ProcessTypeId,
     proc.ProcessId ProcessID,
@@ -52,9 +52,7 @@ FROM
     query.r_tl_amendrenew_license arl,
     query.o_tl_license lic,
     query.o_tl_licensetype lt,
-    query.r_tllicenselicense apl,
-    query.o_tl_license lic2,
-    query.o_tl_licensetype lt2
+  query.j_tl_application apl
   WHERE proc.JobId          = j.JobId
   AND proc.ProcessTypeId    = pt.ProcessTypeId
   AND proc.DateCompleted   IS NULL
@@ -66,9 +64,7 @@ FROM
   AND j.jobid               = arl.amendrenewid (+)
   AND arl.licenseid         = lic.objectid (+)
   AND lic.revenuecode       = lt.revenuecode (+)
-  AND j.jobid               = apl.tlapp (+)
-  AND apl.license           = lic2.objectid (+)
-  AND lic2.revenuecode      = lt2.revenuecode (+)
+  AND j.jobid               = apl.objectid (+)
   )
 GROUP BY JobType,
   ProcessType,

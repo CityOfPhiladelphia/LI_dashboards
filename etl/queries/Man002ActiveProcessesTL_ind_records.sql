@@ -1,6 +1,6 @@
 SELECT DISTINCT j.externalfilenum "JobNumber",
   REPLACE(jt.description, 'Trade License ', '') "JobType",
-  NVL(lt.description, lt2.description) "LicenseType",
+  NVL(lt.description, apl.licensetype) "LicenseType",
   stat.description "JobStatus",
   proc.processid "ProcessID",
   pt.description "ProcessType",
@@ -26,8 +26,7 @@ SELECT DISTINCT j.externalfilenum "JobNumber",
     THEN '11 Days-1 Year'
     ELSE 'Over 1 Year'
   END) TimeSinceScheduledStartDate,
-  (
-  CASE
+  (CASE
     WHEN jt.description LIKE 'Trade License Application'
     THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=2854033&objectHandle='
       ||j.jobid
@@ -45,9 +44,7 @@ FROM api.processes PROC,
   query.r_tl_amendrenew_license arl,
   query.o_tl_license lic,
   query.o_tl_licensetype lt,
-  query.r_tllicenselicense apl,
-  query.o_tl_license lic2,
-  query.o_tl_licensetype lt2
+  query.j_tl_application apl
 WHERE proc.jobid          = j.jobid
 AND proc.processtypeid    = pt.processtypeid
 AND proc.datecompleted   IS NULL
@@ -59,6 +56,4 @@ AND j.statusid NOT       IN ( '1030266', '964970', '1014809', '1036493', '101037
 AND j.jobid               = arl.amendrenewid (+)
 AND arl.licenseid         = lic.objectid (+)
 AND lic.revenuecode       = lt.revenuecode (+)
-AND j.jobid               = apl.tlapp (+)
-AND apl.license           = lic2.objectid (+)
-AND lic2.revenuecode      = lt2.revenuecode (+)
+AND j.jobid               = apl.objectid (+)
