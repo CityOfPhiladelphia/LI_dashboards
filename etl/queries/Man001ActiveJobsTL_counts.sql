@@ -5,7 +5,7 @@ SELECT DISTINCT timesincescheduledstartdate "TimeSinceScheduledStartDate",
   AVG(TIME) AvgTime
 FROM
   (SELECT DISTINCT j.externalfilenum JobNumber,
-    NVL(lt.title, lt2.title) LicenseType,
+    NVL(lt.title, apl.licensetype) LicenseType,
     REPLACE(jt.description, 'Trade License ', '') JobType,
     j.statusid,
     j.jobstatus,
@@ -42,9 +42,7 @@ FROM
     query.r_tl_amendrenew_license arl,
     query.r_tllicensetype lrl,
     query.o_tl_licensetype lt,
-    query.j_tl_application apl,
-    query.r_tllicensetype lrl2,
-    query.o_tl_licensetype lt2
+    query.j_tl_application apl
   WHERE j.jobid                = proc.jobid
   AND proc.processtypeid       = pt.processtypeid
   AND j.externalfilenum        = ar.externalfilenum (+)
@@ -52,8 +50,6 @@ FROM
   AND arl.licenseid            = lrl.licenseobjectid (+)
   AND lrl.licensetypeobjectid  = lt.objectid (+)
   AND j.jobid                  = apl.objectid (+)
-  AND apl.tradelicenseobjectid = lrl2.licenseobjectid (+)
-  AND lrl2.licensetypeobjectid = lt2.objectid (+)
   AND j.externalfilenum LIKE 'T%'
   AND pt.processtypeid   IN( '2851903', '2854108', '2852692', '2852680', '2854639', '2853029', '2854845', '2855079' )
   AND proc.datecompleted IS NOT NULL
