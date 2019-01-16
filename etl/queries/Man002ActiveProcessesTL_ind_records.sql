@@ -30,11 +30,15 @@ SELECT DISTINCT j.externalfilenum "JobNumber",
     WHEN jt.description LIKE 'Trade License Application'
     THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=2854033&objectHandle='
       ||j.jobid
-      ||'&processHandle=&paneId=2854033_116'
+      ||'&processHandle='
+      ||proc.processid
+      ||'&paneId=2854033_116'
     WHEN jt.description LIKE 'Trade License Amend/Renew'
     THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=2857688&objectHandle='
       ||j.jobid
-      ||'&processHandle=&paneId=2857688_87'
+      ||'&processHandle='
+      ||proc.processid
+      ||'&paneId=2857688_87'
   END ) "ProcessLink"
 FROM api.processes PROC,
   api.jobs j,
