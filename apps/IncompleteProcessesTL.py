@@ -81,7 +81,7 @@ def update_layout():
                         dcc.DatePickerRange(
                             display_format='MMM Y',
                             id='incomplete-processes-tl-date-picker-range',
-                            start_date=datetime(2018, 1, 1),
+                            start_date=df['SCHEDULEDSTARTDATEFIELD'].dt.date.min(),
                             end_date=date.today()
                         ),
                     ], className='four columns'),
@@ -135,6 +135,9 @@ def update_layout():
                                     title='Incomplete Processes by Scheduled Start Month',
                                     yaxis=dict(
                                         title='Incomplete Processes'
+                                    ),
+                                    xaxis=dict(
+                                        title='Scheduled Start Month'
                                     )
                                 )
                             )
@@ -264,7 +267,7 @@ def update_ind_records_table_data(selected_start, selected_end, selected_staff, 
 
     df_selected = (df_selected.loc[(df_selected['SCHEDULEDSTARTDATEFIELD'] >= selected_start) & (df_selected['SCHEDULEDSTARTDATEFIELD'] <= selected_end)]
                    .sort_values(by='SCHEDULEDSTARTDATEFIELD'))
-    df_selected['Days Open'] = df_selected['Days Open'].round(1).map('{:,.1f}'.format)
+    df_selected['Days Open'] = df_selected['Days Open'].round(0)
     return df_selected.drop(['Process ID', 'SCHEDULEDSTARTDATEFIELD', 'Month Year', 'DateText'], axis=1)
 
 
@@ -299,6 +302,9 @@ def update_graph(start_date, end_date, staff, process_type, job_type, license_ty
                 yaxis=dict(
                     title='Incomplete Processes',
                     range=[0, df_results['Incomplete Processes'].max() + (df_results['Incomplete Processes'].max() / 50)]
+                ),
+                xaxis=dict(
+                    title='Scheduled Start Month'
                 )
         )
     }
