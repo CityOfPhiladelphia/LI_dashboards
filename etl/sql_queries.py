@@ -114,16 +114,16 @@ SLA_BL = SqlQuery(
     target_table = 'li_dash_sla_bl' 
 )
 
-LicensesWithCompletenessChecksButNoCompletedInspections = SqlQuery(
-    extract_query_file = 'LicensesWithCompletenessChecksButNoCompletedInspections.sql',
-    target_table = 'li_dash_licenseswcompleteness' 
+UninspectedBLsWithCompCheck = SqlQuery(
+    extract_query_file = 'UninspectedBLsWithCompChecks.sql',
+    target_table = 'li_dash_uninsp_bl_comp_check'
 )
 
 queries = [
     IndividualWorkloads,
     IncompleteProcessesBL,
     IncompleteProcessesTL,
-    LicensesWithCompletenessChecksButNoCompletedInspections,
+    UninspectedBLsWithCompCheck,
     Man001ActiveJobsBLInd,
     Man001ActiveJobsBLCount,
     Man001ActiveJobsTLInd, 

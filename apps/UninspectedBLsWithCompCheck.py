@@ -21,10 +21,10 @@ def query_data(dataset):
     from app import con
     with con() as con:
         if dataset == 'df_ind':
-            sql = 'SELECT * FROM li_dash_licenseswcompleteness'
+            sql = 'SELECT * FROM li_dash_uninsp_bl_comp_check'
             df = pd.read_sql_query(sql=sql, con=con, parse_dates=['MOSTRECENTCCFIELD'])
         elif dataset == 'last_ddl_time':
-            sql = "SELECT from_tz(cast(last_ddl_time as timestamp), 'GMT') at TIME zone 'US/Eastern' as LAST_DDL_TIME FROM user_objects WHERE object_name = 'LI_DASH_LICENSESWCOMPLETENESS'"
+            sql = "SELECT from_tz(cast(last_ddl_time as timestamp), 'GMT') at TIME zone 'US/Eastern' as LAST_DDL_TIME FROM user_objects WHERE object_name = 'LI_DASH_UNINSP_BL_COMP_CHECK'"
             df = pd.read_sql_query(sql=sql, con=con)
     return df.to_json(date_format='iso', orient='split')
 
@@ -44,7 +44,7 @@ def update_layout():
     return html.Div(
         children=[
             html.H1(
-                'Business Licenses with Completed Completeness Checks but No Completed Inspection',
+                'Uninspected Business Licenses with Completed Completeness Checks',
                 style={'margin-top': '10px', 'margin-bottom': '50px'}
             ),
             html.P(f"Data last updated {last_ddl_time['LAST_DDL_TIME'].iloc[0]}", style = {'text-align': 'center'}),

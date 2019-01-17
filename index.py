@@ -13,7 +13,7 @@ from apps import (Man001ActiveJobsBL, Man001ActiveJobsTL, Man002ActiveProcessesB
                   Man004BLJobVolumesBySubmissionType, Man004TLJobVolumesBySubmissionType,
                   Man005BLExpirationDates, Man005TLExpirationDates, Man006OverdueBLInspections, IndividualWorkloads,
                   IncompleteProcessesBL, IncompleteProcessesTL, SLA_BL, ExpiringLicensesTaxIssues,
-                  LicensesWithCompletenessChecksButNoCompletedInspections)
+                  UninspectedBLsWithCompCheck)
                   
 
 time = datetime.strftime(datetime.now(), '%I:%M %p %m/%d/%y')
@@ -50,7 +50,7 @@ def serve_layout():
                             html.A('Individual Workloads', href='/IndividualWorkloads'),
                             html.A('Incomplete Processes', href='/IncompleteProcessesBL'),
                             html.A('SLA License Issuance', href='/SLA_BL'),
-                            html.A('Licenses with Completed Completeness Checks but no Completed Inspections', href='/LicensesWithCompletenessChecksButNoCompletedInspections')
+                            html.A('Uninspected Licenses with Completeness Check', href='/UninspectedBLsWithCompCheck')
                         ], className='dropdown-content')
                     ], className='dropdown'),
                 ], className='navbar'),
@@ -105,8 +105,8 @@ def display_page(pathname):
         return SLA_BL.layout()
     elif pathname == '/ExpiringLicensesTaxIssues':
         return ExpiringLicensesTaxIssues.layout()
-    elif pathname == '/LicensesWithCompletenessChecksButNoCompletedInspections':
-        return LicensesWithCompletenessChecksButNoCompletedInspections.layout()
+    elif pathname == '/UninspectedBLsWithCompCheck':
+        return UninspectedBLsWithCompCheck.layout()
     else:
         return Man001ActiveJobsBL.layout()
 
