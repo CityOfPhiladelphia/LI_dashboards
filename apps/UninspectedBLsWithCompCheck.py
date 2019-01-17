@@ -81,7 +81,7 @@ def update_layout():
                         html.A(
                             'Download Data',
                             id='summary-table-download-link',
-                            download='LicensesWithCompletenessChecksButNoCompletedInspections_summary.csv',
+                            download='UninspectedBLsWithCompCheck_summary.csv',
                             href='',
                             target='_blank',
                         )
@@ -103,7 +103,7 @@ def update_layout():
                         html.A(
                             'Download Data',
                             id='table-download-link',
-                            download='LicensesWithCompletenessChecksButNoCompletedInspections.csv',
+                            download='UninspectedBLsWithCompCheck.csv',
                             href='',
                             target='_blank',
                         )
@@ -153,6 +153,15 @@ def update_layout():
                         html.Li('Vendor - Pushcart'),
                         html.Li('Vendor - Sidewalk Sales'),
                         html.Li('Vendor - Special Vending')
+                    ]),
+                    html.P("And excluding license types that have had very few inspections created and we're pretty sure"
+                           "shouldn't have inspections:"),
+                    html.Ul(children=[
+                        html.Li('Dumpster License - Private Property'),
+                        html.Li('Dumpster License - Public ROW'),
+                        html.Li('Food Estab, Retail Non-Permanent Location (Annual)'),
+                        html.Li('Food Establishment, Retail Permanent Location'),
+                        html.Li('Food Preparing and Serving (30+ SEATS)')
                     ])
                 ])
             ])
@@ -169,12 +178,11 @@ def get_summary_data(selected_start, selected_end, selected_license_type):
     df_selected = (df_selected.loc[(df_selected['MOSTRECENTCCFIELD'] >= selected_start) & (df_selected['MOSTRECENTCCFIELD'] <= selected_end)]
                    .groupby(['LICENSETYPE']).count()
                    .reset_index()
-                   .rename(columns={'LICENSETYPE': 'License Type', 'LICENSENUMBER': 'Licenses',
+                   .rename(columns={'LICENSETYPE': 'License Type', 'LICENSENUMBER': 'Uninspected Licenses',
                                     'INSPECTIONCREATEDDATE': 'Inspections Created',
-                                    'SCHEDULEDINSPECTIONDATE': 'Inspections Scheduled',
-                                    'INSPECTIONCOMPLETEDDATE': 'Inspections Completed'})
-                   .sort_values(by=['Licenses'], ascending=False))
-    return df_selected.drop(['MOSTRECENTISSUEDATE', 'MOSTRECENTCOMPLETENESSCHECK', 'MOSTRECENTCCFIELD', 'EXPIRATIONDATE', 'JOBLINK'], axis=1)
+                                    'SCHEDULEDINSPECTIONDATE': 'Inspections Scheduled'})
+                   .sort_values(by=['License Type'], ascending=True))
+    return df_selected.drop(['MOSTRECENTISSUEDATE', 'MOSTRECENTCOMPLETENESSCHECK', 'MOSTRECENTCCFIELD', 'EXPIRATIONDATE', 'JOBLINK', 'INSPECTIONCOMPLETEDDATE'], axis=1)
 
 
 def get_ind_records_data(selected_start, selected_end, selected_license_type):
