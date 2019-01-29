@@ -139,7 +139,7 @@ def get_data_object(selected_start, selected_end, username):
                 df_selected = df_selected[df_selected['CREATEDBYUSERNAME'].isin(username)]
             elif len(username) == 1:
                 df_selected = df_selected[df_selected['CREATEDBYUSERNAME'] == username[0]]
-    return df_selected.drop('JOBCREATEDDATEFIELD', axis=1)
+    return df_selected.drop(['JOBCREATEDDATEFIELD', 'JOBOBJECTID'], axis=1)
 
 
 def count_jobs(selected_start, selected_end, username):
