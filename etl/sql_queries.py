@@ -114,6 +114,11 @@ SLA_BL = SqlQuery(
     target_table = 'li_dash_sla_bl' 
 )
 
+SLA_TL = SqlQuery(
+    extract_query_file = 'SLA_TL.sql',
+    target_table = 'li_dash_sla_tl'
+)
+
 UninspectedBLsWithCompCheck = SqlQuery(
     extract_query_file = 'UninspectedBLsWithCompChecks.sql',
     target_table = 'li_dash_uninsp_bl_comp_check'
@@ -138,4 +143,5 @@ queries = [
     Man005TLExpirationDates,
     Man006OverdueBLInspections,
     SLA_BL,
+    SLA_TL
 ]

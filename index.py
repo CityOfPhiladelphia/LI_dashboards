@@ -12,7 +12,7 @@ from log_visitors import log_visitor
 from apps import (Man001ActiveJobsBL, Man001ActiveJobsTL, Man002ActiveProcessesBL, Man002ActiveProcessesTL,
                   Man004BLJobVolumesBySubmissionType, Man004TLJobVolumesBySubmissionType,
                   Man005BLExpirationDates, Man005TLExpirationDates, Man006OverdueBLInspections, IndividualWorkloads,
-                  IncompleteProcessesBL, IncompleteProcessesTL, SLA_BL, ExpiringLicensesTaxIssues,
+                  IncompleteProcessesBL, IncompleteProcessesTL, SLA_BL, SLA_TL, ExpiringLicensesTaxIssues,
                   UninspectedBLsWithCompCheck)
                   
 
@@ -36,7 +36,8 @@ def serve_layout():
                             html.A('Job Volumes by Submission Type', href='/JobVolumesBySubmissionTypeTL'),
                             html.A('Expiration Dates', href='/ExpirationDatesTL'),
                             html.A('Individual Workloads', href='/IndividualWorkloads'),
-                            html.A('Incomplete Processes', href='/IncompleteProcessesTL')
+                            html.A('Incomplete Processes', href='/IncompleteProcessesTL'),
+                            html.A('SLA License Issuance', href='/SLA_TL')
                         ], className='dropdown-content')
                     ], className='dropdown'),
                     html.Div([
@@ -103,6 +104,8 @@ def display_page(pathname):
         return IncompleteProcessesTL.layout()
     elif pathname == '/SLA_BL':
         return SLA_BL.layout()
+    elif pathname == '/SLA_TL':
+        return SLA_TL.layout()
     elif pathname == '/ExpiringLicensesTaxIssues':
         return ExpiringLicensesTaxIssues.layout()
     elif pathname == '/UninspectedBLsWithCompCheck':
