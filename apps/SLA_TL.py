@@ -135,7 +135,9 @@ def update_layout():
                             'Trade license jobs created in the last 13 months, the % of them that were completed, and the '
                             '% of them that were completed within SLA.'),
                         html.P(
-                            'Completed job: job having a completed process of one of these types: 2851903, 2854108, 2852692, 2852680, 2854639, 2853029, 2854845, 2855079.'),
+                            'Completed job: job having completed one of these processes: Issue License, '
+                            'Renew License, Amendment on Renewal, Generate License, Review Application, Amend License, '
+                            'Renewal Review Application, or Completeness Check.'),
                         html.P(
                             'Completed job within SLA: job having completed one of those processes 2 days or fewer after the job was '
                             'created. So if a job was created on Monday it would be considered within SLA if it was '
