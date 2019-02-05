@@ -14,6 +14,7 @@ from apps import (Man001ActiveJobsBL, Man001ActiveJobsTL, Man002ActiveProcessesB
                   Man005BLExpirationDates, Man005TLExpirationDates, Man006OverdueBLInspections, IndividualWorkloads,
                   IncompleteProcessesBL, IncompleteProcessesTL, SLA_BL, ExpiringLicensesTaxIssues,
                   UninspectedBLsWithCompCheck)
+from config import LI_STAT_URL
                   
 
 time = datetime.strftime(datetime.now(), '%I:%M %p %m/%d/%y')
@@ -62,11 +63,11 @@ def serve_layout():
                 html.Nav([
                     html.Div([
                         html.A('Contact LI GIS Team',
-                               href='mailto:ligisteam@phila.gov',
-                               style={'color': '#f2f2f2', 'float': 'left', 'margin-right': '10px'}),
+                               href='mailto:ligisteam@phila.gov'),
                         html.A('GitHub',
-                               href='https://github.com/CityOfPhiladelphia/LI_dashboards',
-                               style={'color': '#f2f2f2', 'float': 'left', 'margin-left': '10px'})
+                               href='https://github.com/CityOfPhiladelphia/LI_dashboards'),
+                        html.A('LI Stat',
+                               href=LI_STAT_URL),
                     ], style={'width': '500px', 'margin-left': 'auto', 'margin-right': 'auto'})
                 ], className='footer-navbar')
             ])
