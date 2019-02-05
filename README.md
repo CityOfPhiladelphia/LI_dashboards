@@ -42,12 +42,14 @@ The dashboards are as follows:
 - Run the etl process for one dashboard
 
 `python etl/etl_cli.py -n dashboard_table_name` 
+
     - Ex: 
     
         `python etl/etl_cli.py -n li_dash_indworkloads_bl`
 - Run the etl process for multiple specified dashboards
 
 `python etl/etl_cli.py -n dashboard_table_name1 -n dashboard_table_name2` 
+
     - Ex: 
     
         `python etl/etl_cli.py -n li_dash_indworkloads_bl -n li_dash_activejobs_bl_counts`
