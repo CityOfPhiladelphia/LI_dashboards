@@ -29,7 +29,8 @@ SELECT biz.address "Business Address",
   || Extract(YEAR FROM ins.scheduledinspectiondate) "Scheduled Inspection Date",
   ins.scheduledinspectiondate "ScheduledInspectionDateField",
   ROUND(SYSDATE - ins.scheduledinspectiondate) "Days Overdue",
-  (CASE
+  (
+  CASE
     WHEN ROUND(SYSDATE - ins.scheduledinspectiondate) < 7
     THEN 'Less than a week'
     WHEN ROUND(SYSDATE - ins.scheduledinspectiondate) BETWEEN 7 AND 30
@@ -39,18 +40,20 @@ SELECT biz.address "Business Address",
     ELSE 'More than a year'
   END) "Time Overdue",
   ins.inspectorname "Inspector",
-  'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1244842&objectHandle=' || ins.objectid || '&processHandle=' "Link"
+  'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1244842&objectHandle='
+  || ins.objectid
+  || '&processHandle=' "Link"
 FROM query.j_bl_inspection ins,
   query.r_bl_licenseinspection li,
   query.o_bl_license lic,
   query.o_bl_business biz,
   query.o_jobtypes jt
-WHERE ins.objectid               = li.inspectionid
-AND ins.jobtypeid                = jt.jobtypeid
-AND li.licenseid                 = lic.objectid
-AND lic.businessobjectid         = biz.objectid
-AND ins.scheduledinspectiondate <= SYSDATE
-AND ins.completeddate           IS NULL
+WHERE ins.objectid              = li.inspectionid
+AND ins.jobtypeid               = jt.jobtypeid
+AND li.licenseid                = lic.objectid
+AND lic.businessobjectid        = biz.objectid
+AND ins.scheduledinspectiondate < SYSDATE
+AND ins.completeddate          IS NULL
 UNION
 SELECT biz.address "Business Address",
   lic.externalfilenum "License Number",
@@ -85,7 +88,8 @@ SELECT biz.address "Business Address",
   || Extract(YEAR FROM ins.scheduledinspectiondate) "Scheduled Inspection Date",
   ins.scheduledinspectiondate "ScheduledInspectionDateField",
   ROUND(SYSDATE - ins.scheduledinspectiondate) "Days Overdue",
-  (CASE
+  (
+  CASE
     WHEN ROUND(SYSDATE - ins.scheduledinspectiondate) < 7
     THEN 'Less than a week'
     WHEN ROUND(SYSDATE - ins.scheduledinspectiondate) BETWEEN 7 AND 30
@@ -95,7 +99,9 @@ SELECT biz.address "Business Address",
     ELSE 'More than a year'
   END) "Time Overdue",
   ins.inspectorname "Inspector",
-  'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1244842&objectHandle=' || ins.objectid || '&processHandle=' "Link"
+  'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1244842&objectHandle='
+  || ins.objectid
+  || '&processHandle=' "Link"
 FROM query.j_bl_inspection ins,
   query.r_bl_applicationinspection api,
   query.j_bl_application ap,
@@ -103,14 +109,14 @@ FROM query.j_bl_inspection ins,
   query.r_bl_application_license apl,
   query.o_bl_license lic,
   query.o_bl_business biz
-WHERE ins.objectid               = api.inspectionid
-AND api.applicationid            = ap.objectid
-AND ap.jobtypeid                 = jt.jobtypeid
-AND ap.objectid                  = apl.applicationobjectid
-AND apl.licenseobjectid          = lic.objectid
-AND lic.businessobjectid         = biz.objectid
-AND ins.scheduledinspectiondate <= SYSDATE
-AND ins.completeddate           IS NULL
+WHERE ins.objectid              = api.inspectionid
+AND api.applicationid           = ap.objectid
+AND ap.jobtypeid                = jt.jobtypeid
+AND ap.objectid                 = apl.applicationobjectid
+AND apl.licenseobjectid         = lic.objectid
+AND lic.businessobjectid        = biz.objectid
+AND ins.scheduledinspectiondate < SYSDATE
+AND ins.completeddate          IS NULL
 UNION
 SELECT biz.address "Business Address",
   lic.externalfilenum "License Number",
@@ -145,7 +151,8 @@ SELECT biz.address "Business Address",
   || Extract(YEAR FROM ins.scheduledinspectiondate) "Scheduled Inspection Date",
   ins.scheduledinspectiondate "ScheduledInspectionDateField",
   ROUND(SYSDATE - ins.scheduledinspectiondate) "Days Overdue",
-  (CASE
+  (
+  CASE
     WHEN ROUND(SYSDATE - ins.scheduledinspectiondate) < 7
     THEN 'Less than a week'
     WHEN ROUND(SYSDATE - ins.scheduledinspectiondate) BETWEEN 7 AND 30
@@ -155,7 +162,9 @@ SELECT biz.address "Business Address",
     ELSE 'More than a year'
   END) "Time Overdue",
   ins.inspectorname "Inspector",
-  'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1244842&objectHandle=' || ins.objectid || '&processHandle=' "Link"
+  'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1244842&objectHandle='
+  || ins.objectid
+  || '&processHandle=' "Link"
 FROM query.j_bl_inspection ins,
   query.r_bl_amendrenewinspection ari,
   query.j_bl_amendrenew ar,
@@ -163,11 +172,11 @@ FROM query.j_bl_inspection ins,
   query.r_bl_amendrenew_license arl,
   query.o_bl_license lic,
   query.o_bl_business biz
-WHERE ins.objectid               = ari.inspectionid
-AND ari.amendrenewid             = ar.jobid
-AND ar.jobtypeid                 = jt.jobtypeid
-AND ar.objectid                  = arl.amendrenewid
-AND arl.licenseid                = lic.objectid
-AND lic.businessobjectid         = biz.objectid
-AND ins.scheduledinspectiondate <= SYSDATE
-AND ins.completeddate           IS NULL
+WHERE ins.objectid              = ari.inspectionid
+AND ari.amendrenewid            = ar.jobid
+AND ar.jobtypeid                = jt.jobtypeid
+AND ar.objectid                 = arl.amendrenewid
+AND arl.licenseid               = lic.objectid
+AND lic.businessobjectid        = biz.objectid
+AND ins.scheduledinspectiondate < SYSDATE
+AND ins.completeddate          IS NULL

@@ -1,15 +1,24 @@
 SELECT proc.processid,
   pt.description ProcessType,
-  j.ExternalFileNum JobNumber,  
+  j.ExternalFileNum JobNumber,
   REPLACE(jt.description, 'Business License ', '') JobType,
   'Business' LicenseKind,
   ap.licensetypesdisplayformat LicenseType,
   INITCAP(u.name) name,
-  Extract(month FROM proc.scheduledstartdate) || '/' ||Extract(day FROM proc.scheduledstartdate) || '/' || Extract(year FROM proc.scheduledstartdate) ScheduledStartDate,
-  Extract(month FROM proc.datecompleted) || '/' ||Extract(day FROM proc.datecompleted) || '/' || Extract(year FROM proc.datecompleted) DateCompleted,
+  Extract(MONTH FROM proc.scheduledstartdate)
+  || '/'
+  ||Extract(DAY FROM proc.scheduledstartdate)
+  || '/'
+  || Extract(YEAR FROM proc.scheduledstartdate) ScheduledStartDate,
+  Extract(MONTH FROM proc.datecompleted)
+  || '/'
+  ||Extract(DAY FROM proc.datecompleted)
+  || '/'
+  || Extract(YEAR FROM proc.datecompleted) DateCompleted,
   proc.datecompleted DateCompletedField,
   proc.datecompleted - proc.scheduledstartdate AS duration,
- (CASE
+  (
+  CASE
     WHEN jt.description LIKE 'Business License Application'
     THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1239699&objectHandle='
       ||j.jobid
@@ -29,23 +38,31 @@ AND proc.processtypeid     = pt.processtypeid
 AND j.jobtypeid            = jt.jobtypeid
 AND proc.completedbyuserid = u.userid
 AND proc.datecompleted     > add_months(TRUNC(SYSDATE, 'MM'),-13)
-AND proc.datecompleted    <= SYSDATE
+AND proc.datecompleted     < SYSDATE
 AND regexp_like(u.name, '[A-Za-z\s]+$')
 AND u.name <> 'PPG User'
 AND u.name <> 'POSSE system power user'
 UNION
 SELECT proc.processid,
   pt.description ProcessType,
-  j.ExternalFileNum JobNumber,  
+  j.ExternalFileNum JobNumber,
   REPLACE(REPLACE(jt.description, 'Business License ', ''), 'Amendment/Renewal', 'Amend/Renew') JobType,
   'Business' LicenseKind,
   ar.licensetypesdisplayformat LicenseType,
   INITCAP(u.name) name,
-  Extract(month FROM proc.scheduledstartdate) || '/' ||Extract(day FROM proc.scheduledstartdate) || '/' || Extract(year FROM proc.scheduledstartdate) ScheduledStartDate,
-  Extract(month FROM proc.datecompleted) || '/' ||Extract(day FROM proc.datecompleted) || '/' || Extract(year FROM proc.datecompleted) DateCompleted,
+  Extract(MONTH FROM proc.scheduledstartdate)
+  || '/'
+  ||Extract(DAY FROM proc.scheduledstartdate)
+  || '/'
+  || Extract(YEAR FROM proc.scheduledstartdate) ScheduledStartDate,
+  Extract(MONTH FROM proc.datecompleted)
+  || '/'
+  ||Extract(DAY FROM proc.datecompleted)
+  || '/'
+  || Extract(YEAR FROM proc.datecompleted) DateCompleted,
   proc.datecompleted DateCompletedField,
   proc.datecompleted - proc.scheduledstartdate AS duration,
-    (
+  (
   CASE
     WHEN jt.description LIKE 'Amendment/Renewal'
     THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1243107&objectHandle='
@@ -66,23 +83,32 @@ AND proc.processtypeid     = pt.processtypeid
 AND j.jobtypeid            = jt.jobtypeid
 AND proc.completedbyuserid = u.userid
 AND proc.datecompleted     > add_months(TRUNC(SYSDATE, 'MM'),-13)
-AND proc.datecompleted    <= SYSDATE
+AND proc.datecompleted     < SYSDATE
 AND regexp_like(u.name, '[A-Za-z\s]+$')
 AND u.name <> 'PPG User'
 AND u.name <> 'POSSE system power user'
 UNION
 SELECT proc.processid,
   pt.description ProcessType,
-  j.ExternalFileNum JobNumber,  
+  j.ExternalFileNum JobNumber,
   REPLACE(jt.description, 'Trade License ', '') JobType,
   'Trade' LicenseKind,
   lt.title LicenseType,
   INITCAP(u.name) name,
-  Extract(month FROM proc.scheduledstartdate) || '/' ||Extract(day FROM proc.scheduledstartdate) || '/' || Extract(year FROM proc.scheduledstartdate) ScheduledStartDate,
-  Extract(month FROM proc.datecompleted) || '/' ||Extract(day FROM proc.datecompleted) || '/' || Extract(year FROM proc.datecompleted) DateCompleted,
+  Extract(MONTH FROM proc.scheduledstartdate)
+  || '/'
+  ||Extract(DAY FROM proc.scheduledstartdate)
+  || '/'
+  || Extract(YEAR FROM proc.scheduledstartdate) ScheduledStartDate,
+  Extract(MONTH FROM proc.datecompleted)
+  || '/'
+  ||Extract(DAY FROM proc.datecompleted)
+  || '/'
+  || Extract(YEAR FROM proc.datecompleted) DateCompleted,
   proc.datecompleted DateCompletedField,
   proc.datecompleted - proc.scheduledstartdate AS duration,
-  (CASE
+  (
+  CASE
     WHEN jt.description LIKE 'Trade License Application'
     THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=2854033&objectHandle='
       ||j.jobid
@@ -106,26 +132,35 @@ AND proc.processtypeid      = pt.processtypeid
 AND j.jobtypeid             = jt.jobtypeid
 AND proc.completedbyuserid  = u.userid
 AND proc.datecompleted      > add_months(TRUNC(SYSDATE, 'MM'),-13)
-AND proc.datecompleted     <= SYSDATE
+AND proc.datecompleted      < SYSDATE
 AND regexp_like(u.name, '[A-Za-z\s]+$')
 AND u.name <> 'PPG User'
 AND u.name <> 'POSSE system power user'
 UNION
 SELECT proc.processid,
   pt.description ProcessType,
-  j.ExternalFileNum JobNumber,  
+  j.ExternalFileNum JobNumber,
   REPLACE(jt.description, 'Trade License ', '') JobType,
   'Trade' LicenseKind,
   lt.title LicenseType,
   INITCAP(u.name) name,
-  Extract(month FROM proc.scheduledstartdate) || '/' ||Extract(day FROM proc.scheduledstartdate) || '/' || Extract(year FROM proc.scheduledstartdate) ScheduledStartDate,
-  Extract(month FROM proc.datecompleted) || '/' ||Extract(day FROM proc.datecompleted) || '/' || Extract(year FROM proc.datecompleted) DateCompleted,
+  Extract(MONTH FROM proc.scheduledstartdate)
+  || '/'
+  ||Extract(DAY FROM proc.scheduledstartdate)
+  || '/'
+  || Extract(YEAR FROM proc.scheduledstartdate) ScheduledStartDate,
+  Extract(MONTH FROM proc.datecompleted)
+  || '/'
+  ||Extract(DAY FROM proc.datecompleted)
+  || '/'
+  || Extract(YEAR FROM proc.datecompleted) DateCompleted,
   proc.datecompleted DateCompletedField,
   proc.datecompleted - proc.scheduledstartdate AS duration,
-  (CASE
+  (
+  CASE
     WHEN jt.description LIKE 'Trade License Amend/Renew'
     THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=2857688&objectHandle='
-      ||j.jobid      
+      ||j.jobid
       ||'&processHandle='
       ||proc.processid
       ||'&paneId=2857688_87'
@@ -148,7 +183,7 @@ AND proc.processtypeid      = pt.processtypeid
 AND j.jobtypeid             = jt.jobtypeid
 AND proc.completedbyuserid  = u.userid
 AND proc.datecompleted      > add_months(TRUNC(SYSDATE, 'MM'),-13)
-AND proc.datecompleted     <= SYSDATE
+AND proc.datecompleted      < SYSDATE
 AND regexp_like(u.name, '[A-Za-z\s]+$')
 AND u.name <> 'PPG User'
 AND u.name <> 'POSSE system power user'
