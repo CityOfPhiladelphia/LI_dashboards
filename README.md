@@ -24,12 +24,35 @@ The dashboards are as follows:
 - Pip
 - [Redis](https://github.com/rgl/redis/downloads)
 
-## Usage
-1. Install dependencies `pip install -r requirements.txt`
+## Setup
+1. Install dependencies 
+```bash
+$ pip install -r requirements.txt
+```
 2. Get the config.py file from one of us containing usernames and password logins and put it in your LI_dashboards base directory.
 3. [Install Redis](https://github.com/rgl/redis/downloads)
-4. Launch Redis `C:\Program Files\Redis\redis-server`
-5. Launch the web server `python index.py`
-6. Run the etl process for all queries `python etl/etl.py`
-7. Run the etl process for one dashboard `python etl/etl_cli.py -n dashboard_table_name` 
-8. Run the etl process for multiple specified dashboards `python etl/etl_cli.py -n dashboard_table_name1 -n dashboard_table_name2` 
+4. Launch Redis 
+```bash
+$ C:\Program Files\Redis\redis-server
+```
+
+## Web Server
+`$ python index.py`
+
+## ETL
+Run the etl process for all queries 
+```bash
+$ cd etl
+$ python etl.py
+```
+Run the etl process for one dashboard 
+
+```bash
+$ cd etl
+$ python etl_cli.py -n dashboard_table_name
+``` 
+Run the etl process for multiple specified dashboards 
+```bash
+$ cd etl
+$ python etl_cli.py -n dashboard_table_name1 -n dashboard_table_name2
+``` 
