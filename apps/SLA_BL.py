@@ -98,24 +98,6 @@ def update_layout():
                 ], className='dashrow filters'),
                 html.Div([
                     html.Div([
-                        dcc.Graph(
-                            id='sla-graph',
-                            config={
-                                'displayModeBar': False
-                            },
-                            figure=go.Figure(
-                                data=[],
-                                layout=go.Layout(
-                                    yaxis=dict(
-                                        title='Jobs Created'
-                                    )
-                                )
-                            )
-                        )
-                    ], className='twelve columns'),
-                ], className='dashrow'),
-                html.Div([
-                    html.Div([
                         html.H1('', id='sla-jobs-created-indicator', style={'font-size': '35pt'}),
                         html.H2('Jobs Created', style={'font-size': '30pt'})
                     ], className='four columns', style={'text-align': 'center', 'margin': 'auto', 'padding': '50px 0'}),
@@ -127,6 +109,42 @@ def update_layout():
                         html.H1('', id='sla-percent-completed-within-sla-indicator', style={'font-size': '35pt'}),
                         html.H2('Completed Within SLA', style={'font-size': '30pt'})
                     ], className='four columns', style={'text-align': 'center', 'margin': 'auto', 'padding': '50px 0'})
+                ], className='dashrow'),
+                html.Div([
+                    html.Div([
+                        dcc.Graph(
+                            id='sla-bl-jobs-graph',
+                            config={
+                                'displayModeBar': False
+                            },
+                            figure=go.Figure(
+                                data=[],
+                                layout=go.Layout(
+                                    yaxis=dict(
+                                        title='Jobs'
+                                    )
+                                )
+                            )
+                        )
+                    ], className='twelve columns'),
+                ], className='dashrow'),
+                html.Div([
+                    html.Div([
+                        dcc.Graph(
+                            id='sla-bl-percent-graph',
+                            config={
+                                'displayModeBar': False
+                            },
+                            figure=go.Figure(
+                                data=[],
+                                layout=go.Layout(
+                                    yaxis=dict(
+                                        title='%'
+                                    )
+                                )
+                            )
+                        )
+                    ], className='twelve columns'),
                 ], className='dashrow'),
                 html.Details([
                     html.Summary('Query Description'),
@@ -180,27 +198,57 @@ def update_percent_completed_within_sla(selected_start, selected_end, selected_j
     return '{:,.0f}%'.format(percent_completed_within_sla)
 
 
-def update_graph_data(selected_start, selected_end, selected_job_type, selected_time_agg):
+def update_jobs_graph_data(selected_start, selected_end, selected_job_type, selected_time_agg):
     df_selected = dataframe('df_ind')
 
     if selected_job_type != "All":
-        df_selected = df_selected[(df_selected['Job '
-                                               'Type'] == selected_job_type)]
+        df_selected = df_selected[(df_selected['Job Type'] == selected_job_type)]
     if selected_time_agg == "Month":
         df_selected = (df_selected.loc[(df_selected['JOBCREATEDDATEFIELD'] >= selected_start) & (df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
-                       .groupby(['Month Year', 'MonthDateText']).agg({'Job ID': 'count', 'Process Completed Day': 'count',
-                                                                      'W/in SLA': 'sum'})
+                       .groupby(['Month Year', 'MonthDateText']).agg(
+                            {'Job ID': 'count', 'Process Completed Day': 'count'})
                        .reset_index()
-                       .rename(columns={'Month Year': 'Date Created', 'MonthDateText': 'DateText', 'Job ID': 'Jobs Created',
-                                        'Process Completed Day': 'Completeness Checks Completed', 'W/in SLA': '# w/in SLA'})
+                       .rename(
+                            columns={'Month Year': 'Date Created', 'MonthDateText': 'DateText', 'Job ID': 'Jobs Created',
+                                    'Process Completed Day': 'Jobs Completed'})
                        .sort_values(by='Date Created', ascending=False))
     if selected_time_agg == "Day":
         df_selected = (df_selected.loc[(df_selected['JOBCREATEDDATEFIELD'] >= selected_start) & (df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
-                       .groupby(['Job Created Day', 'DayDateText']).agg({'Job ID': 'count', 'Process Completed Day': 'count',
-                                                                        'W/in SLA': 'sum'})
+                       .groupby(['Job Created Day', 'DayDateText']).agg(
+                            {'Job ID': 'count', 'Process Completed Day': 'count'})
                        .reset_index()
-                       .rename(columns={'Job Created Day': 'Date Created', 'DayDateText': 'DateText', 'Job ID': 'Jobs Created',
-                                        'Process Completed Day': 'Completeness Checks Completed', 'W/in SLA': '# w/in SLA'})
+                       .rename(
+                            columns={'Job Created Day': 'Date Created', 'DayDateText': 'DateText', 'Job ID': 'Jobs Created',
+                                    'Process Completed Day': 'Jobs Completed'})
+                       .sort_values(by='Date Created', ascending=False))
+    return df_selected
+
+def update_percent_graph_data(selected_start, selected_end, selected_job_type, selected_time_agg):
+    df_selected = dataframe('df_ind')
+
+    if selected_job_type != "All":
+        df_selected = df_selected[(df_selected['Job Type'] == selected_job_type)]
+    if selected_time_agg == "Month":
+        df_selected = (df_selected.loc[(df_selected['JOBCREATEDDATEFIELD'] >= selected_start) & (
+        df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
+                       .groupby(['Month Year', 'MonthDateText']).agg(
+                            {'Job ID': 'count', 'Process Completed Day': 'count',
+                            'W/in SLA': 'sum'})
+                       .reset_index()
+                       .rename(
+                            columns={'Month Year': 'Date Created', 'MonthDateText': 'DateText', 'Job ID': 'Jobs Created',
+                                    'Process Completed Day': 'Completeness Checks Completed', 'W/in SLA': '# w/in SLA'})
+                       .sort_values(by='Date Created', ascending=False))
+    if selected_time_agg == "Day":
+        df_selected = (df_selected.loc[(df_selected['JOBCREATEDDATEFIELD'] >= selected_start) & (
+        df_selected['JOBCREATEDDATEFIELD'] <= selected_end)]
+                       .groupby(['Job Created Day', 'DayDateText']).agg(
+                            {'Job ID': 'count', 'Process Completed Day': 'count',
+                            'W/in SLA': 'sum'})
+                       .reset_index()
+                       .rename(
+                            columns={'Job Created Day': 'Date Created', 'DayDateText': 'DateText', 'Job ID': 'Jobs Created',
+                                    'Process Completed Day': 'Completeness Checks Completed', 'W/in SLA': '# w/in SLA'})
                        .sort_values(by='Date Created', ascending=False))
     df_selected['% Completed'] = df_selected['Completeness Checks Completed'] / df_selected['Jobs Created'] * 100
     df_selected['% Completed'] = df_selected['% Completed'].round(0)
@@ -208,15 +256,42 @@ def update_graph_data(selected_start, selected_end, selected_job_type, selected_
     df_selected['% Completed w/in SLA'] = df_selected['% Completed w/in SLA'].round(0)
     return df_selected
 
+@app.callback(
+    Output('sla-jobs-created-indicator', 'children'),
+    [Input('sla-date-picker-range', 'start_date'),
+     Input('sla-date-picker-range', 'end_date'),
+     Input('sla-job-type-dropdown', 'value')])
+def update_jobs_created_indicator(start_date, end_date, job_type):
+    jobs_created = update_jobs_created(start_date, end_date, job_type)
+    return str(jobs_created)
 
 @app.callback(
-    Output('sla-graph', 'figure'),
+    Output('sla-percent-completed-indicator', 'children'),
+    [Input('sla-date-picker-range', 'start_date'),
+     Input('sla-date-picker-range', 'end_date'),
+     Input('sla-job-type-dropdown', 'value')])
+def update_percent_completed_indicator(start_date, end_date, job_type):
+    percent_completed = update_percent_completed(start_date, end_date, job_type)
+    return str(percent_completed)
+
+@app.callback(
+    Output('sla-percent-completed-within-sla-indicator', 'children'),
+    [Input('sla-date-picker-range', 'start_date'),
+     Input('sla-date-picker-range', 'end_date'),
+     Input('sla-job-type-dropdown', 'value')])
+def update_percent_completed_within_sla_indicator(start_date, end_date, job_type):
+    percent_completed_within_sla = update_percent_completed_within_sla(start_date, end_date, job_type)
+    return str(percent_completed_within_sla)
+
+
+@app.callback(
+    Output('sla-bl-jobs-graph', 'figure'),
     [Input('sla-date-picker-range', 'start_date'),
      Input('sla-date-picker-range', 'end_date'),
      Input('sla-job-type-dropdown', 'value'),
      Input('sla-time-agg-dropdown', 'value')])
-def update_graph(start_date, end_date, job_type, time_agg):
-    df_results = update_graph_data(start_date, end_date, job_type, time_agg)
+def update_jobs_graph(start_date, end_date, job_type, time_agg):
+    df_results = update_jobs_graph_data(start_date, end_date, job_type, time_agg)
     return {
         'data': [
             go.Scatter(
@@ -233,6 +308,40 @@ def update_graph(start_date, end_date, job_type, time_agg):
             ),
             go.Scatter(
                 x=df_results['Date Created'],
+                y=df_results['Jobs Completed'],
+                mode='lines',
+                text=df_results['DateText'],
+                hoverinfo='text+y',
+                line=dict(
+                    shape='spline',
+                    color='#ff7f0e'
+                ),
+                name='Jobs Completed'
+            )
+        ],
+        'layout': go.Layout(
+                xaxis=dict(
+                    title='Job Creation Date'
+                ),
+                yaxis=dict(
+                    title='Jobs',
+                    range=[0, df_results['Jobs Created'].max() + (df_results['Jobs Created'].max() / 25)]
+                )
+        )
+    }
+
+@app.callback(
+    Output('sla-bl-percent-graph', 'figure'),
+    [Input('sla-date-picker-range', 'start_date'),
+     Input('sla-date-picker-range', 'end_date'),
+     Input('sla-job-type-dropdown', 'value'),
+     Input('sla-time-agg-dropdown', 'value')])
+def update_percent_graph(start_date, end_date, job_type, time_agg):
+    df_results = update_percent_graph_data(start_date, end_date, job_type, time_agg)
+    return {
+        'data': [
+            go.Scatter(
+                x=df_results['Date Created'],
                 y=df_results['% Completed'].map('{:,.0f}%'.format),
                 mode='lines',
                 text=df_results['DateText'],
@@ -241,8 +350,8 @@ def update_graph(start_date, end_date, job_type, time_agg):
                     shape='spline',
                     color='#ff7f0e'
                 ),
-                name='% Completed',
-                yaxis='y2'
+                name='% of Jobs Completed',
+                yaxis='y'
             ),
             go.Scatter(
                 x=df_results['Date Created'],
@@ -252,60 +361,19 @@ def update_graph(start_date, end_date, job_type, time_agg):
                 hoverinfo='text+y',
                 line=dict(
                     shape='spline',
-                    color='#8B0000'
+                    color='#008000'
                 ),
-                name='% Completed w/in SLA',
-                yaxis='y2'
+                name='% of Jobs Completed w/in SLA',
+                yaxis='y'
             )
         ],
         'layout': go.Layout(
-                yaxis=dict(
-                    title='Jobs Created',
-                    range=[0, df_results['Jobs Created'].max() + (df_results['Jobs Created'].max()/25)]
-                ),
                 xaxis=dict(
                     title='Job Creation Date'
                 ),
-                yaxis2=dict(
+                yaxis=dict(
                     title='% of Jobs',
-                    titlefont=dict(
-                        color='#ff7f0e'
-                    ),
-                    tickfont=dict(
-                        color='#ff7f0e'
-                    ),
-                    overlaying='y',
-                    side='right',
                     range=[0, 100]
                 )
         )
     }
-
-@app.callback(
-    Output('sla-jobs-created-indicator', 'children'),
-    [Input('sla-date-picker-range', 'start_date'),
-     Input('sla-date-picker-range', 'end_date'),
-     Input('sla-job-type-dropdown', 'value')])
-def update_jobs_created_indicator(start_date, end_date, job_type):
-    jobs_created = update_jobs_created(start_date, end_date, job_type)
-    return str(jobs_created)
-
-
-@app.callback(
-    Output('sla-percent-completed-indicator', 'children'),
-    [Input('sla-date-picker-range', 'start_date'),
-     Input('sla-date-picker-range', 'end_date'),
-     Input('sla-job-type-dropdown', 'value')])
-def update_percent_completed_indicator(start_date, end_date, job_type):
-    percent_completed = update_percent_completed(start_date, end_date, job_type)
-    return str(percent_completed)
-
-
-@app.callback(
-    Output('sla-percent-completed-within-sla-indicator', 'children'),
-    [Input('sla-date-picker-range', 'start_date'),
-     Input('sla-date-picker-range', 'end_date'),
-     Input('sla-job-type-dropdown', 'value')])
-def update_percent_completed_within_sla_indicator(start_date, end_date, job_type):
-    percent_completed_within_sla = update_percent_completed_within_sla(start_date, end_date, job_type)
-    return str(percent_completed_within_sla)
