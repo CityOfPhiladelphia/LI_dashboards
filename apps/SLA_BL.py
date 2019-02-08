@@ -98,15 +98,15 @@ def update_layout():
                 ], className='dashrow filters'),
                 html.Div([
                     html.Div([
-                        html.H1('', id='sla-jobs-created-indicator', style={'font-size': '35pt'}),
+                        html.H1('', id='sla-bl-jobs-created-indicator', style={'font-size': '35pt'}),
                         html.H2('Jobs Created', style={'font-size': '30pt'})
                     ], className='four columns', style={'text-align': 'center', 'margin': 'auto', 'padding': '50px 0'}),
                     html.Div([
-                        html.H1('', id='sla-percent-completed-indicator', style={'font-size': '35pt'}),
+                        html.H1('', id='sla-bl-percent-completed-indicator', style={'font-size': '35pt'}),
                         html.H2('Completed', style={'font-size': '30pt'})
                     ], className='four columns', style={'text-align': 'center', 'margin': 'auto', 'padding': '50px 0'}),
                     html.Div([
-                        html.H1('', id='sla-percent-completed-within-sla-indicator', style={'font-size': '35pt'}),
+                        html.H1('', id='sla-bl-percent-completed-within-sla-indicator', style={'font-size': '35pt'}),
                         html.H2('Completed Within SLA', style={'font-size': '30pt'})
                     ], className='four columns', style={'text-align': 'center', 'margin': 'auto', 'padding': '50px 0'})
                 ], className='dashrow'),
@@ -257,7 +257,7 @@ def update_percent_graph_data(selected_start, selected_end, selected_job_type, s
     return df_selected
 
 @app.callback(
-    Output('sla-jobs-created-indicator', 'children'),
+    Output('sla-bl-jobs-created-indicator', 'children'),
     [Input('sla-date-picker-range', 'start_date'),
      Input('sla-date-picker-range', 'end_date'),
      Input('sla-job-type-dropdown', 'value')])
@@ -266,7 +266,7 @@ def update_jobs_created_indicator(start_date, end_date, job_type):
     return str(jobs_created)
 
 @app.callback(
-    Output('sla-percent-completed-indicator', 'children'),
+    Output('sla-bl-percent-completed-indicator', 'children'),
     [Input('sla-date-picker-range', 'start_date'),
      Input('sla-date-picker-range', 'end_date'),
      Input('sla-job-type-dropdown', 'value')])
@@ -275,7 +275,7 @@ def update_percent_completed_indicator(start_date, end_date, job_type):
     return str(percent_completed)
 
 @app.callback(
-    Output('sla-percent-completed-within-sla-indicator', 'children'),
+    Output('sla-bl-percent-completed-within-sla-indicator', 'children'),
     [Input('sla-date-picker-range', 'start_date'),
      Input('sla-date-picker-range', 'end_date'),
      Input('sla-job-type-dropdown', 'value')])
