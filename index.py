@@ -7,8 +7,6 @@ from flask import request
 from datetime import datetime
 
 from app import app, server
-from etl.send_email import send_email
-from log_visitors import log_visitor
 from apps import (Man001ActiveJobsBL, Man001ActiveJobsTL, Man002ActiveProcessesBL, Man002ActiveProcessesTL,
                   Man004BLJobVolumesBySubmissionType, Man004TLJobVolumesBySubmissionType,
                   Man005BLExpirationDates, Man005TLExpirationDates, Man006OverdueBLInspections, IndividualWorkloads,
@@ -78,7 +76,6 @@ app.layout = serve_layout
 @app.callback(Output('page-content', 'children'),
               [Input('url', 'pathname')])
 def display_page(pathname):
-    #    log_visitor()
     if pathname == '/ActiveJobsTL':
         return Man001ActiveJobsTL.layout()
     elif pathname == '/ActiveJobsBL':
@@ -115,11 +112,7 @@ def display_page(pathname):
         return Man001ActiveJobsBL.layout()
 
 if __name__ == '__main__':
-    # app.run_server(host='127.0.0.1', port=5001)
-    try:
-        http_server = WSGIServer(('0.0.0.0', 8000), server)
-    except:
-        send_email()
-
-    print('Server has loaded.')
+    http_server = WSGIServer(('0.0.0.0', 8000), server)
     http_server.serve_forever()
+    print('Server has loaded.')
+    

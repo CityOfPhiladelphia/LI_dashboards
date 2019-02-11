@@ -3,32 +3,6 @@ class SqlQuery():
         self.extract_query_file = 'queries/' + extract_query_file
         self.target_table = target_table
 
-    @property
-    def columns(self):
-        '''Returns the column names from the target_table in GISLICLD.'''
-        from li_dbs import GISLICLD
-
-        with GISLICLD.GISLICLD() as con:
-            with con.cursor() as cursor:
-                sql = f"""SELECT 
-                              column_name
-                          FROM 
-                              all_tab_cols
-                          WHERE 
-                              table_name = '{self.target_table.upper()}'"""
-                cursor.execute(sql)
-                cols = cursor.fetchall()
-                cols = [col[0] for col in cols]
-        return cols
-
-    @property
-    def insert_query(self):
-        '''Generates the insert query based on the target_table and columns.'''
-        insert_q = f'''INSERT INTO {self.target_table} (
-                            {", ".join(column for column in self.columns)})
-                       VALUES ({", ".join(":" + str(num + 1) for num in range(len(self.columns)))})'''
-        return insert_q
-
 IndividualWorkloads = SqlQuery(
     extract_query_file = 'individual_workloads.sql',
     target_table = 'li_dash_indworkloads'

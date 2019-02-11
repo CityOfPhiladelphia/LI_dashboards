@@ -4,7 +4,7 @@ SELECT proc.processid,
   REPLACE(jt.description, 'Business License ', '') JobType,
   'Business' LicenseKind,
   ap.licensetypesdisplayformat LicenseType,
-  INITCAP(u.name) name,
+  INITCAP(u.name) Person,
   Extract(MONTH FROM proc.scheduledstartdate)
   || '/'
   ||Extract(DAY FROM proc.scheduledstartdate)
@@ -49,7 +49,7 @@ SELECT proc.processid,
   REPLACE(REPLACE(jt.description, 'Business License ', ''), 'Amendment/Renewal', 'Amend/Renew') JobType,
   'Business' LicenseKind,
   ar.licensetypesdisplayformat LicenseType,
-  INITCAP(u.name) name,
+  INITCAP(u.name) Person,
   Extract(MONTH FROM proc.scheduledstartdate)
   || '/'
   ||Extract(DAY FROM proc.scheduledstartdate)
@@ -94,7 +94,7 @@ SELECT proc.processid,
   REPLACE(jt.description, 'Trade License ', '') JobType,
   'Trade' LicenseKind,
   lt.title LicenseType,
-  INITCAP(u.name) name,
+  INITCAP(u.name) Person,
   Extract(MONTH FROM proc.scheduledstartdate)
   || '/'
   ||Extract(DAY FROM proc.scheduledstartdate)
@@ -143,7 +143,7 @@ SELECT proc.processid,
   REPLACE(jt.description, 'Trade License ', '') JobType,
   'Trade' LicenseKind,
   lt.title LicenseType,
-  INITCAP(u.name) name,
+  INITCAP(u.name) Person,
   Extract(MONTH FROM proc.scheduledstartdate)
   || '/'
   ||Extract(DAY FROM proc.scheduledstartdate)

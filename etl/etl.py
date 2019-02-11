@@ -1,39 +1,38 @@
-from li_dbs import ECLIPSE_PROD, GISLICLD
 import sys
 import datetime
 
-def etl(query):
-    # extract data from source db
-    with ECLIPSE_PROD.ECLIPSE_PROD() as source:
-        with source.cursor() as source_cursor:
-            with open(query.extract_query_file) as sql:
-                extract_query = sql.read()
-            source_cursor.execute(extract_query)
-            data = source_cursor.fetchall()
+import petl as etl
 
-    with GISLICLD.GISLICLD() as target:
-        with target.cursor() as target_cursor:
-            # truncate the target db
-            target_cursor.execute(f'TRUNCATE TABLE {query.target_table}')
-            print(f'Truncated table {query.target_table}')
-            # load data into target db
-            target_cursor.executemany(query.insert_query, data)
-            print(f'Data loaded into table {query.target_table}')
-        target.commit()
-        print(f'{len(data)} rows loaded into GISLICLD.{query.target_table}.')
+from li_dbs import ECLIPSE_PROD, GISLICLD
+# from utils import timeout, get_logger, get_cursor, send_email
+from utils import timeout, get_logger, get_cursor
+
+
+def get_extract_query(query):
+    with open(query.extract_query_file) as sql:
+        return sql.read()
+
+@timeout(1800)
+def etl_(query, target, source):
+    extract_query = get_extract_query(query)
+    target_table = query.target_table
+
+    etl.fromdb(source, extract_query) \
+       .todb(get_cursor(target), target_table.upper())
 
 def etl_process(queries):
-    print('---------------------------------')
-    print('ETL process initialized: ' + str(datetime.datetime.now()))
-    # loop through sql queries
-    for query in queries:
-        try:
-            etl(query)
-        except Exception as e:
-            # send_email()
-            print(f'ETL Process into GISLICLD.{query.target_table} failed.')
-            exc_type, exc_obj, tb = sys.exc_info()
-            lineno = tb.tb_lineno
-            print('Exception on line {}'.format(lineno))
-            print(f'Error Message: {e}')
+    logger = get_logger()
+    logger.info('---------------------------------')
+    logger.info('ETL process initialized: ' + str(datetime.datetime.now()))
 
+    with GISLICLD.GISLICLD() as target, ECLIPSE_PROD.ECLIPSE_PROD() as source:
+
+        for query in queries:
+            try:
+                etl_(query, target, source)
+                logger.info(f'{query.target_table} successfully updated.')
+            except:
+                # send_email()
+                logger.error(f'ETL Process into GISLICLD.{query.target_table} failed.', exc_info=True)
+
+    logger.info('ETL process ended: ' + str(datetime.datetime.now()))
