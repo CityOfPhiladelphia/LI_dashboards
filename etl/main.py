@@ -1,6 +1,6 @@
 from etl import etl_process
 from sql_queries import queries
-# from utils import send_email
+from utils import send_email
 
 
 def main():
@@ -11,4 +11,4 @@ if __name__ == '__main__':
     try:
         main()
     except:
-        # send_email()
+        send_email()
