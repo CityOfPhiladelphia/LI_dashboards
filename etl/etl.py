@@ -31,7 +31,6 @@ def etl_process(queries):
                 etl_(query, target, source)
                 logger.info(f'{query.target_table} successfully updated.')
             except:
-                send_email()
                 logger.error(f'ETL Process into GISLICLD.{query.target_table} failed.', exc_info=True)
 
     logger.info('ETL process ended: ' + str(datetime.datetime.now()))
