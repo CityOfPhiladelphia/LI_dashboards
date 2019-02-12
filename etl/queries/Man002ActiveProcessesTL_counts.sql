@@ -1,8 +1,8 @@
-SELECT DISTINCT JobType "JobType",
-  ProcessType "ProcessType",
-  LicenseType "LicenseType",
-  timesincescheduledstartdate "TimeSinceScheduledStartDate",
-  COUNT(DISTINCT ProcessID) "ProcessCounts"
+SELECT DISTINCT JobType JobType,
+  ProcessType ProcessType,
+  LicenseType LicenseType,
+  timesincescheduledstartdate TimeSinceScheduledStartDate,
+  COUNT(DISTINCT ProcessID) ProcessCounts
 FROM
   (SELECT DISTINCT j.ExternalFileNum JobExtNum,
     j.StatusId,

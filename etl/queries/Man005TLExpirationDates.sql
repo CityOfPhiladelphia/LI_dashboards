@@ -1,6 +1,6 @@
-SELECT lic.licensenumber "LicenseNumber",
-  lic.licensetype "LicenseType",
-  TO_DATE(lic.licenseexpirydate) "ExpirationDate",
+SELECT lic.licensenumber LicenseNumber,
+  lic.licensetype LicenseType,
+  TO_DATE(lic.licenseexpirydate) ExpirationDate,
   (
   CASE
     WHEN ap.createdby LIKE '%2%'
@@ -24,27 +24,27 @@ SELECT lic.licensenumber "LicenseNumber",
     WHEN ap.createdby = 'POSSE system power user'
     THEN 'Revenue'
     ELSE 'Staff'
-  END) "CreatedByType",
-  ap.externalfilenum "JobNumber",
-  REPLACE(jt.name, 'j_TL_', '') "JobType",
+  END) CreatedByType,
+  ap.externalfilenum JobNumber,
+  REPLACE(jt.name, 'j_TL_', '') JobType,
   Extract(MONTH FROM ap.createddate)
   || '/'
   ||Extract(DAY FROM ap.createddate)
   || '/'
-  || Extract(YEAR FROM ap.createddate) "JobCreatedDate",
+  || Extract(YEAR FROM ap.createddate) JobCreatedDate,
   Extract(MONTH FROM ap.completeddate)
   || '/'
   ||Extract(DAY FROM ap.completeddate)
   || '/'
-  || Extract(YEAR FROM ap.completeddate) "JobCompletedDate",
-  NULL "LicenseRenewedOnDate",
+  || Extract(YEAR FROM ap.completeddate) JobCompletedDate,
+  NULL LicenseRenewedOnDate,
   (
   CASE
     WHEN jt.description LIKE 'Trade License Application'
     THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=2855291&objectHandle='
       ||lic.objectid
       ||'&processHandle='
-  END ) "JobLink"
+  END ) JobLink
 FROM
   (SELECT licensenumber,
     licensetype,
@@ -64,9 +64,9 @@ AND ap.statusid LIKE '1036493'
 AND ap.externalfilenum LIKE 'TL%'
 AND lic.licenseexpirydate IS NOT NULL
 UNION
-SELECT lic.licensenumber "LicenseNumber",
-  lic.licensetype "LicenseType",
-  TO_DATE(lic.licenseexpirydate) "ExpirationDate",
+SELECT lic.licensenumber LicenseNumber,
+  lic.licensetype LicenseType,
+  TO_DATE(lic.licenseexpirydate) ExpirationDate,
   (
   CASE
     WHEN ar.createdby LIKE '%2%'
@@ -90,27 +90,27 @@ SELECT lic.licensenumber "LicenseNumber",
     WHEN ar.createdby = 'POSSE system power user'
     THEN 'Revenue'
     ELSE 'Staff'
-  END ) "CreatedByType",
-  ar.externalfilenum "JobNumber",
-  REPLACE(jt.name, 'j_TL_', '') "JobType",
+  END ) CreatedByType,
+  ar.externalfilenum JobNumber,
+  REPLACE(jt.name, 'j_TL_', '') JobType,
   Extract(MONTH FROM ar.createddate)
   || '/'
   ||Extract(DAY FROM ar.createddate)
   || '/'
-  || Extract(YEAR FROM ar.createddate) "JobCreatedDate",
-  NULL "JobCompletedDate",
+  || Extract(YEAR FROM ar.createddate) JobCreatedDate,
+  NULL JobCompletedDate,
   Extract(MONTH FROM ar.licenserenewedondate)
   || '/'
   ||Extract(DAY FROM ar.licenserenewedondate)
   || '/'
-  || Extract(YEAR FROM ar.licenserenewedondate) "LicenseRenewedOnDate",
+  || Extract(YEAR FROM ar.licenserenewedondate) LicenseRenewedOnDate,
   (
   CASE
     WHEN jt.description LIKE 'Trade License Amend/Renew'
     THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=2855291&objectHandle='
       ||arl.amendrenewid
       ||'&processHandle=&paneId=1243107_175'
-  END ) "JobLink"
+  END ) JobLink
 FROM
   (SELECT licensenumber,
     licensetype,

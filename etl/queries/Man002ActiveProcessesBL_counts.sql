@@ -1,28 +1,28 @@
-SELECT DISTINCT "JobType",
-  "ProcessType",
-  "LicenseType",
-  "TimeSinceScheduledStartDate",
-  COUNT(DISTINCT "ProcessID") "ProcessCounts"
+SELECT DISTINCT JobType,
+  ProcessType,
+  LicenseType,
+  TimeSinceScheduledStartDate,
+  COUNT(DISTINCT ProcessID) ProcessCounts
 FROM
   (SELECT DISTINCT *
   FROM
-    (SELECT j.ExternalFileNum "JobNumber",
-      REPLACE(jt.Description, 'Business License ', '') "JobType",
-      ar.licensetypesdisplayformat "LicenseType",
-      stat.Description "JobStatus",
-      proc.ProcessId "ProcessID",
-      pt.Description "ProcessType",
+    (SELECT j.ExternalFileNum JobNumber,
+      REPLACE(jt.Description, 'Business License ', '') JobType,
+      ar.licensetypesdisplayformat LicenseType,
+      stat.Description JobStatus,
+      proc.ProcessId ProcessID,
+      pt.Description ProcessType,
       extract(MONTH FROM proc.CreatedDate)
       || '/'
       ||extract(DAY FROM proc.CreatedDate)
       || '/'
-      || extract(YEAR FROM proc.CreatedDate) "CreatedDate",
+      || extract(YEAR FROM proc.CreatedDate) CreatedDate,
       extract(MONTH FROM proc.ScheduledStartDate)
       || '/'
       || extract(DAY FROM proc.ScheduledStartDate)
       || '/'
-      ||extract(YEAR FROM proc.ScheduledStartDate) "ScheduledStartDate",
-      proc.ProcessStatus "ProcessStatus",
+      ||extract(YEAR FROM proc.ScheduledStartDate) ScheduledStartDate,
+      proc.ProcessStatus ProcessStatus,
       (
       CASE
         WHEN ROUND(SYSDATE - proc.scheduledstartdate) <= 1
@@ -34,7 +34,7 @@ FROM
         WHEN ROUND(SYSDATE - proc.scheduledstartdate) BETWEEN 11 AND 365
         THEN '11 Days-1 Year'
         ELSE 'Over 1 Year'
-      END) "TimeSinceScheduledStartDate",
+      END) TimeSinceScheduledStartDate,
       (
       CASE
         WHEN jt.Description LIKE 'Business License Application'
@@ -45,7 +45,7 @@ FROM
         THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1243107&objectHandle='
           ||j.JobId
           ||'&processHandle=&paneId=1243107_175'
-      END) "ProcessLink"
+      END) ProcessLink
     FROM api.PROCESSES PROC,
       api.jobs j,
       api.processtypes pt,
@@ -62,23 +62,23 @@ FROM
     AND j.StatusId NOT       IN ('1030266','964970','1014809','1036493','1010379')
     AND j.jobid               = ar.jobid (+)
     UNION
-    SELECT j.ExternalFileNum "JobNumber",
-      REPLACE(jt.Description, 'Business License ', '') "JobType",
-      ap.licensetypesdisplayformat "LicenseType",
-      stat.Description "JobStatus",
-      proc.ProcessId "ProcessID",
-      pt.Description "ProcessType",
+    SELECT j.ExternalFileNum JobNumber,
+      REPLACE(jt.Description, 'Business License ', '') JobType,
+      ap.licensetypesdisplayformat LicenseType,
+      stat.Description JobStatus,
+      proc.ProcessId ProcessID,
+      pt.Description ProcessType,
       extract(MONTH FROM proc.CreatedDate)
       || '/'
       ||extract(DAY FROM proc.CreatedDate)
       || '/'
-      || extract(YEAR FROM proc.CreatedDate) "CreatedDate",
+      || extract(YEAR FROM proc.CreatedDate) CreatedDate,
       extract(MONTH FROM proc.ScheduledStartDate)
       || '/'
       || extract(DAY FROM proc.ScheduledStartDate)
       || '/'
-      ||extract(YEAR FROM proc.ScheduledStartDate) "ScheduledStartDate",
-      proc.ProcessStatus "ProcessStatus",
+      ||extract(YEAR FROM proc.ScheduledStartDate) ScheduledStartDate,
+      proc.ProcessStatus ProcessStatus,
       (
       CASE
         WHEN ROUND(SYSDATE - proc.scheduledstartdate) <= 1
@@ -90,7 +90,7 @@ FROM
         WHEN ROUND(SYSDATE - proc.scheduledstartdate) BETWEEN 11 AND 365
         THEN '11 Days-1 Year'
         ELSE 'Over 1 Year'
-      END) "TimeSinceScheduledStartDate",
+      END) TimeSinceScheduledStartDate,
       (
       CASE
         WHEN jt.Description LIKE 'Business License Application'
@@ -101,7 +101,7 @@ FROM
         THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1243107&objectHandle='
           ||j.JobId
           ||'&processHandle=&paneId=1243107_175'
-      END) "ProcessLink"
+      END) ProcessLink
     FROM api.PROCESSES PROC,
       api.jobs j,
       api.processtypes pt,
@@ -119,7 +119,7 @@ FROM
     AND j.jobid               = ap.jobid (+)
     )
   )
-GROUP BY "JobType",
-  "ProcessType",
-  "LicenseType",
-  "TimeSinceScheduledStartDate"
+GROUP BY JobType,
+  ProcessType,
+  LicenseType,
+  TimeSinceScheduledStartDate

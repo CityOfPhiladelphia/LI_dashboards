@@ -1,4 +1,4 @@
-SELECT lt.name "LicenseType",
+SELECT lt.name LicenseType,
   (
   CASE
     WHEN ap.createdbyusername LIKE '%2%'
@@ -22,29 +22,29 @@ SELECT lt.name "LicenseType",
     WHEN ap.createdbyusername = 'POSSE system power user'
     THEN 'Revenue'
     ELSE 'Staff'
-  END) AS "CreatedByType",
-  ap.createdbyusername "CreatedByUserName",
-  ap.objectid "JobObjectID",
-  ap.externalfilenum "JobNumber",
+  END) AS CreatedByType,
+  ap.createdbyusername CreatedByUserName,
+  ap.objectid JobObjectID,
+  ap.externalfilenum JobNumber,
   (
   CASE
     WHEN jt.name LIKE 'j_BL_Application'
     THEN 'Initial Application'
     WHEN jt.name LIKE 'j_BL_AmendRenew'
     THEN 'Renewal or Amendment'
-  END ) "JobType",
+  END ) JobType,
   Extract(MONTH FROM ap.createddate)
   || '/'
   ||Extract(DAY FROM ap.createddate)
   || '/'
-  || Extract(YEAR FROM ap.createddate) "JobCreatedDate",
-  ap.createddate "JobCreatedDateField",
+  || Extract(YEAR FROM ap.createddate) JobCreatedDate,
+  ap.createddate JobCreatedDateField,
   Extract(MONTH FROM ap.completeddate)
   || '/'
   ||Extract(DAY FROM ap.completeddate)
   || '/'
-  || Extract(YEAR FROM ap.completeddate) "JobCompletedDate",
-  ap.statusdescription "StatusDescription",
+  || Extract(YEAR FROM ap.completeddate) JobCompletedDate,
+  ap.statusdescription StatusDescription,
   (
   CASE
     WHEN jt.name LIKE 'j_BL_Application'
@@ -55,7 +55,7 @@ SELECT lt.name "LicenseType",
     THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1243107&objectHandle='
       ||ap.objectid
       ||'&processHandle='
-  END ) "JobLink"
+  END ) JobLink
 FROM lmscorral.bl_licensetype lt,
   lmscorral.bl_license lic,
   query.r_bl_application_license apl,
@@ -68,7 +68,7 @@ AND ap.jobtypeid            = jt.jobtypeid (+)
 AND ap.statusid LIKE '1036493'
 AND ap.externalfilenum LIKE 'BA%'
 UNION
-SELECT lt.name "LicenseType",
+SELECT lt.name LicenseType,
   (
   CASE
     WHEN ar.createdbyusername LIKE '%2%'
@@ -92,29 +92,29 @@ SELECT lt.name "LicenseType",
     WHEN ar.createdbyusername = 'POSSE system power user'
     THEN 'Revenue'
     ELSE 'Staff'
-  END ) AS "CreatedByType",
-  ar.createdbyusername "CreatedByUserName",
-  ar.objectid "JobObjectID",
-  ar.externalfilenum "JobNumber",
+  END ) AS CreatedByType,
+  ar.createdbyusername CreatedByUserName,
+  ar.objectid JobObjectID,
+  ar.externalfilenum JobNumber,
   (
   CASE
     WHEN jt.name LIKE 'j_BL_Application'
     THEN 'Initial Application'
     WHEN jt.name LIKE 'j_BL_AmendRenew'
     THEN 'Renewal or Amendment'
-  END ) "JobType",
+  END ) JobType,
   Extract(MONTH FROM ar.createddate)
   || '/'
   ||Extract(DAY FROM ar.createddate)
   || '/'
-  || Extract(YEAR FROM ar.createddate) "JobCreatedDate",
-  ar.createddate "JobCreatedDateField",
+  || Extract(YEAR FROM ar.createddate) JobCreatedDate,
+  ar.createddate JobCreatedDateField,
   Extract(MONTH FROM ar.completeddate)
   || '/'
   ||Extract(DAY FROM ar.completeddate)
   || '/'
-  || Extract(YEAR FROM ar.completeddate) "JobCompletedDate",
-  ar.statusdescription "StatusDescription",
+  || Extract(YEAR FROM ar.completeddate) JobCompletedDate,
+  ar.statusdescription StatusDescription,
   (
   CASE
     WHEN jt.name LIKE 'j_BL_Application'
@@ -125,7 +125,7 @@ SELECT lt.name "LicenseType",
     THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1243107&objectHandle='
       ||ar.objectid
       ||'&processHandle='
-  END ) "JobLink"
+  END ) JobLink
 FROM lmscorral.bl_licensetype lt,
   lmscorral.bl_license lic,
   query.r_bl_amendrenew_license arl,

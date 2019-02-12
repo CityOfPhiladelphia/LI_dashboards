@@ -1,16 +1,16 @@
-SELECT DISTINCT j.externalfilenum "JobNumber",
-  REPLACE(jt.description, 'Trade License ', '') "JobType",
-  NVL(lt.title, apl.licensetype) "LicenseType",
-  stat.description "JobStatus",
-  proc.processid "ProcessID",
-  pt.description "ProcessType",
+SELECT DISTINCT j.externalfilenum JobNumber,
+  REPLACE(jt.description, 'Trade License ', '') JobType,
+  NVL(lt.title, apl.licensetype) LicenseType,
+  stat.description JobStatus,
+  proc.processid ProcessID,
+  pt.description ProcessType,
   Extract(MONTH FROM proc.datecompleted)
   || '/'
   ||Extract(DAY FROM proc.datecompleted)
   || '/'
-  || Extract(YEAR FROM proc.datecompleted) "JobAcceptedDate",
-  proc.processstatus "ProcessStatus",
-  proc.assignedstaff "AssignedStaff",
+  || Extract(YEAR FROM proc.datecompleted) JobAcceptedDate,
+  proc.processstatus ProcessStatus,
+  proc.assignedstaff AssignedStaff,
   (
   CASE
     WHEN ROUND(SYSDATE - proc.scheduledstartdate) <= 1
@@ -22,7 +22,7 @@ SELECT DISTINCT j.externalfilenum "JobNumber",
     WHEN ROUND(SYSDATE - proc.scheduledstartdate) BETWEEN 11 AND 365
     THEN '11 Days-1 Year'
     ELSE 'Over 1 Year'
-  END) "TimeSinceScheduledStartDate",
+  END) TimeSinceScheduledStartDate,
   (
   CASE
     WHEN jt.description LIKE 'Trade License Application'
@@ -33,7 +33,7 @@ SELECT DISTINCT j.externalfilenum "JobNumber",
     THEN 'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=2857688&objectHandle='
       ||j.jobid
       ||'&processHandle=&paneId=2857688_87'
-  END ) "JobLink"
+  END ) JobLink
 FROM api.jobs j,
   api.jobtypes jt,
   api.statuses stat,

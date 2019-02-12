@@ -1,9 +1,9 @@
-SELECT DISTINCT j.externalfilenum "JobNumber",
-  REPLACE(jt.description, 'Trade License ', '') "JobType",
-  NVL(lt.description, apl.licensetype) "LicenseType",
-  stat.description "JobStatus",
-  proc.processid "ProcessID",
-  pt.description "ProcessType",
+SELECT DISTINCT j.externalfilenum JobNumber,
+  REPLACE(jt.description, 'Trade License ', '') JobType,
+  NVL(lt.description, apl.licensetype) LicenseType,
+  stat.description JobStatus,
+  proc.processid ProcessID,
+  pt.description ProcessType,
   Extract(MONTH FROM proc.createddate)
   || '/'
   ||Extract(DAY FROM proc.createddate)
@@ -13,8 +13,8 @@ SELECT DISTINCT j.externalfilenum "JobNumber",
   || '/'
   || Extract(DAY FROM proc.scheduledstartdate)
   || '/'
-  ||Extract(YEAR FROM proc.scheduledstartdate) "ScheduledStartDate",
-  proc.processstatus "ProcessStatus",
+  ||Extract(YEAR FROM proc.scheduledstartdate) ScheduledStartDate,
+  proc.processstatus ProcessStatus,
   (CASE
     WHEN ROUND(SYSDATE - proc.scheduledstartdate) <= 1
     THEN '0-1 Day'
@@ -39,7 +39,7 @@ SELECT DISTINCT j.externalfilenum "JobNumber",
       ||'&processHandle='
       ||proc.processid
       ||'&paneId=2857688_87'
-  END ) "ProcessLink"
+  END ) ProcessLink
 FROM api.processes PROC,
   api.jobs j,
   api.processtypes pt,

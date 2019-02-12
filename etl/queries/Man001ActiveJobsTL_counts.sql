@@ -1,7 +1,7 @@
-SELECT DISTINCT timesincescheduledstartdate "TimeSinceScheduledStartDate",
-  jobtype "JobType",
-  licensetype "LicenseType",
-  COUNT(DISTINCT jobnumber) "JobCounts",
+SELECT DISTINCT timesincescheduledstartdate TimeSinceScheduledStartDate,
+  jobtype JobType,
+  licensetype LicenseType,
+  COUNT(DISTINCT jobnumber) JobCounts,
   AVG(TIME) AvgTime
 FROM
   (SELECT DISTINCT j.externalfilenum JobNumber,
@@ -9,14 +9,14 @@ FROM
     REPLACE(jt.description, 'Trade License ', '') JobType,
     j.statusid,
     j.jobstatus,
-    stat.description "JobStatus",
+    stat.description JobStatus,
     pt.processtypeid,
     pt.description,
     Extract(MONTH FROM proc.datecompleted)
     || '/'
     ||Extract(DAY FROM proc.datecompleted)
     || '/'
-    || Extract(YEAR FROM proc.datecompleted) "JobAcceptedDate",
+    || Extract(YEAR FROM proc.datecompleted) JobAcceptedDate,
     proc.processstatus,
     proc.assignedstaff,
     (
