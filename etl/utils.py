@@ -71,11 +71,9 @@ def timeout(seconds_before_timeout):
                 t.start()
                 t.join(seconds_before_timeout)
             except Exception as e:
-                print('error starting thread')
+                print('error starting thread \n' + e)
                 raise e
             ret = res[0]
-            if isinstance(ret, BaseException):
-                raise ret
             return ret
         return wrapper
     return deco
