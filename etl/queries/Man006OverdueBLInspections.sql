@@ -16,7 +16,7 @@ SELECT biz.address BusinessAddress,
     THEN 'Renewal or Amend'
   END ) InspectionOn,
   ins.inspectiontype InspectionType,
-  ins.objectid InspObjectId,
+  ins.objectid InspectionObjectId,
   Extract(MONTH FROM ins.createddate)
   || '/'
   ||Extract(DAY FROM ins.createddate)
@@ -75,7 +75,7 @@ SELECT biz.address BusinessAddress,
     THEN 'Renewal or Amend'
   END ) InspectionOn,
   ins.inspectiontype InspectionType,
-  ins.objectid InspObjectId,
+  ins.objectid InspectionObjectId,
   Extract(MONTH FROM ins.createddate)
   || '/'
   ||Extract(DAY FROM ins.createddate)
@@ -97,7 +97,7 @@ SELECT biz.address BusinessAddress,
     WHEN ROUND(SYSDATE - ins.scheduledinspectiondate) BETWEEN 31 AND 365
     THEN '31 - 365 days'
     ELSE 'More than a year'
-  END) Time Overdue,
+  END) TimeOverdue,
   ins.inspectorname Inspector,
   'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1244842&objectHandle='
   || ins.objectid
@@ -138,7 +138,7 @@ SELECT biz.address BusinessAddress,
     THEN 'Renewal or Amend'
   END ) InspectionOn,
   ins.inspectiontype InspectionType,
-  ins.objectid InspObjectId,
+  ins.objectid InspectionObjectId,
   Extract(MONTH FROM ins.createddate)
   || '/'
   ||Extract(DAY FROM ins.createddate)
@@ -160,7 +160,7 @@ SELECT biz.address BusinessAddress,
     WHEN ROUND(SYSDATE - ins.scheduledinspectiondate) BETWEEN 31 AND 365
     THEN '31 - 365 days'
     ELSE 'More than a year'
-  END) Time Overdue,
+  END) TimeOverdue,
   ins.inspectorname Inspector,
   'https://eclipseprod.phila.gov/phillylmsprod/int/lms/Default.aspx#presentationId=1244842&objectHandle='
   || ins.objectid
