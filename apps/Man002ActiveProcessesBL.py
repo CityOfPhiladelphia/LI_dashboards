@@ -32,9 +32,9 @@ def query_data(dataset):
         elif dataset == 'df_counts':
             sql = 'SELECT * FROM li_dash_activeproc_bl_counts'
         elif dataset == 'ind_last_ddl_time':
-            sql = "SELECT from_tz(cast(last_ddl_time as timestamp), 'GMT') at TIME zone 'US/Eastern' as LAST_DDL_TIME FROM user_objects WHERE object_name = 'LI_DASH_ACTIVEPROC_BL_IND'"
+            sql = 'SELECT SCN_TO_TIMESTAMP(MAX(ora_rowscn)) last_ddl_time FROM LI_DASH_ACTIVEPROC_BL_IND'
         elif dataset == 'counts_last_ddl_time':
-            sql = "SELECT from_tz(cast(last_ddl_time as timestamp), 'GMT') at TIME zone 'US/Eastern' as LAST_DDL_TIME FROM user_objects WHERE object_name = 'LI_DASH_ACTIVEPROC_BL_COUNTS'"
+            sql = 'SELECT SCN_TO_TIMESTAMP(MAX(ora_rowscn)) last_ddl_time FROM LI_DASH_ACTIVEPROC_BL_COUNTS'
         df = pd.read_sql_query(sql=sql, con=con)
         if dataset == 'df_counts':
             # Make TIMESINCESCHEDULEDSTARTDATE a Categorical Series and give it a sort order

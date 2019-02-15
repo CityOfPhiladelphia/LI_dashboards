@@ -24,7 +24,7 @@ def query_data(dataset):
             sql = 'SELECT * FROM li_dash_uninsp_bl_comp_check'
             df = pd.read_sql_query(sql=sql, con=con, parse_dates=['MOSTRECENTCCFIELD'])
         elif dataset == 'last_ddl_time':
-            sql = "SELECT from_tz(cast(last_ddl_time as timestamp), 'GMT') at TIME zone 'US/Eastern' as LAST_DDL_TIME FROM user_objects WHERE object_name = 'LI_DASH_UNINSP_BL_COMP_CHECK'"
+            sql = 'SELECT SCN_TO_TIMESTAMP(MAX(ora_rowscn)) last_ddl_time FROM LI_DASH_UNINSP_BL_COMP_CHECK'
             df = pd.read_sql_query(sql=sql, con=con)
     return df.to_json(date_format='iso', orient='split')
 

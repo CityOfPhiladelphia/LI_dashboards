@@ -34,7 +34,7 @@ def query_data(dataset):
                   .assign(DateText=lambda x: x['SCHEDULEDSTARTDATEFIELD'].dt.strftime('%b %Y')))
             df['Month Year'] = df['SCHEDULEDSTARTDATEFIELD'].map(lambda dt: dt.date().replace(day=1))
         elif dataset == 'last_ddl_time':
-            sql = "SELECT from_tz(cast(last_ddl_time as timestamp), 'GMT') at TIME zone 'US/Eastern' as LAST_DDL_TIME FROM user_objects WHERE object_name = 'LI_DASH_INCOMPLETEPROCESSES_TL'"
+            sql = 'SELECT SCN_TO_TIMESTAMP(MAX(ora_rowscn)) last_ddl_time FROM LI_DASH_INCOMPLETEPROCESSES_TL'
             df = pd.read_sql_query(sql=sql, con=con)
     return df.to_json(date_format='iso', orient='split')
 
