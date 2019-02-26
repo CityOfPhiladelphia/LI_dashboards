@@ -146,8 +146,15 @@ SLA_BL_BUS_DAYS = SqlQuery(
     target_table = 'sla_bl_bus_days'
 )
 
+SLA_TL_BUS_DAYS = SqlQuery(
+    extract_query_file = 'SLA_TL_BUS_DAYS.sql',
+    source_db = 'GISLICLD',
+    target_table = 'sla_tl_bus_days'
+)
+
 queries2 = [
-    SLA_BL_BUS_DAYS
+    SLA_BL_BUS_DAYS,
+    SLA_TL_BUS_DAYS
 ]
 
 queries_lists = (queries1, queries2)
