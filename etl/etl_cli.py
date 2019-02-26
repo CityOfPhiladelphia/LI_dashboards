@@ -7,7 +7,7 @@ from sql_queries import queries
 @click.command()
 @click.option(
     '--name',
-    '-n', 
+    '-n',
     multiple=True,
     prompt='Names of dashboard table(s) to ETL',
     help='The dashboard tables to ETL.'
